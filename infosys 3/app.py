@@ -9810,6 +9810,19 @@ def lesson_detail(lesson_id):
         language=language
     )
 
+@app.route("/api/post_lesson_feedback", methods=["POST"])
+@login_required
+def api_post_lesson_feedback():
+    data = request.get_json() or {}
+    lesson_title = data.get("lesson_title", "Lesson")
+    score = int(data.get("score", 100))
+    language = session.get("language", "English")
+    age = session.get("age", 8)
+    
+    from gemini_service import generate_post_lesson_ai_feedback
+    feedback = generate_post_lesson_ai_feedback(lesson_title, score, language=language, user_age=age)
+    return jsonify({"success": True, "feedback": feedback})
+
 @app.route("/profile")
 @login_required
 def profile():
@@ -12313,9 +12326,9 @@ def api_dismiss_birthday():
 
 
 if __name__ == "__main__":
-
+    port = int(os.environ.get("PORT", 5000))
     app.run(
-        debug=True,
-        host="127.0.0.1",
-        port=5500
+        host="0.0.0.0",
+        port=port,
+        debug=False
     )

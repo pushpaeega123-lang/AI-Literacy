@@ -608,7 +608,7 @@
                 <p class="small text-white-50 mb-0">Master essential literacy skills step-by-step</p>
               </div>
               <div class="fs-1 text-warning me-2">
-                {% if current_unit == 1 %}🔤{% elif current_unit == 2 %}📖{% elif current_unit == 3 %}💬{% else %}🏆{% endif %}
+                {% if current_unit == 1 %}<i class="bi bi-alphabet-uppercase"></i>{% elif current_unit == 2 %}<i class="bi bi-book-half"></i>{% elif current_unit == 3 %}<i class="bi bi-chat-quote-fill"></i>{% else %}<i class="bi bi-trophy-fill"></i>{% endif %}
               </div>
             </div>
           {% endif %}
@@ -623,9 +623,9 @@
                 </div>
               {% endif %}
 
-              <button type="button" 
-                      class="duo-node-btn {% if lesson.completed %}duo-node-completed{% elif lesson.is_current %}duo-node-active{% else %}duo-node-locked{% endif %}"
-                      onclick="openDuoLessonModal('{{ lesson.id }}', '{{ lesson.title|escape }}', '{{ lesson.category|escape }}', '{{ lesson.difficulty|escape }}', '{{ lesson.description|escape }}', '{{ lesson.completed }}', '{{ lesson.locked }}')">
+              <a href="/lesson/{{ lesson.id }}" 
+                 class="duo-node-btn {% if lesson.completed %}duo-node-completed{% elif lesson.is_current %}duo-node-active{% else %}duo-node-locked{% endif %} text-decoration-none"
+                 {% if lesson.locked %}onclick="alert('🔒 This lesson is locked! Complete the previous lessons on your path to unlock it.'); return false;"{% endif %}>
                 {% if lesson.completed %}
                   <i class="bi bi-check-lg fw-bold"></i>
                 {% elif lesson.locked %}
@@ -633,7 +633,7 @@
                 {% else %}
                   <i class="bi {{ lesson.icon or 'bi-star-fill' }} fs-3"></i>
                 {% endif %}
-              </button>
+              </a>
 
               <!-- Checkpoint Treasure Chest Node every 4th item -->
               {% if loop.index % 4 == 0 %}

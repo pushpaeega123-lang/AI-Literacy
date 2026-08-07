@@ -9,3 +9,4 @@ openai==0.28.1
 pywebpush==2.3.0
 cryptography==49.0.0
 Pillow
+gunicorn

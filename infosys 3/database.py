@@ -34,10 +34,48 @@ def create_database():
         "average_score REAL DEFAULT 0.0",
         "progress_percentage REAL DEFAULT 0.0",
         "notifications_enabled INTEGER DEFAULT 1",
-        "push_subscription TEXT"
+        "push_subscription TEXT",
+        "reading_score REAL DEFAULT 0.0",
+        "writing_score REAL DEFAULT 0.0",
+        "speaking_score REAL DEFAULT 0.0",
+        "listening_score REAL DEFAULT 0.0",
+        "vocabulary_score REAL DEFAULT 0.0",
+        "grammar_score REAL DEFAULT 0.0"
     ]:
         try:
             cursor.execute(f"ALTER TABLE users ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
+
+    # Ensure assessment_history has sub-score columns as well
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS assessment_history(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        score REAL,
+        correct INTEGER,
+        total INTEGER,
+        language TEXT,
+        age_group TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        reading_score REAL DEFAULT 0.0,
+        writing_score REAL DEFAULT 0.0,
+        speaking_score REAL DEFAULT 0.0,
+        listening_score REAL DEFAULT 0.0,
+        vocabulary_score REAL DEFAULT 0.0,
+        grammar_score REAL DEFAULT 0.0
+    )
+    """)
+    for col_def in [
+        "reading_score REAL DEFAULT 0.0",
+        "writing_score REAL DEFAULT 0.0",
+        "speaking_score REAL DEFAULT 0.0",
+        "listening_score REAL DEFAULT 0.0",
+        "vocabulary_score REAL DEFAULT 0.0",
+        "grammar_score REAL DEFAULT 0.0"
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE assessment_history ADD COLUMN {col_def}")
         except sqlite3.OperationalError:
             pass
 

@@ -756,3 +756,63 @@ Available Lessons:
     except Exception as e:
         print(f"[Gemini Learning Path Exception] {e}")
     return None
+
+def generate_post_lesson_ai_feedback(lesson_title, score, language="English", user_age=8):
+    """
+    Generates personalized post-lesson AI feedback explaining strengths, weaknesses,
+    and recommended next steps.
+    """
+    api_key = get_gemini_api_key()
+    if not api_key:
+        if score >= 80:
+            return {
+                "headline": "Outstanding Mastery! 🌟",
+                "strengths": f"You demonstrated strong comprehension in '{lesson_title}'.",
+                "weaknesses": "Keep practicing to refine your speed and accent accuracy.",
+                "recommendation": "Ready to unlock the next level module!"
+            }
+        elif score >= 50:
+            return {
+                "headline": "Good Progress! 👍",
+                "strengths": f"You successfully completed core activities for '{lesson_title}'.",
+                "weaknesses": "Review key vocabulary and practice speaking aloud.",
+                "recommendation": "Replay the voice exercises before moving to the next lesson."
+            }
+        else:
+            return {
+                "headline": "Keep Going! 💪",
+                "strengths": "Great effort attempting all lesson practice questions.",
+                "weaknesses": "Need more practice with foundational phonics and sentence patterns.",
+                "recommendation": "We recommend re-reading this lesson to achieve 80%+ mastery."
+            }
+
+    system_prompt = f"""
+    You are Lumi, a warm, encouraging educational AI mentor.
+    Provide constructive, age-appropriate post-lesson feedback in language: {language}.
+    Return raw JSON with exactly 4 fields:
+    1. 'headline': A short encouraging 3-5 word title with emoji.
+    2. 'strengths': 1-2 sentences on what the learner did well.
+    3. 'weaknesses': 1-2 sentences on area to improve based on score ({score}%).
+    4. 'recommendation': Specific next learning step.
+    """
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "contents": [{"parts": [{"text": f"Lesson: {lesson_title}, Score: {score}%, Age: {user_age}"}]}],
+        "generationConfig": {"responseMimeType": "application/json", "temperature": 0.7}
+    }
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    try:
+        res = requests.post(url, headers=headers, json=payload, timeout=10)
+        if res.status_code == 200:
+            raw_text = res.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+            return json.loads(raw_text)
+    except Exception as e:
+        print(f"[Gemini Post-Lesson Feedback Exception] {e}")
+
+    return {
+        "headline": "Great Effort! ⭐",
+        "strengths": f"You completed {lesson_title}.",
+        "weaknesses": "Practice key words daily for maximum retention.",
+        "recommendation": "Continue on your learning path!"
+    }
+
