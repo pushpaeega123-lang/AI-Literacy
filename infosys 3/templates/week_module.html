@@ -614,7 +614,7 @@
           {% endif %}
 
           <div class="duo-node-container">
-            <div class="duo-node-item" style="transform: translateX({{ lesson.offset_x }}px);">
+            <div class="duo-node-item" {{ ('style="transform: translateX(' ~ lesson.offset_x ~ 'px);"') | safe }}>
               
               {% if lesson.is_current %}
                 <!-- Lumi Mascot Active Indicator Badge -->
@@ -625,7 +625,7 @@
 
               <button type="button" 
                       class="duo-node-btn {% if lesson.completed %}duo-node-completed{% elif lesson.is_current %}duo-node-active{% else %}duo-node-locked{% endif %}"
-                      onclick="openDuoLessonModal('{{ lesson.id }}', '{{ lesson.title|escape }}', '{{ lesson.category|escape }}', '{{ lesson.difficulty|escape }}', '{{ lesson.description|escape }}', {{ 'true' if lesson.completed else 'false' }}, {{ 'true' if lesson.locked else 'false' }})">
+                      onclick="openDuoLessonModal('{{ lesson.id }}', '{{ lesson.title|escape }}', '{{ lesson.category|escape }}', '{{ lesson.difficulty|escape }}', '{{ lesson.description|escape }}', '{{ lesson.completed }}', '{{ lesson.locked }}')">
                 {% if lesson.completed %}
                   <i class="bi bi-check-lg fw-bold"></i>
                 {% elif lesson.locked %}
@@ -679,6 +679,19 @@
 
       <script>
       function openDuoLessonModal(id, title, category, difficulty, desc, isCompleted, isLocked) {
+        if (typeof id === 'object' && id !== null) {
+          const el = id;
+          id = el.getAttribute('data-id');
+          title = el.getAttribute('data-title');
+          category = el.getAttribute('data-category');
+          difficulty = el.getAttribute('data-difficulty');
+          desc = el.getAttribute('data-description');
+          isCompleted = el.getAttribute('data-completed') === 'true';
+          isLocked = el.getAttribute('data-locked') === 'true';
+        } else {
+          isCompleted = isCompleted === true || isCompleted === 'true' || isCompleted === 'True';
+          isLocked = isLocked === true || isLocked === 'true' || isLocked === 'True';
+        }
         if (isLocked) {
           alert("🔒 This lesson is locked! Complete the previous lessons on your path to unlock it.");
           return;
