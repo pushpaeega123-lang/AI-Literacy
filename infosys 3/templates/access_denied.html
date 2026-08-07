@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="card glass-card p-5 border-0 rounded-5 mx-auto text-white shadow-lg" style="max-width: 500px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.15) !important; backdrop-filter: blur(15px);">
+        <div class="display-1 text-danger mb-4">🚫</div>
+        <h2 class="fw-bold mb-3">Access Denied</h2>
+        <p class="text-white-50 mb-4 font-medium">You do not have the required <strong>{{ role }}</strong> permissions to access this page.</p>
+        <div class="d-grid gap-3">
+            <a href="/" class="btn btn-primary rounded-pill py-2.5 fw-bold shadow">Go to Home</a>
+            <a href="/login" class="btn btn-outline-light rounded-pill py-2.5 fw-bold">Login with Another Account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

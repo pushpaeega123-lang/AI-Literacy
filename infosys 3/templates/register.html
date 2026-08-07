@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+
+<section class="register-section py-5">
+    <div class="container">
+        <div class="text-center mb-4 header-container">
+            <h1 class="display-6 fw-bold text-dark">{{ translations.register_page_heading }}</h1>
+            <p class="text-secondary mx-auto" style="max-width:820px; line-height:1.7;">
+                {{ translations.register_page_subtitle }}
+            </p>
+        </div>
+
+        <div class="row g-4 align-items-stretch">
+            <!-- Left Side: Informative Card -->
+            <div class="col-lg-5">
+                <div class="card register-hero-card border-0 shadow-lg h-100" style="background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%); border-radius: 24px;">
+                    <div class="card-body p-5 d-flex flex-column justify-content-between text-white">
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div>
+                                    <h2 class="fw-bold mb-2 text-white">{{ translations.register_hero_title }}</h2>
+                                    <p class="text-white-50 mb-0 small">{{ translations.register_hero_text }}</p>
+                                </div>
+                                <span class="badge bg-success py-2 px-3 rounded-pill">Step 1</span>
+                            </div>
+                            <div class="text-center mb-4 py-3">
+                                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" class="img-fluid" alt="Register illustration" style="max-width:180px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
+                            </div>
+                            <div class="feature-list mb-4">
+                                <div class="feature-item mb-3 d-flex align-items-start">
+                                    <div class="feature-dot me-3 mt-1.5" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
+                                    <div>
+                                        <h6 class="mb-1 text-white fw-bold">{{ translations.register_feature_1 }}</h6>
+                                        <p class="text-white-50 mb-0 small">{{ translations.register_feature_1_detail }}</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item mb-3 d-flex align-items-start">
+                                    <div class="feature-dot me-3 mt-1.5" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
+                                    <div>
+                                        <h6 class="mb-1 text-white fw-bold">{{ translations.register_feature_2 }}</h6>
+                                        <p class="text-white-50 mb-0 small">{{ translations.register_feature_2_detail }}</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item d-flex align-items-start">
+                                    <div class="feature-dot me-3 mt-1.5" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
+                                    <div>
+                                        <h6 class="mb-1 text-white fw-bold">{{ translations.register_feature_3 }}</h6>
+                                        <p class="text-white-50 mb-0 small">{{ translations.register_feature_3_detail }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-4" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <h5 class="mb-2 text-white fw-bold small text-uppercase tracking-wider">Multilingual Assistant</h5>
+                            <p class="text-white-50 mb-0 small">{{ translations.register_flow_text }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Registration Form -->
+            <div class="col-lg-7">
+                <div class="card register-form-card shadow-lg h-100 border-0 rounded-4" style="background: #ffffff; border-radius: 24px;">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bold text-dark mb-1">{{ translations.register_form_title }}</h2>
+                            <p class="text-secondary small">{{ translations.register_hero_text }}</p>
+                        </div>
+
+                        <!-- Flash Messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show rounded-3 p-3 small" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form action="/register_user" method="POST" id="registerForm" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <!-- Full Name -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">{{ translations.full_name }} <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-fill text-muted"></i></span>
+                                        <input type="text" name="fullname" class="form-control border-start-0 ps-1" placeholder="{{ translations.enter_full_name }}" value="{{ fullname or '' }}" required autocomplete="name">
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">{{ translations.email }} <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope-fill text-muted"></i></span>
+                                        <input type="email" name="email" class="form-control border-start-0 ps-1" placeholder="{{ translations.enter_email }}" value="{{ email or '' }}" required autocomplete="email">
+                                    </div>
+                                </div>
+
+                                <!-- Password -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">{{ translations.password }} <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock-fill text-muted"></i></span>
+                                        <input type="password" id="password" name="password" class="form-control border-start-0 ps-1" placeholder="{{ translations.enter_password }}" required autocomplete="new-password" oninput="checkPasswordStrength(this.value)">
+                                    </div>
+                                    <!-- Password Strength Indicator -->
+                                    <div class="mt-2" style="display: none;" id="strengthContainer">
+                                        <div class="progress" style="height: 6px; border-radius: 3px;">
+                                            <div class="progress-bar" role="progressbar" id="strengthBar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <small class="form-text d-block mt-1 text-muted" id="strengthText"></small>
+                                    </div>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">{{ translations.confirm_password }} <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-shield-lock-fill text-muted"></i></span>
+                                        <input type="password" id="confirm" name="confirm" class="form-control border-start-0 ps-1" placeholder="{{ translations.confirm_password_placeholder }}" required autocomplete="new-password">
+                                    </div>
+                                </div>
+
+                                <!-- Date of Birth -->
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold text-dark">Date of Birth <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event-fill text-muted"></i></span>
+                                        <input type="date" id="dobInput" name="dob" class="form-control border-start-0 ps-1" value="{{ dob or '' }}" onchange="calculateAndToggleAge(this.value)" required>
+                                    </div>
+                                    <input type="hidden" id="ageInput" name="age" value="8">
+                                </div>
+
+                                <!-- Gender -->
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold text-dark">Gender (Optional)</label>
+                                    <select class="form-select" name="gender">
+                                        <option value="" {% if not gender %}selected{% endif %}>Select Gender</option>
+                                        <option value="Male" {% if gender == 'Male' %}selected{% endif %}>Male</option>
+                                        <option value="Female" {% if gender == 'Female' %}selected{% endif %}>Female</option>
+                                        <option value="Other" {% if gender == 'Other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+
+                                <!-- Avatar -->
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold text-dark">Choose Avatar</label>
+                                    <select class="form-select" name="avatar">
+                                        <option value="Cat" {% if avatar == 'Cat' or not avatar %}selected{% endif %}>🐱 Cat</option>
+                                        <option value="Dog" {% if avatar == 'Dog' %}selected{% endif %}>🐶 Dog</option>
+                                        <option value="Rabbit" {% if avatar == 'Rabbit' %}selected{% endif %}>🐰 Rabbit</option>
+                                        <option value="Panda" {% if avatar == 'Panda' %}selected{% endif %}>🐼 Panda</option>
+                                        <option value="Koala" {% if avatar == 'Koala' %}selected{% endif %}>🐨 Koala</option>
+                                        <option value="Lion" {% if avatar == 'Lion' %}selected{% endif %}>🦁 Lion</option>
+                                    </select>
+                                </div>
+
+                                <!-- Education -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">{{ translations.education_label or 'Education Level' }}</label>
+                                    <select class="form-select" name="education">
+                                        <option value="School" {% if education == 'School' or not education %}selected{% endif %}>{{ translations.option_school or 'School (Class 1 - 10)' }}</option>
+                                        <option value="Intermediate" {% if education == 'Intermediate' %}selected{% endif %}>{{ translations.option_intermediate or 'Intermediate / 12th' }}</option>
+                                        <option value="Diploma" {% if education == 'Diploma' %}selected{% endif %}>{{ translations.option_diploma or 'Diploma / Higher Education' }}</option>
+                                    </select>
+                                </div>
+
+                                <!-- Status / Role -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">{{ translations.learning_status_label or 'Current Role / Status' }}</label>
+                                    <select class="form-select" name="status">
+                                        <option value="Student" {% if status == 'Student' or not status %}selected{% endif %}>{{ translations.option_student or 'Student' }}</option>
+                                        <option value="Employee" {% if status == 'Employee' %}selected{% endif %}>{{ translations.option_employee or 'Employee / Working' }}</option>
+                                        <option value="Beginner" {% if status == 'Beginner' %}selected{% endif %}>{{ translations.option_beginner or 'Adult Beginner Learner' }}</option>
+                                        <option value="Job Seeker" {% if status == 'Job Seeker' %}selected{% endif %}>{{ translations.option_job_seeker or 'Job Seeker' }}</option>
+                                    </select>
+                                </div>
+
+                                <!-- Preferred Interface Language -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">Preferred Language <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="preferred_language">
+                                        <option value="English" {% if preferred_language == 'English' %}selected{% endif %}>{{ translations.option_english }}</option>
+                                        <option value="Telugu" {% if preferred_language == 'Telugu' %}selected{% endif %}>{{ translations.option_telugu }}</option>
+                                        <option value="Hindi" {% if preferred_language == 'Hindi' %}selected{% endif %}>{{ translations.option_hindi }}</option>
+                                        <option value="Tamil" {% if preferred_language == 'Tamil' %}selected{% endif %}>{{ translations.option_tamil }}</option>
+                                        <option value="Kannada" {% if preferred_language == 'Kannada' %}selected{% endif %}>{{ translations.option_kannada }}</option>
+                                        <option value="Marathi" {% if preferred_language == 'Marathi' %}selected{% endif %}>{{ translations.option_marathi }}</option>
+                                    </select>
+                                </div>
+
+                                <!-- Language to Learn -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-dark">Language to Learn <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="learning_language">
+                                        <option value="English" {% if learning_language == 'English' or not learning_language %}selected{% endif %}>English</option>
+                                        <option value="Telugu" {% if learning_language == 'Telugu' %}selected{% endif %}>Telugu</option>
+                                        <option value="Hindi" {% if learning_language == 'Hindi' %}selected{% endif %}>Hindi</option>
+                                        <option value="Tamil" {% if learning_language == 'Tamil' %}selected{% endif %}>Tamil</option>
+                                        <option value="Kannada" {% if learning_language == 'Kannada' %}selected{% endif %}>Kannada</option>
+                                        <option value="Marathi" {% if learning_language == 'Marathi' %}selected{% endif %}>Marathi</option>
+                                    </select>
+                                </div>
+
+                                <!-- Learning Starting Level -->
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold text-dark">Starting learning Level <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="learning_level" required>
+                                        <option value="Beginner" {% if learning_level == 'Beginner' or not learning_level %}selected{% endif %}>Beginner (Cannot read or write)</option>
+                                        <option value="Basic" {% if learning_level == 'Basic' %}selected{% endif %}>Basic (Knows alphabets and simple words)</option>
+                                        <option value="Intermediate" {% if learning_level == 'Intermediate' %}selected{% endif %}>Intermediate (Can read and write sentences)</option>
+                                        <option value="Advanced" {% if learning_level == 'Advanced' %}selected{% endif %}>Advanced (Up to 10th standard knowledge)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Password Visibility Toggle & Agree Checkbox -->
+                                <div class="col-md-12 d-flex flex-column gap-2 mt-2">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input cursor-pointer" type="checkbox" id="showPassword" onclick="togglePassword()">
+                                        <label class="form-check-label cursor-pointer text-secondary small fw-medium" for="showPassword">{{ translations.show_password }}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                        <label class="form-check-label text-secondary small" for="agreeTerms">I agree to the Terms & Conditions and Privacy Policy <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <button class="btn btn-primary btn-lg w-100 py-3 rounded-pill fw-bold shadow-sm transition" style="background: linear-gradient(90deg, #4f46e5, #9333ea); border: none;">
+                                        {{ translations.register_now }}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <hr class="my-4" style="opacity: 0.1;">
+                        <div class="text-center">
+                            <p class="mb-0 text-secondary" style="font-size: 0.95rem;">
+                                {{ translations.already_account }} 
+                                <a href="/login" class="text-primary fw-bold text-decoration-none ms-1">{{ translations.login_here }}</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block js %}
+<script>
+function togglePassword(){
+    let pass = document.getElementById("password");
+    let confirm = document.getElementById("confirm");
+    if(pass.type === "password"){
+        pass.type = "text";
+        confirm.type = "text";
+    } else {
+        pass.type = "password";
+        confirm.type = "password";
+    }
+}
+
+function calculateAndToggleAge(dobVal) {
+    if (!dobVal) return;
+    const dob = new Date(dobVal);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+    }
+    document.getElementById("ageInput").value = age;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const prefLangSelect = document.querySelector('select[name="preferred_language"]');
+    if (prefLangSelect) {
+        prefLangSelect.addEventListener('change', function() {
+            const selectedLang = this.value;
+            
+            // Save current form inputs to localStorage before reload
+            const fields = ['fullname', 'email', 'dob', 'gender', 'avatar', 'education', 'status', 'learning_language', 'learning_level'];
+            fields.forEach(field => {
+                const el = document.querySelector(`[name="${field}"]`);
+                if (el) {
+                    localStorage.setItem('reg_draft_' + field, el.value);
+                }
+            });
+            
+            fetch('/api/set-language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: selectedLang })
+            }).then(() => {
+                window.location.reload();
+            });
+        });
+        
+        // Restore drafts if they exist
+        const fields = ['fullname', 'email', 'dob', 'gender', 'avatar', 'education', 'status', 'learning_language', 'learning_level'];
+        fields.forEach(field => {
+            const draftVal = localStorage.getItem('reg_draft_' + field);
+            if (draftVal !== null) {
+                const el = document.querySelector(`[name="${field}"]`);
+                if (el) {
+                    el.value = draftVal;
+                    if (field === 'dob') {
+                        calculateAndToggleAge(draftVal);
+                    }
+                }
+                localStorage.removeItem('reg_draft_' + field);
+            }
+        });
+    }
+});
+
+function checkPasswordStrength(password) {
+    const container = document.getElementById("strengthContainer");
+    const bar = document.getElementById("strengthBar");
+    const text = document.getElementById("strengthText");
+    
+    if (!password) {
+        container.style.display = "none";
+        return;
+    }
+    
+    container.style.display = "block";
+    let score = 0;
+    
+    if (password.length >= 8) score += 25;
+    if (/[A-Z]/.test(password)) score += 25;
+    if (/[0-9]/.test(password)) score += 25;
+    if (/[!@#$%^&*()_+\-=\[\]{}|;':",./<>?]/.test(password)) score += 25;
+    
+    bar.style.width = score + "%";
+    
+    if (score <= 25) {
+        bar.className = "progress-bar bg-danger";
+        text.innerHTML = "🔴 Weak password (Must contain 8+ characters, uppercase, numbers, and symbols)";
+        text.className = "form-text d-block mt-1 text-danger small";
+    } else if (score <= 75) {
+        bar.className = "progress-bar bg-warning";
+        text.innerHTML = "🟡 Moderate password";
+        text.className = "form-text d-block mt-1 text-warning small";
+    } else {
+        bar.className = "progress-bar bg-success";
+        text.innerHTML = "🟢 Strong password";
+        text.className = "form-text d-block mt-1 text-success small";
+    }
+}
+</script>
+{% endblock %}

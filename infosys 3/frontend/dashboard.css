@@ -1,0 +1,91 @@
+/* Layout-focused styles for Dashboard (no color overrides) */
+.dashboard-header {
+  border-radius: 6px;
+  padding: 24px 28px;
+}
+.metrics-grid {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.metric-card {
+  flex: 1 1 0;
+  min-height: 100px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+.metric-card h5 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.metric-card div { color: #666; }
+
+/* Action cards layout similar to screenshot (large tiles in a row)
+   Keep colors to Bootstrap; only adjust size, spacing and alignment */
+.action-grid {
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.action-tile {
+  flex: 1 1 0;
+  padding: 26px 18px;
+  text-align: center;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+.action-tile h6 { margin-top: 8px; font-size: 14px; }
+
+.overall-progress-card {
+  padding: 14px;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.todays-assessment-card, .recent-assessments-card {
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  padding: 18px;
+}
+
+.list-group-item { display: flex; justify-content: space-between; align-items: center; }
+
+@media (max-width: 992px) {
+  .metrics-grid, .action-grid { flex-direction: column; }
+  .metric-card, .action-tile { width: 100%; }
+}
+
+/* Hover lift animations and transitions focused on assessment elements */
+.todays-assessment-card, .recent-assessments-card, .list-group-item {
+  transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms cubic-bezier(.2,.9,.2,1);
+  will-change: transform, box-shadow;
+}
+
+.todays-assessment-card:hover, .recent-assessments-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.12);
+}
+
+.list-group-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+}
+
+/* Keep action tiles interactive but without lift to keep focus on assessments */
+.action-tile:active { transform: translateY(-2px) scale(0.998); }
+
+/* Subtle focus outline for keyboard accessibility on assessments */
+.todays-assessment-card:focus, .recent-assessments-card:focus, .list-group-item:focus {
+  outline: 3px solid rgba(0,123,255,0.12);
+  outline-offset: 2px;
+}

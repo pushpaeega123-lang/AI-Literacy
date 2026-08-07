@@ -1,0 +1,8 @@
+[Tamil] Input: வணக்கம் -> Translit: Vanakkam (Expected: Vanakkam)
+[Kannada] Input: ನಮಸ್ಕಾರ -> Translit: Namaskaara (Expected: Namaskara)
+[Telugu] Input: నమస్తే -> Translit: Namastae (Expected: Namaste)
+[Hindi] Input: नमस्ते -> Translit: Namaste (Expected: Namaste)
+[Marathi] Input: नमस्कार -> Translit: Namaskaar (Expected: Namaskar)
+[Telugu] Input: అమ్మ -> Translit: Amma (Expected: Amma)
+[Tamil] Input: அம்மா -> Translit: Ammaa (Expected: Amma)
+[Kannada] Input: ಅಮ್ಮ -> Translit: Amma (Expected: Amma)

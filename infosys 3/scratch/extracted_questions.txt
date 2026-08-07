@@ -1,0 +1,350 @@
+1414: def _legacy_get_assessment_questions(language, age=None, learning_level=None, mode=None):
+1415:     try:
+1416:         age_val = int(age) if age is not None else session.get("age", 8)
+1417:     except (ValueError, TypeError):
+1418:         age_val = 8
+1419: 
+1420:     if age_val <= 5:
+1421:         # Pre-school play-based assessment questions (Moo sound, red fruit strawberry, round circle shape, king of jungle lion, speak hello)
+1422:         multilingual_questions = {
+1423:             "English": [
+1424:                 {
+1425:                     "name": "q_sound",
+1426:                     "type": "listening",
+1427:                     "skill": "listening",
+1428:                     "prompt": "What animal makes this sound: 'Moo Moo'? 🐮",
+1429:                     "options": ["Cow 🐮", "Dog 🐶", "Lion 🦁", "Cat 🐱"],
+1430:                     "answer": "Cow 🐮",
+1431:                     "explanation": "Cows make the moo sound!"
+1432:                 },
+1433:                 {
+1434:                     "name": "q_color",
+1435:                     "type": "comprehension",
+1436:                     "skill": "comprehension",
+1437:                     "prompt": "Which of these is a red fruit? 🍓 (point or choose the picture)",
+1438:                     "options": ["Strawberry 🍓", "Banana 🍌", "Grape 🍇", "Pear 🍐"],
+1439:                     "answer": "Strawberry 🍓",
+1440:                     "explanation": "Strawberries are bright red and easy to recognize by color."
+1441:                 },
+1442:                 {
+1443:                     "name": "q_shape",
+1444:                     "type": "comprehension",
+1445:                     "skill": "comprehension",
+1446:                     "prompt": "Point to the round shape or choose the round picture. ⭕",
+1447:                     "options": ["Circle ⭕", "Square ⬛", "Triangle 🔺", "Star ⭐"],
+1448:                     "answer": "Circle ⭕",
+1449:                     "explanation": "A circle is round and has no corners."
+1450:                 },
+1451:                 {
+1452:                     "name": "q_animal",
+1453:                     "type": "comprehension",
+1454:                     "skill": "comprehension",
+1455:                     "prompt": "Which animal is often called the 'King of the Jungle'? 🦁",
+1456:                     "options": ["Lion 🦁", "Elephant 🐘", "Monkey 🐒", "Rabbit 🐰"],
+1457:                     "answer": "Lion 🦁",
+1458:                     "explanation": "The lion is commonly referred to as the king of the jungle."
+1459:                 },
+1460:                 {
+1461:                     "name": "q_speak",
+1462:                     "type": "speaking",
+1463:                     "skill": "speaking",
+1464:                     "prompt": "Click the microphone and repeat: 'Hello' 👋",
+1465:                     "hint": "Hello",
+1466:                     "options": [],
+1467:                     "answer": "Hello",
+1468:                     "explanation": "Practice saying Hello."
+1469:                 }
+1470:             ],
+1471:             "Telugu": [
+1472:                 {
+1473:                     "name": "q_sound",
+1474:                     "type": "listening",
+1475:                     "skill": "listening",
+1476:                     "prompt": "'బౌ బౌ' అని అరిచే జంతువు ఏది? 🐶",
+1477:                     "options": ["ఆవు 🐮", "కుక్క 🐶", "సింహం 🦁", "పిల్లి 🐱"],
+1478:                     "answer": "కుక్క 🐶",
+1479:                     "explanation": "కుక్కలు బౌ బౌ అని అరుస్తాయి!"
+1480:                 },
+1481:                 {
+1482:                     "name": "q_color",
+1483:                     "type": "comprehension",
+1484:                     "skill": "comprehension",
+1485:                     "prompt": "ఎరుపు రంగు పండును అని గుర్తించండి! 🍓 (పిక్ లేదా ఎంపిక చేయండి)",
+1486:                     "options": ["స్ట్రాబెర్రీ 🍓", "అరటిపండు 🍌", "ద్రాక్ష 🍇", "ఆపిల్ 🍎"],
+1487:                     "answer": "స్ట్రాబెర్రీ 🍓",
+1488:                     "explanation": "స్ట్రాబెర్రీలు ప్రత్యేకంగా ఎరుపు రంగులో ఉంటాయి."
+1489:                 },
+1490:                 {
+1491:                     "name": "q_shape",
+1492:                     "type": "comprehension",
+1493:                     "skill": "comprehension",
+1494:                     "prompt": "గుండ్రటి ఆకారాన్ని చూపండి లేదా సెలెక్ట్ చేయండి. ⭕",
+1495:                     "options": ["వృత్తం ⭕", "చతురస్రం ⬛", "త్రిభుజం 🔺", "నక్షత్రం ⭐"],
+1496:                     "answer": "వృత్తం ⭕",
+1497:                     "explanation": "వృత్తం ఒకవక గుండ్రంగా ఉంటుంది."
+1498:                 },
+1499:                 {
+1500:                     "name": "q_animal",
+1501:                     "type": "comprehension",
+1502:                     "skill": "comprehension",
+1503:                     "prompt": "అడవికి రాజుగా పేరుపొందిన జంతువు ఏది? 🦁",
+1504:                     "options": ["సింహం 🦁", "ఏనుగు 🐘", "కోతి 🐒", "కుందేలు 🐰"],
+1505:                     "answer": "సింహం 🦁",
+1506:                     "explanation": "సింహాన్ని సాధారణంగా అడవి రాజునిగా పిలుస్తారు."
+1507:                 },
+1508:                 {
+1509:                     "name": "q_speak",
+1510:                     "type": "speaking",
+1511:                     "skill": "speaking",
+1512:                     "prompt": "మైక్రోఫోన్‌ క్లిక్ చేసి చెప్పండి: 'నమస్కారం' 👋",
+1513:                     "hint": "నమస్కారం",
+1514:                     "options": [],
+1515:                     "answer": "నమస్కారం",
+1516:                     "explanation": "నమస్కారం చెప్పడం ప్రాక్టీस చేయండి."
+1517:                 }
+1518:             ],
+1519:             "Hindi": [
+1520:                 {
+1521:                     "name": "q_sound",
+1522:                     "type": "listening",
+1523:                     "skill": "listening",
+1524:                     "prompt": "'म्याऊं म्याऊं' कौन सा जानवर करता है? 🐱",
+1525:                     "options": ["गाय 🐮", "कुत्ता 🐶", "शेर 🦁", "बिल्ली 🐱"],
+1526:                     "answer": "बिल्ली 🐱",
+1527:                     "explanation": "बिल्ली म्याऊं म्याऊं करती है!"
+1528:                 },
+1529:                 {
+1530:                     "name": "q_color",
+1531:                     "type": "comprehension",
+1532:                     "skill": "comprehension",
+1533:                     "prompt": "कौन सा फल लाल रंग का है? 🍓 (चित्र पर इशारा या चुनें)",
+1534:                     "options": ["स्ट्रॉबेरी 🍓", "केला 🍌", "अंगूर 🍇", "नाशपाती 🍐"],
+1535:                     "answer": "स्ट्रॉबेरी 🍓",
+1536:                     "explanation": "स्ट्रॉबेरी आम तौर पर लाल रंग की होती है।"
+1537:                 },
+1538:                 {
+1539:                     "name": "q_shape",
+1540:                     "type": "comprehension",
+1541:                     "skill": "comprehension",
+1542:                     "prompt": "गोल आकृति को दिखाएं या चुनें। ⭕",
+1543:                     "options": ["गोला/वृत्त ⭕", "वर्ग ⬛", "त्रिकोण 🔺", "तारा ⭐"],
+1544:                     "answer": "गोला/वृत्त ⭕",
+1545:                     "explanation": "वृत्त का कोई नुकीला कोना नहीं होता।"
+1546:                 },
+1547:                 {
+1548:                     "name": "q_animal",
+1549:                     "type": "comprehension",
+1550:                     "skill": "comprehension",
+1551:                     "prompt": "किस जानवर को अक्सर जंगल का राजा कहा जाता है? 🦁",
+1552:                     "options": ["शेर 🦁", "हाथी 🐘", "बंदर 🐒", "खरगोश 🐰"],
+1553:                     "answer": "शेर 🦁",
+1554:                     "explanation": "शेर को पारंपरिक रूप से जंगल का राजा माना जाता है।"
+1555:                 },
+1556:                 {
+1557:                     "name": "q_speak",
+1558:                     "type": "speaking",
+1559:                     "skill": "speaking",
+1560:                     "prompt": "माइक चालू करें और बोलें: 'नमस्ते' 👋",
+1561:                     "hint": "नमस्ते",
+1562:                     "options": [],
+1563:                     "answer": "नमस्ते",
+1564:                     "explanation": "नमस्ते बोलना सीखें।"
+1565:                 }
+1566:             ],
+1567:             "Tamil": [
+1568:                 {
+1569:                     "name": "q_sound",
+1570:                     "type": "listening",
+1571:                     "skill": "listening",
+1572:                     "prompt": "'லொள் லொள்' என்று குறைக்கும் விலங்கு எது? 🐶",
+1573:                     "options": ["பசு 🐮", "நாய் 🐶", "சிங்கம் 🦁", "பூனை 🐱"],
+1574:                     "answer": "நாய் 🐶",
+1575:                     "explanation": "நாய்கள் லொள் லொள் என்று குறைக்கும்!"
+1576:                 },
+1577:                 {
+1578:                     "name": "q_color",
+1579:                     "type": "reading",
+1580:                     "skill": "reading",
+1581:                     "prompt": "சிவப்பு நிற பழத்தைக் கண்டறியவும்! 🍓",
+1582:                     "options": ["ஸ்ட்ராபெரி 🍓", "வாழைப்பழம் 🍌", "திராட்சை 🍇", "பேரிக்காய் 🍐"],
+1583:                     "answer": "ஸ்ட்ராபெரி 🍓",
+1584:                     "explanation": "ஸ்ட்ராபெரி சிவப்பு நிறத்தில் இருக்கும்!"
+1585:                 },
+1586:                 {
+1587:                     "name": "q_shape",
+1588:                     "type": "reading",
+1589:                     "skill": "reading",
+1590:                     "prompt": "வட்ட வடிவத்தை அடையாளம் காணவும்! ⭕",
+1591:                     "options": ["வட்டம் ⭕", "சதுரம் ⬛", "முக்கோணம் 🔺", "நட்சத்திரம் ⭐"],
+1592:                     "answer": "வட்டம் ⭕",
+1593:                     "explanation": "வட்டம் வட்டமாக இருக்கும்!"
+1594:                 },
+1595:                 {
+1596:                     "name": "q_animal",
+1597:                     "type": "reading",
+1598:                     "skill": "reading",
+1599:                     "prompt": "காட்டின் ராஜா யார்? 🦁",
+1600:                     "options": ["சிங்கம் 🦁", "யானை 🐘", "குரங்கு 🐒", "முயல் 🐰"],
+1601:                     "answer": "சிங்கம் 🦁",
+1602:                     "explanation": "சிங்கம் காட்டின் ராஜா!"
+1603:                 },
+1604:                 {
+1605:                     "name": "q_speak",
+1606:                     "type": "speaking",
+1607:                     "skill": "speaking",
+1608:                     "prompt": "மைக் ஒளிரச் செய்து கூறவும்: 'வணக்கம்' 👋",
+1609:                     "hint": "வணக்கம்",
+1610:                     "options": [],
+1611:                     "answer": "வணக்கம்",
+1612:                     "explanation": "வணக்கம் சொல்ல பயிற்சி செய்யவும்."
+1613:                 }
+1614:             ],
+1615:             "Kannada": [
+1616:                 {
+1617:                     "name": "q_sound",
+1618:                     "type": "listening",
+1619:                     "skill": "listening",
+1620:                     "prompt": "'ಬೌ ಬೌ' ಎಂದು ಕೂಗುವ ಪ್ರಾಣಿ ಯಾವುದು? 🐶",
+1621:                     "options": ["ಹಸು 🐮", "ನಾಯಿ 🐶", "ಸಿಂಹ 🦁", "ಬೆಕ್ಕು 🐱"],
+1622:                     "answer": "ನಾಯಿ 🐶",
+1623:                     "explanation": "ನಾಯಿಗಳು ಬೌ ಬೌ ಎಂದು ಕೂಗುತ್ತವೆ!"
+1624:                 },
+1625:                 {
+1626:                     "name": "q_color",
+1627:                     "type": "reading",
+1628:                     "skill": "reading",
+1629:                     "prompt": "ಕೆಂಪು ಬಣ್ಣದ ಹಣ್ಣನ್ನು ಗುರುತಿಸಿ! 🍓",
+1630:                     "options": ["ಸ್ಟ್ರಾಬೆರಿ 🍓", "ಬಾಳೆಹಣ್ಣು 🍌", "ದ್ರಾಕ್ಷಿ 🍇", "ಸೇಬು 🍎"],
+1631:                     "answer": "ಸ್ಟ್ರಾಬೆರಿ 🍓",
+1632:                     "explanation": "ಸ್ಟ್ರಾಬೆರಿ ಹಣ್ಣುಗಳು ಕೆಂಪಾಗಿರುತ್ತವೆ!"
+1633:                 },
+1634:                 {
+1635:                     "name": "q_shape",
+1636:                     "type": "reading",
+1637:                     "skill": "reading",
+1638:                     "prompt": "ವೃತ್ತಾಕಾರವನ್ನು ಗುರುತಿಸಿ! ⭕",
+1639:                     "options": ["ವೃತ್ತ ⭕", "ಚೌಕ ⬛", "ತ್ರಿಕೋನ 🔺", "ನಕ್ಷತ್ರ ⭐"],
+1640:                     "answer": "ವೃತ್ತ ⭕",
+1641:                     "explanation": "ವೃತ್ತವು ಗೋಲಾಕಾರವಾಗಿರುತ್ತದೆ!"
+1642:                 },
+1643:                 {
+1644:                     "name": "q_animal",
+1645:                     "type": "reading",
+1646:                     "skill": "reading",
+1647:                     "prompt": "ಕಾಡಿನ ರಾಜ ಯಾರು? 🦁",
+1648:                     "options": ["ಸಿಂಹ 🦁", "ಆನೆ 🐘", "ಕೋತಿ 🐒", "ಮೊಲ 🐰"],
+1649:                     "answer": "ಸಿಂಹ 🦁",
+1650:                     "explanation": "ಸಿಂಹವು ಕಾಡಿನ ರಾಜ!"
+1651:                 },
+1652:                 {
+1653:                     "name": "q_speak",
+1654:                     "type": "speaking",
+1655:                     "skill": "speaking",
+1656:                     "prompt": "ಮೈಕ್ರೊಫೋನ್ ಒತ್ತಿ ಹೇಳಿ: 'ನಮಸ್ಕಾರ' 👋",
+1657:                     "hint": "ನಮಸ್ಕಾರ",
+1658:                     "options": [],
+1659:                     "answer": "ನಮಸ್ಕಾರ",
+1660:                     "explanation": "ನಮಸ್ಕಾರ ಹೇಳುವುದನ್ನು ಅಭ್ಯಾಸ ಮಾಡಿ."
+1661:                 }
+1662:             ],
+1663:             "Marathi": [
+1664:                 {
+1665:                     "name": "q_sound",
+1666:                     "type": "listening",
+1667:                     "skill": "listening",
+1668:                     "prompt": "'म्याऊं म्याऊं' आवाज करणारा प्राणी कोणता? 🐱",
+1669:                     "options": ["गाय 🐮", "कुत्रा 🐶", "सिंह 🦁", "मांजर 🐱"],
+1670:                     "answer": "मांजर 🐱",
+1671:                     "explanation": "मांजर म्याऊं म्याऊं ओरडते!"
+1672:                 },
+1673:                 {
+1674:                     "name": "q_color",
+1675:                     "type": "reading",
+1676:                     "skill": "reading",
+1677:                     "prompt": "लाल रंगाचे फळ ओळखा! 🍓",
+1678:                     "options": ["स्ट्रॉबेरी 🍓", "केळे 🍌", "द्राक्षे 🍇", "सफरचंद 🍎"],
+1679:                     "answer": "स्ट्रॉबेरी 🍓",
+1680:                     "explanation": "स्ट्रॉबेरी लाल रंगाची असते!"
+1681:                 },
+1682:                 {
+1683:                     "name": "q_shape",
+1684:                     "type": "reading",
+1685:                     "skill": "reading",
+1686:                     "prompt": "गोल आकार ओळखा! ⭕",
+1687:                     "options": ["वर्तुळ ⭕", "चौकोन ⬛", "त्रिकोण 🔺", "चांदणी ⭐"],
+1688:                     "answer": "वर्तुळ ⭕",
+1689:                     "explanation": "वर्तुळ गोल असते!"
+1690:                 },
+1691:                 {
+1692:                     "name": "q_animal",
+1693:                     "type": "reading",
+1694:                     "skill": "reading",
+1695:                     "prompt": "जंगलाचा राजा कोण आहे? 🦁",
+1696:                     "options": ["सिंह 🦁", "हत्ती 🐘", "माकड 🐒", "ससा 🐰"],
+1697:                     "answer": "सिंह 🦁",
+1698:                     "explanation": "सिंह जंगलाचा राजा असतो!"
+1699:                 },
+1700:                 {
+1701:                     "name": "q_speak",
+1702:                     "type": "speaking",
+1703:                     "skill": "speaking",
+1704:                     "prompt": "माईक चालू करा आणि म्हणा: 'नमस्कार' 👋",
+1705:                     "hint": "नमस्कार",
+1706:                     "options": [],
+1707:                     "answer": "नमस्कार",
+1708:                     "explanation": "नमस्कार म्हणण्याचा सराव करा."
+1709:                 }
+1710:             ]
+1711:         }
+1712:         qs = multilingual_questions.get(language, multilingual_questions["English"])
+1713:         for q in qs:
+1714:             q["age_band"] = "young"
+1715:             q["level"] = "Beginner"
+1716:             q["language"] = language
+1717:             q["skill_score_key"] = q["skill"]
+1718:         if not any(q["skill_score_key"] == "writing" for q in qs):
+1719:             for q in reversed(qs):
+1720:                 if q["type"] == "speaking":
+1721:                     q["skill_score_key"] = "writing"
+1722:                     break
+1723:         if len(qs) < 6:
+1724:             qs.append({
+1725:                 "name": "q_extra",
+1726:                 "type": "comprehension",
+1727:                 "skill": "comprehension",
+1728:                 "section": "Comprehension Assessment",
+1729:                 "prompt": "Which picture shows something that is red?",
+1730:                 "options": ["Apple 🍎", "Banana 🍌", "Grapes 🍇", "Pear 🍐"],
+1731:                 "answer": "Apple 🍎",
+1732:                 "explanation": "The apple is red.",
+1733:                 "age_band": "young",
+1734:                 "level": "Beginner",
+1735:                 "language": language,
+1736:                 "skill_score_key": "comprehension"
+1737:             })
+1738:         return qs
+1739: 
+1740:     if not learning_level:
+1741:         learning_level = session.get("learning_level", "Beginner")
+1742: 
+1743:     import random
+1744: 
+1745:     lang_pools = {
+1746:         "English": {
+1747:             "letters": [
+1748:                 ("Sound /b/", "B", ["B", "D", "P", "T"], "B makes the /b/ sound."),
+1749:                 ("Sound /f/", "F", ["F", "V", "P", "S"], "F makes the /f/ sound."),
+1750:                 ("Sound /m/", "M", ["M", "N", "W", "V"], "M makes the /m/ sound."),
+1751:                 ("Sound /s/", "S", ["S", "C", "Z", "X"], "S makes the /s/ sound.")
+1752:             ],
+1753:             "simple_words": [
+1754:                 ("apple", "Apple", ["Apple", "Banana", "Chair", "Tree"], "Apple is the correct word for the fruit."),
+1755:                 ("ball", "Ball", ["Ball", "Cat", "Sun", "Fish"], "Ball is a common toy."),
+1756:                 ("cup", "Cup", ["Cup", "Shoe", "Pen", "Door"], "Cup holds water or milk.")
+1757:             ],
+1758:             "objects": [
+1759:                 ({"image_url": "/static/images/apple.svg", "alt": "Apple"}, "Apple", "This is an apple."),
+1760:                 ({"image_url": "/static/images/dog.svg", "alt": "Dog"}, "Dog", "This is a dog."),
+1761:                 ({"image_url": "/static/images/car.svg", "alt": "Car"}, "Car", "This is a car.")
+1762:             ],
+1763:             "word_completions": [

@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <a href="/learning-games" class="btn btn-outline-light rounded-pill px-4 fw-bold backdrop-blur" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">
+            <i class="bi bi-arrow-left me-1"></i> Hub
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fs-6 fw-bold">⭐ <span id="gameXpDisplay">{{ profile.xp }}</span> XP</span>
+            <span class="badge bg-success text-white px-3 py-2 rounded-pill fs-6 fw-bold">🪙 <span id="gameCoinDisplay">{{ profile.coins }}</span> Coins</span>
+        </div>
+    </div>
+
+    <div class="card border-0 rounded-4 shadow-lg p-4 bg-dark text-white position-relative overflow-hidden" style="min-height: 600px; background: linear-gradient(135deg, #09090b 0%, #18181b 100%) !important;">
+        <div class="d-flex align-items-center gap-3 border-bottom border-secondary pb-3 mb-4">
+            <div class="fs-1">🚀</div>
+            <div>
+                <h4 class="fw-bold mb-0 text-info" id="gameTitle">Space Explorer</h4>
+                <p class="text-light text-opacity-75 small mb-0">Fly and collect Fuel stars! Refuel gauge: <span id="fuelVal">100</span>%</p>
+            </div>
+            <div class="ms-auto text-end">
+                <span class="badge bg-secondary border border-secondary px-3 py-2 rounded-pill fw-bold" id="gameScoreDisplay">Score: 0</span>
+            </div>
+        </div>
+
+        <div class="w-100 text-center">
+            <canvas id="gameCanvas" width="600" height="320" class="border border-secondary rounded-4 bg-black w-100" style="max-width: 600px;"></canvas>
+            <div class="d-flex justify-content-center gap-4 mt-3">
+                <button type="button" class="btn btn-info btn-lg rounded-pill px-4 fw-bold text-white shadow" onclick="triggerMoveShip(-15)"><i class="bi bi-arrow-up-circle"></i> FLY UP</button>
+                <button type="button" class="btn btn-info btn-lg rounded-pill px-4 fw-bold text-white shadow" onclick="triggerMoveShip(15)"><i class="bi bi-arrow-down-circle"></i> FLY DOWN</button>
+            </div>
+        </div>
+
+        <div id="questionOverlay" class="position-absolute start-50 top-50 translate-middle p-4 bg-dark bg-opacity-95 border border-warning rounded-4 shadow-lg text-center d-none" style="width: 90%; max-width: 400px; z-index: 100;">
+            <h5 class="fw-bold text-warning mb-3" id="qTitle">Fuel Tank Literacy Question</h5>
+            <p class="text-white-50 small mb-4" id="qPrompt">Select missing letters to refuel!</p>
+            <div class="d-flex flex-column gap-2" id="qOptions"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="victoryModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4 bg-dark text-white">
+            <div class="display-1 mb-2">🎉</div>
+            <h2 class="fw-bold text-success mb-2">Game Completed!</h2>
+            <p class="text-white-50 mb-4">Fantastic job! You reached Saturn!</p>
+            <div class="d-flex justify-content-center gap-4 mb-4">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-4 border border-warning">
+                    <div class="fs-4">⭐</div>
+                    <div class="fw-bold text-warning" id="earnedXpText">+50 XP</div>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded-4 border border-success">
+                    <div class="fs-4">🪙</div>
+                    <div class="fw-bold text-success" id="earnedCoinsText">+30 Coins</div>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="button" class="btn btn-outline-light rounded-pill w-100 fw-bold py-2.5" onclick="location.reload()">Play Again</button>
+                <a href="/learning-games" class="btn btn-info rounded-pill w-100 fw-bold py-2.5">Hub</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+let score = 0;
+let fuel = 100;
+let shipY = 160;
+let meteors = [];
+let stars = [];
+let progress = 0;
+let isGameOver = false;
+let questionActive = false;
+
+const questionPool = [
+    { q: "Antonym of 'Hot'?", opt: ["Cold", "Warm", "Boiling"], ans: "Cold" },
+    { q: "Fill missing letters: D_nos_ur", opt: ["i,a,u", "e,o,u", "a,i,y"], ans: "i,a,u" },
+    { q: "Spell the word: E_e_h_nt", opt: ["l,p,a", "a,b,c", "l,o,y"], ans: "l,p,a" }
+];
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") triggerMoveShip(-20);
+    if (e.key === "ArrowDown") triggerMoveShip(20);
+});
+
+function triggerMoveShip(dy) {
+    if (isGameOver || questionActive) return;
+    shipY = Math.max(20, Math.min(300, shipY + dy));
+}
+
+function update() {
+    if (isGameOver || questionActive) return;
+
+    progress += 0.5;
+    fuel = Math.max(0, fuel - 0.05);
+    document.getElementById("fuelVal").innerText = Math.round(fuel);
+
+    if (fuel <= 0) {
+        isGameOver = true;
+        alert("Fuel empty! Try again.");
+        location.reload();
+    }
+
+    if (progress >= 100) {
+        isGameOver = true;
+        finishGame(score, 50, 30);
+    }
+
+    if (Math.random() < 0.02 && meteors.length < 3) {
+        meteors.push({ x: 600, y: Math.random() * 280 + 20, speed: Math.random() * 3 + 2 });
+    }
+    if (Math.random() < 0.01 && stars.length < 2) {
+        stars.push({ x: 600, y: Math.random() * 280 + 20, speed: 2 });
+    }
+
+    meteors.forEach((m, idx) => {
+        m.x -= m.speed;
+        if (m.x < 90 && m.x > 30 && Math.abs(m.y - shipY) < 25) {
+            fuel = Math.max(0, fuel - 15);
+            meteors.splice(idx, 1);
+        }
+        if (m.x < -20) meteors.splice(idx, 1);
+    });
+
+    stars.forEach((s, idx) => {
+        s.x -= s.speed;
+        if (s.x < 90 && s.x > 30 && Math.abs(s.y - shipY) < 25) {
+            stars.splice(idx, 1);
+            triggerQuestion();
+        }
+        if (s.x < -20) stars.splice(idx, 1);
+    });
+}
+
+function triggerQuestion() {
+    questionActive = true;
+    const q = questionPool[Math.floor(Math.random() * questionPool.length)];
+    document.getElementById("qTitle").innerText = q.q;
+    const optDiv = document.getElementById("qOptions");
+    optDiv.innerHTML = "";
+    q.opt.forEach(o => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-outline-info text-white py-2 rounded-pill fw-bold";
+        btn.innerText = o;
+        btn.onclick = () => submitAnswer(o, q.ans);
+        optDiv.appendChild(btn);
+    });
+    document.getElementById("questionOverlay").classList.remove("d-none");
+}
+
+function submitAnswer(chosen, correct) {
+    document.getElementById("questionOverlay").classList.add("d-none");
+    questionActive = false;
+    if (chosen === correct) {
+        score += 50;
+        fuel = Math.min(100, fuel + 25);
+        document.getElementById("gameScoreDisplay").innerText = "Score: " + score;
+        confetti({ particleCount: 20, spread: 35 });
+    } else {
+        fuel = Math.max(0, fuel - 10);
+    }
+}
+
+function finishGame(finalScore = 100, xpEarned = 50, coinsEarned = 30) {
+    confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+    document.getElementById("earnedXpText").innerText = `+${xpEarned} XP`;
+    document.getElementById("earnedCoinsText").innerText = `+${coinsEarned} Coins`;
+
+    fetch("/api/save_game_progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game_id: "space_explorer", game_name: "Space Explorer", score: finalScore, xp_earned: xpEarned, coins_earned: coinsEarned })
+    }).then(res => res.json()).then(data => {
+        if(data.success) {
+            document.getElementById("gameXpDisplay").innerText = data.xp;
+            document.getElementById("gameCoinDisplay").innerText = data.coins;
+        }
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('victoryModal'));
+    modal.show();
+}
+
+function draw() {
+    ctx.fillStyle = "#0c0a09";
+    ctx.fillRect(0, 0, 600, 320);
+
+    // Stars background
+    ctx.fillStyle = "#ffffff";
+    for(let i=0; i<100; i += 10) {
+        ctx.fillRect((i * 45) % 600, (i * 37) % 320, 2, 2);
+    }
+
+    // Ship
+    ctx.font = "30px Arial";
+    ctx.fillText("🚀", 50, shipY + 10);
+
+    // Meteors
+    meteors.forEach(m => {
+        ctx.font = "24px Arial";
+        ctx.fillText("🪨", m.x, m.y);
+    });
+
+    // Stars
+    stars.forEach(s => {
+        ctx.font = "24px Arial";
+        ctx.fillText("⭐️", s.x, s.y);
+    });
+
+    // Draw HUD Progress
+    ctx.font = "bold 14px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Saturn Travel: " + Math.round(progress) + "%", 20, 25);
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+{% endblock %}

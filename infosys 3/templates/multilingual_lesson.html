@@ -1,0 +1,662 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Top Breadcrumb/Nav -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/multilingual-learning" class="text-decoration-none">Learn a New Language</a></li>
+                    <li class="breadcrumb-item"><a href="/multilingual-learning" class="text-decoration-none">{{ target_lang }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark mb-0">{{ lesson.title }}</h2>
+        </div>
+        <a href="/multilingual-learning" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 fw-semibold">
+            <i class="bi bi-compass me-1"></i>Back to Path
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Panel: Learning Journey Timeline -->
+        <div class="col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm p-4 bg-white sticky-top" style="top: 20px; z-index: 10;">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-map me-2 text-primary"></i>Learning Journey</h5>
+                <div class="position-relative border-start border-2 border-primary-subtle ms-3 ps-3">
+                    {% for step in learning_path %}
+                        <div class="mb-4 position-relative">
+                            <!-- Bullet -->
+                            <div class="position-absolute rounded-circle d-flex align-items-center justify-content-center fw-bold {% if step.id == lesson.id %}bg-primary text-white ring-pulse{% elif step.status == 'completed' %}bg-success text-white{% else %}bg-secondary bg-opacity-20 text-secondary{% endif %}" style="width: 26px; height: 26px; left: -29px; top: 0; font-size: 12px; border: 2px solid white;">
+                                {% if step.status == 'completed' %}<i class="bi bi-check-lg"></i>{% else %}{{ step.sequence_order }}{% endif %}
+                            </div>
+                            <h6 class="fw-bold mb-0 text-truncate {% if step.id == lesson.id %}text-primary{% elif step.status == 'completed' %}text-success{% else %}text-muted{% endif %}" style="font-size: 14px;">{{ step.title }}</h6>
+                            <span class="small text-secondary d-block" style="font-size: 11px;">{{ step.category }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Lesson Curriculum Board -->
+        <div class="col-lg-9">
+            <!-- Active Cards Section -->
+            <div id="lesson-board-view" class="card border-0 rounded-4 shadow-sm p-4 bg-white mb-4">
+                
+                <!-- Word Comparison Section -->
+                <div class="row g-3 text-center mb-4">
+                    <div class="col-6">
+                        <div class="p-4 rounded-4 bg-light border border-light-subtle h-100">
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-2">In {{ known_lang }} (You know)</span>
+                            <h2 id="known-word-text" class="fw-bold text-dark mb-3">Hello</h2>
+                            <button onclick="playAudio('known')" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                <i class="bi bi-volume-up-fill me-1"></i>Listen
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-4 rounded-4 border border-primary border-opacity-25 h-100" style="background: rgba(59, 130, 246, 0.03);">
+                            <span class="text-primary small fw-bold text-uppercase d-block mb-2">In {{ target_lang }} (You Learn)</span>
+                            <h2 id="target-word-text" class="fw-bold text-primary mb-1">வணக்கம்</h2>
+                            <p id="target-translit-text" class="text-secondary mb-3 fs-6">vanakkam</p>
+                            <button onclick="playAudio('target')" class="btn btn-primary btn-sm rounded-pill px-3">
+                                <i class="bi bi-volume-up-fill me-1"></i>Listen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cartoon Illustration Box -->
+                <div class="text-center py-4 bg-light bg-opacity-50 rounded-4 border border-dashed mb-4 position-relative">
+                    <img id="word-image" src="" alt="Illustration" class="img-fluid rounded-3" style="max-height: 220px; object-fit: contain;">
+                </div>
+
+                <!-- Footer Navigation Buttons -->
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-3 border-top">
+                    <button id="prev-card-btn" onclick="prevCard()" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                        <i class="bi bi-arrow-left me-1"></i>Previous
+                    </button>
+
+                    <div class="d-flex gap-2">
+                        <button onclick="openVoicePracticeModal()" class="btn btn-outline-success rounded-pill px-4 py-2">
+                            <i class="bi bi-mic-fill me-1"></i>Practice Speaking
+                        </button>
+                        <button id="next-card-btn" onclick="nextCard()" class="btn btn-primary rounded-pill px-4 py-2">
+                            Next Card <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between text-secondary small mb-1">
+                        <span>Card Progress</span>
+                        <span id="card-progress-text">1 of 4</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 8px;">
+                        <div id="card-progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 25%;"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Mini Quiz Card Section (Initially Hidden) -->
+            <div id="quiz-board-view" class="card border-0 rounded-4 shadow-sm p-4 p-md-5 bg-white d-none mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+                    <h4 class="fw-bold text-dark mb-0"><i class="bi bi-patch-question-fill text-warning me-2"></i>Mini Quiz</h4>
+                    <span id="quiz-question-counter" class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1.5 rounded-pill fw-bold">Question 1 of 5</span>
+                </div>
+
+                <div class="mb-4">
+                    <h5 id="quiz-question-text" class="fw-bold text-dark mb-3">What is the Tamil word for "Hello"?</h5>
+                    
+                    <div id="quiz-options-list" class="row g-3">
+                        <!-- Options generated in JavaScript -->
+                    </div>
+                </div>
+
+                <button onclick="submitQuizAnswer()" class="btn btn-primary rounded-pill px-5 py-2.5 fw-bold float-end shadow-sm hover-lift">
+                    Next Question <i class="bi bi-arrow-right-short ms-1"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Voice Practice Modal -->
+<div class="modal fade" id="voicePracticeModal" tabindex="-1" aria-labelledby="voiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-0 bg-light py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-link text-dark p-0 me-3 fs-4" data-bs-dismiss="modal" style="text-decoration: none;">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="voiceModalLabel">Voice Assessment</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4 bg-light bg-opacity-50">
+                <div class="row g-4">
+                    <!-- Left Card: Assessment Prompt & Mic -->
+                    <div class="col-md-6">
+                        <div class="card border-0 rounded-4 shadow-sm p-4 h-100 bg-white">
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-3">Read the sentence shown below</span>
+                            
+                            <div class="d-flex flex-column align-items-center justify-content-center my-auto py-4 text-center">
+                                <h3 id="modal-target-word" class="fw-bold text-dark mb-2 px-2" style="font-size: 28px; line-height: 1.4; font-family: 'Poppins', 'Noto Sans Telugu', 'Noto Sans Devanagari';">வணக்கம்</h3>
+                                <p id="modal-translit" class="text-secondary mb-2 fs-6 fw-semibold">(vanakkam)</p>
+                                <p id="modal-meaning" class="text-muted fs-6 mb-4">Hello</p>
+                                
+                                <!-- Circular Microphone Button -->
+                                <div class="position-relative my-3">
+                                    <button id="record-btn" onclick="toggleRecording()" class="btn d-inline-flex align-items-center justify-content-center shadow-lg border-0 rounded-circle" 
+                                            style="width: 80px; height: 80px; background-color: #6366f1; transition: all 0.3s ease;">
+                                        <i id="record-icon" class="bi bi-mic-fill fs-2 text-white"></i>
+                                    </button>
+                                </div>
+                                <p id="record-status" class="text-secondary small mt-2 fw-medium">Tap to Speak</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Card: Assessment Result & Score -->
+                    <div class="col-md-6">
+                        <div class="card border-0 rounded-4 shadow-sm p-4 h-100 bg-white d-flex flex-column">
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-3">Your Result</span>
+                            
+                            <div class="d-flex flex-column align-items-center text-center my-auto">
+                                <span class="text-muted small fw-bold text-uppercase d-block mb-1">Pronunciation Score</span>
+                                
+                                <div class="d-flex align-items-baseline mb-2">
+                                    <h1 class="display-3 fw-bold mb-0" id="feedback-score" style="color: #4f46e5;">--</h1>
+                                    <span class="fs-4 text-muted fw-normal ms-1"> / 100</span>
+                                </div>
+                                
+                                <p class="fw-bold text-success mb-4 fs-6" id="feedback-badge">Not evaluated yet</p>
+                                
+                                <!-- Accuracy Stars -->
+                                <div class="w-100 text-start border-top pt-3 mb-3">
+                                    <span class="text-muted small fw-bold text-uppercase d-block mb-2">Accuracy</span>
+                                    <div class="d-flex gap-1 text-warning fs-4" id="accuracy-stars">
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- Feedback Text -->
+                                <div class="w-100 text-start border-top pt-3 mb-4">
+                                    <span class="text-muted small fw-bold text-uppercase d-block mb-2">Feedback</span>
+                                    <p class="text-secondary small mb-0 lh-base" id="feedback-text">
+                                        Speak the sentence clearly to analyze your speech.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <button id="retry-assessment-btn" onclick="retryRecordingInModal()" class="btn text-white w-100 py-2.5 rounded-3 fw-bold mt-auto" 
+                                    style="background-color: #6366f1; border: none; transition: background-color 0.2s;">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lesson Completion Modal -->
+<div class="modal fade" id="completionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow text-center p-5 bg-white">
+            <div class="mb-4">
+                <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;">
+                    <i class="bi bi-trophy-fill fs-1"></i>
+                </div>
+                <h2 class="fw-bold text-dark mb-1">Lesson Completed!</h2>
+                <p class="text-secondary">Excellent job! You are mastering this language fast.</p>
+            </div>
+
+            <!-- Awards grid -->
+            <div class="row g-3 mb-4 justify-content-center">
+                <div class="col-5">
+                    <div class="p-3 rounded-4 border" style="background: rgba(245, 158, 11, 0.1) !important; border-color: rgba(245, 158, 11, 0.25) !important;">
+                        <h4 class="fw-bold mb-1" style="color: #b45309 !important;">+50</h4>
+                        <span class="text-secondary small">XP Earned</span>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="p-3 rounded-4 border" style="background: rgba(6, 182, 212, 0.1) !important; border-color: rgba(6, 182, 212, 0.25) !important;">
+                        <h4 class="fw-bold mb-1" style="color: #0891b2 !important;">+50</h4>
+                        <span class="text-secondary small">Coins Won</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="finishLesson()" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm">
+                Return to Path <i class="bi bi-arrow-right-short ms-1"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script id="vocabulary-data" type="application/json">
+{{ vocabulary|tojson|safe }}
+</script>
+
+<script>
+// Load variables
+var vocabulary = JSON.parse(document.getElementById('vocabulary-data').textContent);
+var targetLanguage = "{{ target_lang }}";
+var knownLanguage = "{{ known_lang }}";
+var lessonId = parseInt("{{ lesson.id }}");
+
+let currentIndex = 0;
+let quizQuestions = [];
+let activeQuestionIndex = 0;
+let quizCorrectCount = 0;
+
+window.currentPronunciationScore = 100.0; // default baseline
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadCard(0);
+});
+
+function loadCard(index) {
+    currentIndex = index;
+    const item = vocabulary[index];
+    if (!item) return;
+
+    document.getElementById("known-word-text").textContent = item.word_known;
+    document.getElementById("target-word-text").textContent = item.word_target;
+    document.getElementById("target-translit-text").textContent = item.transliteration;
+    
+    // Set illustration placeholder or generated image
+    // Make sure path is robust
+    document.getElementById("word-image").src = `/static/images/languages/${item.image_name}`;
+    document.getElementById("word-image").onerror = function() {
+        this.src = "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400";
+    };
+
+    // Progression bars
+    const total = vocabulary.length;
+    document.getElementById("card-progress-text").textContent = `${index + 1} of ${total}`;
+    document.getElementById("card-progress-bar").style.width = `${((index + 1) / total) * 100}%`;
+
+    // Button controls
+    document.getElementById("prev-card-btn").disabled = (index === 0);
+    if (index === total - 1) {
+        document.getElementById("next-card-btn").innerHTML = 'Start Quiz <i class="bi bi-patch-question ms-1"></i>';
+    } else {
+        document.getElementById("next-card-btn").innerHTML = 'Next Card <i class="bi bi-arrow-right ms-1"></i>';
+    }
+}
+
+function nextCard() {
+    if (currentIndex < vocabulary.length - 1) {
+        loadCard(currentIndex + 1);
+    } else {
+        // Trigger Quiz Start
+        startQuizMode();
+    }
+}
+
+function prevCard() {
+    if (currentIndex > 0) {
+        loadCard(currentIndex - 1);
+    }
+}
+
+function playAudio(type) {
+    const text = type === "known" ? vocabulary[currentIndex].word_known : vocabulary[currentIndex].word_target;
+    const lang = type === "known" ? knownLanguage : targetLanguage;
+    
+    if (localStorage.getItem("voice_tutor_muted") === "true") {
+        return;
+    }
+    
+    const codes = {
+        "English": "en-US",
+        "Telugu": "te-IN",
+        "Hindi": "hi-IN",
+        "Tamil": "ta-IN",
+        "Kannada": "kn-IN",
+        "Marathi": "mr-IN"
+    };
+    const code = codes[lang] || "en-US";
+    
+    // Only use browser speechSynthesis for English to guarantee native regional accents on other languages
+    if (lang === "English" && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = code;
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+        return;
+    }
+    
+    // Fallback/Standard: use our backend TTS streaming API!
+    if (window.currentHtmlAudio) {
+        try { window.currentHtmlAudio.pause(); } catch(e) {}
+    }
+    const ttsUrl = `/api/tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}`;
+    window.currentHtmlAudio = new Audio(ttsUrl);
+    window.currentHtmlAudio.play().catch(err => {
+        console.warn("TTS play blocked or failed:", err);
+    });
+}
+
+// Speech Recognition Variables
+let recognition;
+let isRecording = false;
+
+function openVoicePracticeModal() {
+    const item = vocabulary[currentIndex];
+    document.getElementById("modal-target-word").textContent = item.word_target;
+    document.getElementById("modal-translit").textContent = `(${item.transliteration})`;
+    document.getElementById("modal-meaning").textContent = item.word_known;
+    
+    // Reset Results Column to initial state
+    document.getElementById("feedback-score").textContent = "--";
+    document.getElementById("feedback-badge").textContent = "Not evaluated yet";
+    document.getElementById("feedback-badge").className = "fw-bold text-secondary mb-4 fs-6";
+    document.getElementById("feedback-text").textContent = "Speak the sentence clearly to analyze your speech.";
+    
+    // Clear stars
+    const starContainer = document.getElementById("accuracy-stars");
+    starContainer.innerHTML = `
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+    `;
+    
+    document.getElementById("record-status").textContent = "Tap to Speak";
+    const recordBtn = document.getElementById("record-btn");
+    recordBtn.style.backgroundColor = "#6366f1";
+    document.getElementById("record-icon").className = "bi bi-mic-fill fs-2 text-white";
+    
+    const modal = new bootstrap.Modal(document.getElementById('voicePracticeModal'));
+    modal.show();
+}
+
+function toggleRecording() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Speech recognition is not supported in this browser. Please use Chrome/Edge.");
+        return;
+    }
+
+    const recordBtn = document.getElementById("record-btn");
+    const recordIcon = document.getElementById("record-icon");
+    const recordStatus = document.getElementById("record-status");
+    const item = vocabulary[currentIndex];
+
+    if (isRecording) {
+        recognition.stop();
+        recordBtn.style.backgroundColor = "#6366f1";
+        recordIcon.className = "bi bi-mic-fill fs-2 text-white";
+        recordStatus.textContent = "Processing speech...";
+        isRecording = false;
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    const codes = {
+        "English": "en-US",
+        "Telugu": "te-IN",
+        "Hindi": "hi-IN",
+        "Tamil": "ta-IN",
+        "Kannada": "kn-IN",
+        "Marathi": "mr-IN"
+    };
+    recognition.lang = codes[targetLanguage] || "en-US";
+    recognition.interimResults = false;
+    
+    recordStatus.textContent = "Listening...";
+    recordBtn.style.backgroundColor = "#ef4444";
+    recordIcon.className = "bi bi-mic-mute-fill fs-2 text-white";
+    isRecording = true;
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        const resultText = event.results[0][0].transcript;
+        recordStatus.textContent = `You said: "${resultText}"`;
+
+        fetch("/api/multilingual/compare-voice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                "expected": item.word_target,
+                "spoken": resultText
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success" || data.similarity !== undefined) {
+                const similarity = data.similarity || data.score || 0;
+                document.getElementById("feedback-score").textContent = similarity;
+                
+                // Update Badge
+                const badge = document.getElementById("feedback-badge");
+                if (similarity >= 90) {
+                    badge.textContent = "Excellent! Perfect accent! 🌟";
+                    badge.className = "fw-bold text-success mb-4 fs-6";
+                } else if (similarity >= 75) {
+                    badge.textContent = "Great! Keep it up! 🎉";
+                    badge.className = "fw-bold text-success mb-4 fs-6";
+                } else if (similarity >= 50) {
+                    badge.textContent = "Good effort! Keep practicing! 💪";
+                    badge.className = "fw-bold text-warning mb-4 fs-6";
+                } else {
+                    badge.textContent = "Try again! You can do it! 👍";
+                    badge.className = "fw-bold text-danger mb-4 fs-6";
+                }
+                
+                // Update Stars
+                const starContainer = document.getElementById("accuracy-stars");
+                starContainer.innerHTML = "";
+                const starsCount = Math.round(similarity / 20);
+                for (let s = 1; s <= 5; s++) {
+                    const icon = document.createElement("i");
+                    icon.className = s <= starsCount ? "bi bi-star-fill" : "bi bi-star";
+                    starContainer.appendChild(icon);
+                }
+                
+                document.getElementById("feedback-text").textContent = data.feedback || `You pronounced some words correctly. Similarity match at ${similarity}%.`;
+                window.currentPronunciationScore = similarity;
+            }
+        });
+    };
+
+    recognition.onspeechend = function() {
+        recognition.stop();
+        recordBtn.style.backgroundColor = "#6366f1";
+        recordIcon.className = "bi bi-mic-fill fs-2 text-white";
+        isRecording = false;
+    };
+
+    recognition.onerror = function(e) {
+        console.error(e);
+        recordStatus.textContent = "Could not recognize audio. Try again.";
+        recordBtn.style.backgroundColor = "#6366f1";
+        recordIcon.className = "bi bi-mic-fill fs-2 text-white";
+        isRecording = false;
+    };
+}
+
+function retryRecordingInModal() {
+    // Reset Results UI
+    document.getElementById("feedback-score").textContent = "--";
+    document.getElementById("feedback-badge").textContent = "Not evaluated yet";
+    document.getElementById("feedback-badge").className = "fw-bold text-secondary mb-4 fs-6";
+    document.getElementById("feedback-text").textContent = "Speak the sentence clearly to analyze your speech.";
+    
+    const starContainer = document.getElementById("accuracy-stars");
+    starContainer.innerHTML = `
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+    `;
+    
+    // Trigger recording directly
+    toggleRecording();
+}
+
+// Dynamic Quiz Module
+function startQuizMode() {
+    document.getElementById("lesson-board-view").classList.add("d-none");
+    document.getElementById("quiz-board-view").classList.remove("d-none");
+
+    // Formulate questions from current vocab list
+    quizQuestions = [];
+    vocabulary.forEach(item => {
+        const correct = item.word_target;
+        let choices = [correct];
+        
+        let pool = vocabulary.filter(v => v.word_target !== correct).map(v => v.word_target);
+        pool.sort(() => 0.5 - Math.random());
+        for (let i = 0; i < Math.min(3, pool.length); i++) {
+            choices.push(pool[i]);
+        }
+        while (choices.length < 4) {
+            choices.push("---");
+        }
+        choices.sort(() => 0.5 - Math.random());
+
+        quizQuestions.push({
+            word_known: item.word_known,
+            correct: correct,
+            choices: choices
+        });
+    });
+
+    activeQuestionIndex = 0;
+    quizCorrectCount = 0;
+    loadQuizQuestion(0);
+}
+
+function loadQuizQuestion(index) {
+    activeQuestionIndex = index;
+    const q = quizQuestions[index];
+    
+    document.getElementById("quiz-question-counter").textContent = `Question ${index + 1} of ${quizQuestions.length}`;
+    document.getElementById("quiz-question-text").textContent = `What is the ${targetLanguage} word for "${q.word_known}"?`;
+
+    const container = document.getElementById("quiz-options-list");
+    container.innerHTML = "";
+
+    q.choices.forEach((choice, idx) => {
+        const col = document.createElement("div");
+        col.className = "col-sm-6";
+        col.innerHTML = `
+            <div class="card p-3 rounded-4 border-2 shadow-xs option-card text-center cursor-pointer bg-white" onclick="selectOption(this, '${choice}')" style="transition: all 0.2s;">
+                <h5 class="fw-bold mb-0 text-dark">${choice}</h5>
+            </div>
+        `;
+        container.appendChild(col);
+    });
+
+    window.selectedAnswer = null;
+}
+
+function selectOption(element, val) {
+    document.querySelectorAll(".option-card").forEach(el => {
+        el.classList.remove("border-primary", "bg-primary", "bg-opacity-5");
+        el.querySelector("h5").classList.remove("text-primary");
+    });
+    element.classList.add("border-primary", "bg-primary", "bg-opacity-5");
+    element.querySelector("h5").classList.add("text-primary");
+    window.selectedAnswer = val;
+}
+
+function submitQuizAnswer() {
+    if (!window.selectedAnswer) {
+        alert("Please select an answer to continue.");
+        return;
+    }
+
+    const q = quizQuestions[activeQuestionIndex];
+    if (window.selectedAnswer === q.correct) {
+        quizCorrectCount++;
+    }
+
+    if (activeQuestionIndex < quizQuestions.length - 1) {
+        loadQuizQuestion(activeQuestionIndex + 1);
+    } else {
+        // Complete Quiz and Submit Lesson
+        submitLessonScores();
+    }
+}
+
+function submitLessonScores() {
+    const quizScorePercent = Math.round((quizCorrectCount / quizQuestions.length) * 100);
+    const pronScore = window.currentPronunciationScore || 90.0;
+
+    fetch("/api/multilingual/submit-lesson", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            "lesson_id": lessonId,
+            "pronunciation_score": pronScore,
+            "quiz_score": quizScorePercent
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            const modal = new bootstrap.Modal(document.getElementById('completionModal'));
+            modal.show();
+        } else {
+            alert("Error saving lesson completion. Please retry.");
+        }
+    });
+}
+
+function finishLesson() {
+    window.location.href = "/multilingual-learning";
+}
+</script>
+
+<style>
+.ring-pulse {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    animation: pulse 1.6s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+@keyframes pulse {
+    to {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+}
+.pulse {
+    animation: pulse-red 1.2s infinite alternate;
+}
+@keyframes pulse-red {
+    from {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    to {
+        box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+    }
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.option-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+</style>
+{% endblock %}

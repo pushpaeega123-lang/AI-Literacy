@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>{{ translations.site_title }}</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Google Fonts: Poppins + Noto Sans Telugu + Noto Sans Devanagari -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Telugu&family=Noto+Sans+Devanagari:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- PWA Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Meta theme color and mobile status bar -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Learning Coach">
+    <link rel="apple-touch-icon" href="/static/images/icons/icon_192.png">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        window.currentLanguage = "{{ session.get('language', 'English') }}";
+    </script>
+
+    <style>
+        /* Global Sidebar Navigation Styles */
+        body .sidebar {
+            background: linear-gradient(180deg, #111827 0%, #1e1b4b 50%, #2e1065 100%) !important;
+            border-right: none !important;
+            min-height: 100vh;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Ensure brand text is visible */
+        body .sidebar .text-slate-800 {
+            color: #ffffff !important;
+        }
+
+        /* Sidebar navigation links */
+        body .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 12px 16px !important;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid transparent;
+            background: transparent !important;
+            text-decoration: none;
+        }
+
+        body .sidebar .nav-link i {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-size: 1.15rem;
+        }
+
+        body .sidebar .nav-link:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body .sidebar .nav-link.active {
+            color: #ffffff !important;
+            background-color: #4f46e5 !important;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4) !important;
+        }
+
+        @keyframes float-buddy {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* Fix for week module hero text visibility */
+        body .week-module-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15) !important;
+            border: none !important;
+        }
+    </style>
+    {% block css %}
+
+    {% endblock %}
+
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    {% if session.get('user_id') and session.get('role') == 'admin' %}
+    <!-- Admin Layout (handled entirely by admin templates) -->
+    {% elif session.get('user_id') %}
+    <!-- Sidebar layout for logged-in users -->
+    <div class="d-flex flex-column flex-xl-row" style="min-height: 100vh;">
+        <!-- Left Sidebar -->
+        <div class="sidebar p-4 d-flex flex-column justify-content-between">
+            <div>
+                <!-- Brand Logo -->
+                <div class="d-flex align-items-center gap-2 mb-4 px-2 py-1">
+                    <span class="fs-4" style="color: #4f46e5;">📖</span>
+                    <span class="fw-bold fs-4 tracking-tight text-slate-800"
+                        style="letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;">AI Literacy</span>
+                </div>
+
+                <!-- Navigation Menu -->
+                <ul class="nav flex-column gap-1 sidebar-menu">
+                    {% if session.get('age') and session.get('age')|int <= 4 %} <!-- Toddler Navigation -->
+                        <li class="nav-item">
+                            <a href="/week-module"
+                                class="nav-link {% if request.path == '/week-module' %}active{% endif %}">
+                                <i class="bi bi-book"></i> {{ translations.nav_learning_modules or 'Learning Path' }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/profile" class="nav-link {% if request.path == '/profile' %}active{% endif %}">
+                                <i class="bi bi-person-circle"></i> {{ translations.nav_profile or 'Profile' }}
+                            </a>
+                        </li>
+                        <li class="nav-item" id="pwaToddlerInstallLi" style="display: none !important;">
+                            <a href="#" id="pwaToddlerInstallBtn" class="nav-link"
+                                style="background-color: rgba(34, 197, 94, 0.1) !important; color: #22c55e !important; border: 1px dashed rgba(34, 197, 94, 0.3) !important;">
+                                <i class="bi bi-download" style="color: #22c55e !important;"></i> Install App
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a href="/logout" class="nav-link text-danger">
+                                <i class="bi bi-box-arrow-right"></i> {{ translations.nav_logout or 'Logout' }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <!-- Standard Navigation -->
+                        <li class="nav-item">
+                            <a href="/dashboard"
+                                class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+                                <i class="bi bi-grid"></i> {{ translations.nav_dashboard or 'Dashboard' }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/week-module"
+                                class="nav-link {% if request.path == '/week-module' %}active{% endif %}">
+                                <i class="bi bi-book"></i> {{ translations.nav_learning_modules or 'Learning Path' }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/learning-games"
+                                class="nav-link {% if request.path == '/learning-games' %}active{% endif %}">
+                                <i class="bi bi-controller"></i> {{ translations.nav_learning_games or ' Learning Games'
+                                }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/multilingual-learning"
+                                class="nav-link {% if request.path == '/multilingual-learning' %}active{% endif %}">
+                                <i class="bi bi-translate"></i> {{ translations.nav_multilingual or 'Learn a New
+                                Language' }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/assessment"
+                                class="nav-link {% if request.path == '/assessment' %}active{% endif %}">
+                                <i class="bi bi-clipboard2-check"></i> {{ translations.nav_assessment or 'Initial
+                                Assessment' }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/parent-progress"
+                                class="nav-link {% if request.path == '/parent-progress' %}active{% endif %}">
+                                <i class="bi bi-people"></i> {{ translations.nav_parent_corner or 'Parent Corner' }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/calendar-log"
+                                class="nav-link {% if request.path == '/calendar-log' %}active{% endif %}">
+                                <i class="bi bi-calendar3"></i> {{ translations.nav_calendar_log or 'Calendar Log' }}
+                            </a>
+                        </li>
+                        {% if session.get('role') == 'admin' %}
+                        <li class="nav-item">
+                            <a href="/admin" class="nav-link {% if request.path == '/admin' %}active{% endif %}">
+                                <i class="bi bi-gear-fill"></i> {{ translations.nav_admin_panel or 'Admin Panel' }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a href="/profile" class="nav-link {% if request.path == '/profile' %}active{% endif %}">
+                                <i class="bi bi-person-circle"></i> {{ translations.nav_profile or 'Profile' }}
+                            </a>
+                        </li>
+                        <li class="nav-item" id="pwaInstallLi" style="display: none !important;">
+                            <a href="#" id="pwaInstallBtn" class="nav-link"
+                                style="background-color: rgba(34, 197, 94, 0.1) !important; color: #22c55e !important; border: 1px dashed rgba(34, 197, 94, 0.3) !important;">
+                                <i class="bi bi-download" style="color: #22c55e !important;"></i> Install App
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/logout" class="nav-link text-danger">
+                                <i class="bi bi-box-arrow-right"></i> {{ translations.nav_logout or 'Logout' }}
+                            </a>
+                        </li>
+                        {% endif %}
+                </ul>
+            </div>
+
+            <!-- AI Buddy Sidebar Banner -->
+            <div class="card p-3 border-0 text-white rounded-4 mt-5"
+                style="background: linear-gradient(135deg, #4f46e5, #7c3aed); position: relative; overflow: hidden; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.15); z-index: 1;">
+                <div class="text-center mb-2" style="font-size: 3rem; animation: float-buddy 3s ease-in-out infinite;">
+                    🤖</div>
+                <h6 class="fw-bold text-white mb-1" style="font-size: 0.9rem;">{{ translations.nav_buddy_title or 'Your
+                    AI Learning Buddy' }}</h6>
+                <p class="small text-white text-opacity-80 mb-0" style="font-size: 0.75rem; line-height: 1.3;">{{
+                    translations.nav_buddy_desc or "I'm here to help you learn better every day!" }}</p>
+            </div>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="flex-grow-1 d-flex flex-column" style="background-color: #f8fafc; overflow-y: auto;">
+            <!-- Flash Messages inside Content Area -->
+            <div class="container-fluid mt-3 px-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{category}} alert-dismissible fade show shadow-sm border-0 rounded-3">
+                    {{message}}
+                    <button class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% else %}
+            <!-- Standard Layout (For logged-out users, landing, login, register) -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+                <div class="container">
+                    <a class="navbar-brand fw-bold" href="/">
+                        🤖 AI Literacy
+                    </a>
+                    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="menu">
+                        <ul class="navbar-nav ms-auto align-items-center">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login">Login</a>
+                            </li>
+                            <!-- PWA Install Trigger -->
+                            <li class="nav-item" id="pwaNavbarInstallLi" style="display: none !important;">
+                                <a class="nav-link btn btn-success text-white px-3 py-1.5 rounded-pill ms-2" href="#"
+                                    id="pwaNavbarInstallBtn"
+                                    style="background-color: #22c55e !important; border-color: #22c55e !important;">
+                                    <i class="bi bi-download me-1"></i> Install App
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link btn-register" href="/register">Register</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container mt-3">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{category}} alert-dismissible fade show shadow-sm border-0">
+                    {{message}}
+                    <button class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% endif %}
+
+
+            <!-- Birthday Celebration Overlay -->
+            {% if is_birthday and session.get('role') != 'admin' %}
+            <div id="birthdayCelebrationOverlay" class="birthday-overlay-container">
+                <div class="birthday-card text-center p-5 shadow-lg">
+                    <button type="button"
+                        class="btn-close position-absolute top-0 end-0 m-4 fs-4 border-0 bg-transparent text-muted fw-bold"
+                        aria-label="Close" onclick="closeBirthdayOverlay()"
+                        style="cursor: pointer; z-index: 100;">✕</button>
+                    <div class="birthday-balloons-container"></div>
+
+                    <h1 class="display-3 fw-bold text-pink animated bounceInDown mb-3"
+                        style="color: #ec4899; text-shadow: 0 0 10px rgba(236,72,153,0.3);">{{
+                        translations.happy_birthday }}</h1>
+                    <div id="birthdayMascotContainer"
+                        style="height: 160px; margin: 0 auto; display: flex; justify-content: center;" class="my-4">
+                    </div>
+
+                    <h2 class="fw-bold mb-3 text-primary" style="color: #6366f1;">Happy Birthday, <span
+                            class="text-pink" style="color: #ec4899;">{{ session.get('fullname', 'Learner') }}</span>!
+                    </h2>
+                    <p class="lead text-secondary mb-4">{{ translations.birthday_modal_desc }}</p>
+
+                    <!-- Closed Gift Box -->
+                    <div id="birthdayGiftBox" class="gift-box mb-4" onclick="openBirthdayGift()"
+                        style="font-size: 80px; cursor: pointer; display: inline-block; animation: wobbleGift 1.5s infinite ease-in-out;">
+                        🎁
+                    </div>
+
+                    <!-- Rewards Panel (Hidden initially) -->
+                    <div id="birthdayRewardsPanel" class="d-none animated fadeInUp">
+                        <h3 class="fw-bold text-success mb-3" style="color: #10b981;">{{ translations.birthday_gift }}
+                        </h3>
+                        <div class="row justify-content-center g-3 mb-4">
+                            <div class="col-4">
+                                <div class="card p-3 border-warning bg-light">
+                                    <span class="fs-1">🪙</span>
+                                    <strong class="d-block mt-2">{{ translations.birthday_coins }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card p-3 border-warning bg-light">
+                                    <span class="fs-1">🎖️</span>
+                                    <strong class="d-block mt-2">{{ translations.birthday_badge }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card p-3 border-warning bg-light">
+                                    <span class="fs-1">🎩</span>
+                                    <strong class="d-block mt-2">{{ translations.party_hat }}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-lg btn-success rounded-pill px-5 fw-bold mb-3"
+                            onclick="showBirthdayCertificate()" style="background-color: #10b981; border: none;">
+                            <i class="bi bi-file-earmark-pdf-fill me-2"></i>{{ translations.view_birthday_cert }}
+                        </button>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-lg btn-primary rounded-pill px-5 fw-bold shadow-sm mt-3"
+                        onclick="closeBirthdayOverlay()">
+                        {% if session.get('language') == 'Telugu' %}నేర్చుకోవడం కొనసాగించండి ➔{% elif
+                        session.get('language') == 'Hindi' %}सीखना जारी रखें ➔{% elif session.get('language') == 'Tamil'
+                        %}கற்றலைத் தொடரவும் ➔{% elif session.get('language') == 'Kannada' %}ಕಲಿಕೆಯನ್ನು ಮುಂದುವರಿಸಿ ➔{%
+                        elif session.get('language') == 'Marathi' %}शिकणे सुरू ठेवा ➔{% else %}Continue Learning ➔{%
+                        endif %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- printable certificate template (hidden) -->
+            <div id="birthdayCertificatePrintArea" class="d-none container p-4">
+                <div class="certificate-border p-5 text-center mt-5">
+                    <h1 class="certificate-title">{{ translations.site_title }}</h1>
+                    <h2 class="certificate-subtitle">{{ translations.cert_birthday_title }}</h2>
+                    <p class="certificate-text mt-4">{{ translations.cert_presented_to }}</p>
+                    <h3 class="certificate-name">{{ session.get('fullname') }}</h3>
+                    <p class="certificate-text">{{ translations.cert_birthday_desc }}</p>
+                    <div class="certificate-footer mt-5">
+                        <div>
+                            <span class="d-block border-top pt-2">{{ translations.cert_signature }}</span>
+                        </div>
+                        <div>
+                            <span class="d-block border-top pt-2">{{ translations.cert_date_label }}: {{ today_date
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4 print-button-hide">
+                    <button class="btn btn-primary btn-lg rounded-pill" onclick="window.print()"
+                        style="background-color: #2563eb; border: none; padding: 12px 30px;">{{
+                        translations.cert_print_btn }}</button>
+                    <button class="btn btn-secondary btn-lg rounded-pill ms-2" onclick="closeCertificate()"
+                        style="padding: 12px 30px;">{{ translations.cert_back_btn }}</button>
+                </div>
+            </div>
+
+            <style>
+                .birthday-overlay-container {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(15, 23, 42, 0.95);
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow-y: auto;
+                    padding: 20px;
+                }
+
+                .birthday-card {
+                    background: white;
+                    border: 8px solid #f472b6;
+                    border-radius: 40px;
+                    max-width: 650px;
+                    width: 100%;
+                    position: relative;
+                    box-shadow: 0 25px 60px rgba(244, 114, 182, 0.3);
+                }
+
+                .birthday-balloons-container {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    overflow: hidden;
+                }
+
+                @keyframes floatUpBirthdayBalloon {
+                    0% {
+                        transform: translateY(0) rotate(0deg);
+                        opacity: 0.75;
+                    }
+
+                    100% {
+                        transform: translateY(-110vh) rotate(15deg);
+                        opacity: 0;
+                    }
+                }
+
+                @keyframes wobbleGift {
+
+                    0%,
+                    100% {
+                        transform: rotate(0) scale(1);
+                    }
+
+                    15% {
+                        transform: rotate(-8deg) scale(1.08);
+                    }
+
+                    30% {
+                        transform: rotate(6deg) scale(1.08);
+                    }
+
+                    45% {
+                        transform: rotate(-4deg) scale(1.08);
+                    }
+
+                    60% {
+                        transform: rotate(4deg) scale(1.08);
+                    }
+
+                    75% {
+                        transform: rotate(-2deg) scale(1.02);
+                    }
+                }
+
+                @media print {
+                    body * {
+                        visibility: hidden;
+                    }
+
+                    #birthdayCertificatePrintArea,
+                    #birthdayCertificatePrintArea * {
+                        visibility: visible;
+                    }
+
+                    #birthdayCertificatePrintArea {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: white;
+                        margin: 0;
+                        padding: 20px;
+                    }
+
+                    .print-button-hide {
+                        display: none !important;
+                    }
+                }
+
+                .certificate-border {
+                    border: 15px double #d97706;
+                    padding: 60px;
+                    min-height: 480px;
+                    background: #fffdf9;
+                    border-radius: 12px;
+                }
+
+                .certificate-title {
+                    font-family: 'Poppins', sans-serif;
+                    color: #b45309;
+                    font-weight: 800;
+                    font-size: 3rem;
+                }
+
+                .certificate-subtitle {
+                    font-size: 1.5rem;
+                    color: #451a03;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                }
+
+                .certificate-name {
+                    font-size: 2.8rem;
+                    font-weight: 800;
+                    color: #be185d;
+                    margin: 25px 0;
+                    border-bottom: 2px solid #e11d48;
+                    display: inline-block;
+                    padding: 0 30px;
+                }
+
+                .certificate-text {
+                    font-size: 1.25rem;
+                    color: #78350f;
+                    line-height: 1.6;
+                }
+
+                .certificate-footer {
+                    display: flex;
+                    justify-content: space-around;
+                    align-items: center;
+                    font-weight: bold;
+                }
+            </style>
+
+            <script>
+                function speakBirthdayWish(name, lang) {
+                    if (!('speechSynthesis' in window)) return;
+                    window.speechSynthesis.cancel();
+                    let msg = "";
+                    let voiceLang = "en-US";
+                    if (lang === "Telugu") {
+                        msg = `పుట్టినరోజు శుభాకాంక్షలు, ${name}! ఈ రోజు నీకు చాలా ప్రత్యేకమైన రోజు. నేను నీకు సంతోషం, విజయం మరియు చాలా నేర్చుకునే అనుభవాలను కోరుకుంటున్నాను!`;
+                        voiceLang = "te-IN";
+                    } else if (lang === "Hindi") {
+                        msg = `जन्मदिन की शुभकामनाएं, ${name}! आज आपका विशेष दिन है। मैं आपके सुख, सफलता और सीखने के नए कारनामों की कामना करता हूँ!`;
+                        voiceLang = "hi-IN";
+                    } else if (lang === "Tamil") {
+                        msg = `பிறந்தநாள் நல்வாழ்த்துகள், ${name}! இன்று உங்களது சிறப்பு நாள். நீங்கள் மகிழ்ச்சியுடனும், கற்றல் சாகசங்களுடனும் இருக்க வாழ்த்துகிறேன்!`;
+                        voiceLang = "ta-IN";
+                    } else if (lang === "Kannada") {
+                        msg = `ಹುಟ್ಟುಹಬ್ಬದ ಶುಭಾಶಯಗಳು, ${name}! ಇಂದು ನಿನ್ನ ವಿಶೇಷ ದಿನ. ನಿನಗೆ ಸಂತೋಷ, ಯಶಸ್ಸು ಮತ್ತು ಹೆಚ್ಚಿನ ಕಲಿಕೆಯ ಸಾಹಸಗಳನ್ನು ಬಯಸುತ್ತೇನೆ!`;
+                        voiceLang = "kn-IN";
+                    } else if (lang === "Marathi") {
+                        msg = `वाढदिवसाच्या हार्दिक शुभेच्छा, ${name}! आज तुमचा विशेष दिवस आहे. मी तुम्हाला सुख, यश आणि खूप साऱ्या शिकण्याच्या प्रवासासाठी शुभेच्छा देतो!`;
+                        voiceLang = "mr-IN";
+                    } else {
+                        msg = `Happy Birthday, ${name}! Today is your special day. I wish you happiness, success, and lots of learning adventures!`;
+                        voiceLang = "en-US";
+                    }
+                    const utterance = new SpeechSynthesisUtterance(msg);
+                    utterance.lang = voiceLang;
+                    utterance.rate = 0.85;
+                    window.speechSynthesis.speak(utterance);
+                }
+
+                function playHappyBirthdayMelody() {
+                    const freqs = {
+                        "C4": 261.63, "D4": 293.66, "E4": 329.63, "F4": 349.23, "G4": 392.00, "A4": 440.00, "A#4": 466.16, "B4": 493.88, "C5": 523.25
+                    };
+                    const notes = [
+                        { note: "C4", dur: 0.4 }, { note: "C4", dur: 0.4 }, { note: "D4", dur: 0.8 }, { note: "C4", dur: 0.8 }, { note: "F4", dur: 0.8 }, { note: "E4", dur: 1.6 },
+                        { note: "C4", dur: 0.4 }, { note: "C4", dur: 0.4 }, { note: "D4", dur: 0.8 }, { note: "C4", dur: 0.8 }, { note: "G4", dur: 0.8 }, { note: "F4", dur: 1.6 },
+                        { note: "C4", dur: 0.4 }, { note: "C4", dur: 0.4 }, { note: "C5", dur: 0.8 }, { note: "A4", dur: 0.8 }, { note: "F4", dur: 0.8 }, { note: "E4", dur: 0.8 }, { note: "D4", dur: 1.6 },
+                        { note: "A#4", dur: 0.4 }, { note: "A#4", dur: 0.4 }, { note: "A4", dur: 0.8 }, { note: "F4", dur: 0.8 }, { note: "G4", dur: 0.8 }, { note: "F4", dur: 1.6 }
+                    ];
+                    try {
+                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        let time = ctx.currentTime + 0.8;
+                        notes.forEach(n => {
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.type = "sine";
+                            osc.frequency.setValueAtTime(freqs[n.note], time);
+
+                            gain.gain.setValueAtTime(0, time);
+                            gain.gain.linearRampToValueAtTime(0.12, time + 0.05);
+                            gain.gain.exponentialRampToValueAtTime(0.001, time + n.dur - 0.05);
+
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+
+                            osc.start(time);
+                            osc.stop(time + n.dur);
+
+                            time += n.dur * 0.78;
+                        });
+                    } catch (e) { console.warn(e); }
+                }
+
+                function spawnBirthdayBalloons() {
+                    const colors = ["#f43f5e", "#3b82f6", "#10b981", "#fbbf24", "#8b5cf6", "#ec4899"];
+                    const container = document.querySelector(".birthday-balloons-container");
+                    if (!container) return;
+                    for (let i = 0; i < 20; i++) {
+                        const balloon = document.createElement("div");
+                        balloon.style.position = "absolute";
+                        balloon.style.bottom = "-80px";
+                        balloon.style.left = Math.random() * 90 + 5 + "%";
+                        balloon.style.width = "40px";
+                        balloon.style.height = "52px";
+                        balloon.style.borderRadius = "50% 50% 50% 50% / 40% 40% 60% 60%";
+                        balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        balloon.style.opacity = "0.75";
+                        balloon.style.zIndex = "10001";
+
+                        balloon.style.animation = `floatUpBirthdayBalloon ${Math.random() * 3 + 4}s linear forwards`;
+                        balloon.style.animationDelay = Math.random() * 3 + "s";
+                        container.appendChild(balloon);
+                    }
+                }
+
+                function openBirthdayGift() {
+                    if (typeof playStarChime === 'function') playStarChime();
+                    if (typeof playClapSound === 'function') playClapSound();
+
+                    // Trigger voice wish and birthday melody on click to bypass browser autoplay blocks
+                    speakBirthdayWish("{{ session.get('fullname') }}", "{{ session.get('language') }}");
+                    playHappyBirthdayMelody();
+
+                    document.getElementById("birthdayGiftBox").style.display = "none";
+                    document.getElementById("birthdayRewardsPanel").classList.remove("d-none");
+
+                    localStorage.setItem("lumi_active_accessory", "party_hat");
+                    let accs = JSON.parse(localStorage.getItem("lumi_unlocked_accessories") || '["default"]');
+                    if (!accs.includes("party_hat")) {
+                        accs.push("party_hat");
+                        localStorage.setItem("lumi_unlocked_accessories", JSON.stringify(accs));
+                    }
+                }
+
+                function showBirthdayCertificate() {
+                    document.getElementById("birthdayCelebrationOverlay").style.display = "none";
+                    document.getElementById("birthdayCertificatePrintArea").classList.remove("d-none");
+                }
+
+                function closeCertificate() {
+                    document.getElementById("birthdayCertificatePrintArea").classList.add("d-none");
+                }
+
+                let birthdayAutoCloseTimeout = null;
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    if (document.getElementById("birthdayCelebrationOverlay")) {
+                        setTimeout(() => {
+                            if (typeof renderMascot === 'function') {
+                                renderMascot("birthdayMascotContainer", "celebrate", "Happy Birthday! Today is your special day!", "{{ session.get('language') }}");
+                            }
+                            spawnBirthdayBalloons();
+                        }, 800);
+
+                        // Auto close after 10 seconds
+                        birthdayAutoCloseTimeout = setTimeout(() => {
+                            closeBirthdayOverlay();
+                        }, 10000);
+                    }
+                });
+
+                function closeBirthdayOverlay() {
+                    if (birthdayAutoCloseTimeout) {
+                        clearTimeout(birthdayAutoCloseTimeout);
+                    }
+                    const overlay = document.getElementById("birthdayCelebrationOverlay");
+                    if (overlay) overlay.style.display = "none";
+
+                    fetch("/api/dismiss-birthday", { method: "POST" })
+                        .then(() => {
+                            if (window.location.pathname !== "/dashboard") {
+                                window.location.href = "/dashboard";
+                            }
+                        }).catch(err => {
+                            console.error("Error dismissing birthday:", err);
+                            if (window.location.pathname !== "/dashboard") {
+                                window.location.href = "/dashboard";
+                            }
+                        });
+                }
+            </script>
+            {% endif %}
+
+            <!-- Main Content -->
+
+            {% block content %}
+
+            {% endblock %}
+
+            {% if session.get('user_id') and session.get('role') != 'admin' %}
+        </div>
+    </div>
+    {% endif %}
+
+
+
+
+
+    <!-- Bootstrap JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Mascot and Support Scripts -->
+    <script src="{{ url_for('static', filename='js/mascot.js') }}?v=1.0.4"></script>
+    <script src="{{ url_for('static', filename='js/voice_eval.js') }}?v=1.0.4"></script>
+    <script src="{{ url_for('static', filename='js/keyboard.js') }}?v=1.0.4"></script>
+    <script src="{{ url_for('static', filename='js/tracing.js') }}?v=1.0.4"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=1.0.4"></script>
+
+    {% block js %}
+
+    {% endblock %}
+
+
+    <script>
+        function changeSiteLanguage(lang) {
+            fetch('/api/set-language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: lang })
+            }).then(res => res.json()).then(data => {
+                if (data.status === 'success') {
+                    window.location.reload();
+                }
+            }).catch(err => {
+                console.error('Error switching language:', err);
+            });
+        }
+    </script>
+    {% if session.get('role') != 'admin' %}
+    <!-- Floating Voice Tutor Control Panel -->
+    <div id="voiceTutorPanel" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1050;">
+        <button id="voiceMuteToggleBtn"
+            class="btn rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-white border-opacity-25 backdrop-blur text-white"
+            style="width: 50px; height: 50px; font-size: 1.3rem; transition: all 0.3s ease; background-color: rgba(30, 41, 59, 0.85);"
+            title="Mute/Unmute Lumi Coach">
+            🔊
+        </button>
+    </div>
+
+    <script>
+        (function () {
+            const muteToggleBtn = document.getElementById('voiceMuteToggleBtn');
+
+            // Ensure default settings in local storage
+            if (localStorage.getItem('voice_tutor_autoplay') === null) {
+                localStorage.setItem('voice_tutor_autoplay', 'true');
+            }
+            if (localStorage.getItem('voice_tutor_muted') === null) {
+                localStorage.setItem('voice_tutor_muted', 'false');
+            }
+
+            function updatePanelUI() {
+                const isMuted = localStorage.getItem('voice_tutor_muted') === 'true';
+                if (isMuted) {
+                    muteToggleBtn.innerHTML = "🔇";
+                    muteToggleBtn.style.backgroundColor = "rgba(239, 68, 68, 0.85)"; // Red when muted
+                    muteToggleBtn.title = "Unmute Lumi Coach";
+                } else {
+                    muteToggleBtn.innerHTML = "🔊";
+                    muteToggleBtn.style.backgroundColor = "rgba(34, 197, 94, 0.85)"; // Green when active
+                    muteToggleBtn.title = "Mute Lumi Coach";
+                }
+            }
+
+            muteToggleBtn.addEventListener('click', function () {
+                const isMuted = localStorage.getItem('voice_tutor_muted') === 'true';
+                if (isMuted) {
+                    // Unmute
+                    localStorage.setItem('voice_tutor_muted', 'false');
+                    localStorage.setItem('voice_tutor_autoplay', 'true');
+                    fetch('/api/learning-path/update-stream', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ voice_tutor_autoplay: true, voice_tutor_muted: false })
+                    }).catch(e => { });
+                    updatePanelUI();
+
+                    // Speak last message
+                    if (window.speakMessage && window.lastSpokenText) {
+                        window.speakMessage(window.lastSpokenText, window.lastSpokenLang);
+                    }
+                } else {
+                    // Mute
+                    localStorage.setItem('voice_tutor_muted', 'true');
+                    localStorage.setItem('voice_tutor_autoplay', 'false');
+                    fetch('/api/learning-path/update-stream', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ voice_tutor_autoplay: false, voice_tutor_muted: true })
+                    }).catch(e => { });
+                    if (window.speechSynthesis) {
+                        window.speechSynthesis.cancel();
+                    }
+                    if (window.currentHtmlAudio) {
+                        try { window.currentHtmlAudio.pause(); } catch (e) { }
+                    }
+                    updatePanelUI();
+                }
+            });
+
+            // Keyboard support hotkeys: Alt + M to toggle mute
+            window.addEventListener('keydown', function (e) {
+                if (e.altKey && e.key.toLowerCase() === 'm') {
+                    e.preventDefault();
+                    muteToggleBtn.click();
+                }
+            });
+
+            // Hook global speech synthesis speak function to respect muting state
+            if (window.speechSynthesis) {
+                const originalSpeak = window.speechSynthesis.speak;
+                window.speechSynthesis.speak = function (utterance) {
+                    if (localStorage.getItem('voice_tutor_muted') === 'true') {
+                        console.log('[Voice Tutor] Speak request intercepted because tutor is muted.');
+                        return;
+                    }
+                    originalSpeak.call(window.speechSynthesis, utterance);
+                };
+            }
+
+            updatePanelUI();
+        })();
+    </script>
+    {% endif %}
+
+
+    <!-- PWA Service Worker & Installer Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => {
+                        console.log('[PWA] Service Worker registered successfully with scope:', reg.scope);
+                    })
+                    .catch(err => {
+                        console.error('[PWA] Service Worker registration failed:', err);
+                    });
+            });
+        }
+
+        // Installation flow handlers
+        let deferredPrompt;
+        const installBtnLi = document.getElementById('pwaInstallLi');
+        const installBtn = document.getElementById('pwaInstallBtn');
+        const toddlerInstallBtnLi = document.getElementById('pwaToddlerInstallLi');
+        const toddlerInstallBtn = document.getElementById('pwaToddlerInstallBtn');
+        const navbarInstallBtnLi = document.getElementById('pwaNavbarInstallLi');
+        const navbarInstallBtn = document.getElementById('pwaNavbarInstallBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('[PWA] beforeinstallprompt event fired');
+
+            if (installBtnLi) installBtnLi.style.setProperty('display', 'block', 'important');
+            if (toddlerInstallBtnLi) toddlerInstallBtnLi.style.setProperty('display', 'block', 'important');
+            if (navbarInstallBtnLi) navbarInstallBtnLi.style.setProperty('display', 'block', 'important');
+        });
+
+        function triggerPWAInstall(e) {
+            e.preventDefault();
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(({ outcome }) => {
+                console.log(`[PWA] User choice outcome: ${outcome}`);
+                deferredPrompt = null;
+                if (installBtnLi) installBtnLi.style.setProperty('display', 'none', 'important');
+                if (toddlerInstallBtnLi) toddlerInstallBtnLi.style.setProperty('display', 'none', 'important');
+                if (navbarInstallBtnLi) navbarInstallBtnLi.style.setProperty('display', 'none', 'important');
+            });
+        }
+
+        if (installBtn) installBtn.addEventListener('click', triggerPWAInstall);
+        if (toddlerInstallBtn) toddlerInstallBtn.addEventListener('click', triggerPWAInstall);
+        if (navbarInstallBtn) navbarInstallBtn.addEventListener('click', triggerPWAInstall);
+
+        window.addEventListener('appinstalled', () => {
+            console.log('[PWA] App installed successfully');
+            if (installBtnLi) installBtnLi.style.setProperty('display', 'none', 'important');
+            if (toddlerInstallBtnLi) toddlerInstallBtnLi.style.setProperty('display', 'none', 'important');
+            if (navbarInstallBtnLi) navbarInstallBtnLi.style.setProperty('display', 'none', 'important');
+        });
+    </script>
+
+
+</body>
+
+</html>

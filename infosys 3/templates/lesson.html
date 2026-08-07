@@ -1,0 +1,1334 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="/static/js/voice_eval.js"></script>
+<script>
+window.mediaRecorders = window.mediaRecorders || {};
+window.recordedBlobs = window.recordedBlobs || {};
+window.recordedUrls = window.recordedUrls || {};
+window.activeRecogs = window.activeRecogs || {};
+window.recogTranscripts = window.recogTranscripts || {};
+window.sentencesSpoken = window.sentencesSpoken || new Set();
+
+function speakText(text, lang) {
+    if (!window.speechSynthesis) {
+        alert("Speech Synthesis is not supported in this browser.");
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    let locale = "en-US";
+    const langLower = (lang || "").toLowerCase().trim();
+    if (langLower.includes("telugu")) locale = "te-IN";
+    else if (langLower.includes("hindi")) locale = "hi-IN";
+    else if (langLower.includes("tamil")) locale = "ta-IN";
+    else if (langLower.includes("kannada")) locale = "kn-IN";
+    else if (langLower.includes("marathi")) locale = "mr-IN";
+
+    utterance.lang = locale;
+    utterance.rate = 0.85;
+    window.speechSynthesis.speak(utterance);
+}
+
+function speakPracticeSentence(expectedText, pronunciation, index) {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    const statusDiv = document.getElementById("speakStatus_" + index);
+    const metricsDiv = document.getElementById("speakMetrics_" + index);
+    const canvas = document.getElementById("visualizer_" + index);
+    const statusLabel = document.getElementById("recorderStatus_" + index);
+    const speakBtn = document.getElementById("speakBtn_" + index);
+
+    if (statusDiv) statusDiv.style.display = "block";
+    if (metricsDiv) metricsDiv.style.display = "block";
+    if (canvas) canvas.style.display = "block";
+    if (speakBtn) speakBtn.classList.add("recording-active");
+    if (statusLabel) statusLabel.innerText = "Status: Listening & Speaking practice active...";
+
+    const langName = `{{ lesson.language }}` || `{{ preferred_language }}` || "English";
+
+    if (typeof startAdvancedSpeech === 'function') {
+        startAdvancedSpeech({
+            expectedText: expectedText,
+            languageName: langName,
+            statusId: "speakStatus_" + index,
+            micBtnId: "speakBtn_" + index,
+            canvasId: "visualizer_" + index,
+            metricsPanelId: "speakMetrics_" + index,
+            onSuccess: function(wpm, confidence) {
+                if (typeof enableCompletion === 'function') enableCompletion();
+                if (statusLabel) statusLabel.innerHTML = "<span class='text-success fw-bold'>✓ Speech analyzed!</span>";
+            },
+            onFailure: function(score) {
+                if (typeof enableCompletion === 'function') enableCompletion();
+                if (statusLabel) statusLabel.innerHTML = "<span class='text-success fw-bold'>✓ Practice recorded!</span>";
+            }
+        });
+    }
+}
+</script>
+
+<section class="lesson-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Back Button -->
+                <div class="mb-4">
+                    <a href="/week-module" class="btn btn-outline-light rounded-pill px-4 py-2 text-white border-white border-opacity-20 bg-white bg-opacity-10 glass-btn">
+                        <i class="bi bi-arrow-left me-2"></i>{{ translations.back_to_modules }}
+                    </a>
+                </div>
+
+                <!-- Lesson Content Card -->
+                <div class="card lesson-card shadow-lg border-0 p-5 position-relative overflow-hidden mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                        <span class="badge bg-primary text-uppercase px-3 py-1.5 rounded-pill fs-7 fw-semibold">
+                            <i class="bi bi-tag-fill me-1"></i>{{ lesson.category }}
+                        </span>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold shadow-sm" onclick="speakEntireLesson()" title="Listen to the entire lesson sequentially">
+                                🔊 Listen Lesson
+                            </button>
+                            <span class="badge bg-secondary-subtle text-secondary px-3 py-1.5 rounded-pill fs-7 text-capitalize">
+                                Level: {{ lesson.difficulty }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <h1 class="fw-bold text-dark mb-4 text-center text-break" style="font-size: clamp(22px, 4vw, 36px); word-wrap: break-word; overflow-wrap: break-word; line-height: 1.3;">
+                        {{ translated_title }}
+                        {% if translated_title != lesson.title %}
+                            <br><span class="fs-5 text-muted fw-normal" style="color: #4b5563 !important;">({{ lesson.title }})</span>
+                        {% endif %}
+                    </h1>
+                    
+                    <!-- EMBEDDED LOCAL MP4 VIDEO PLAYER SECTION -->
+                    {% if video and video.video_url %}
+                    <div class="video-container mb-4" id="mainVideoContainer">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-dark mb-0"><i class="bi bi-play-btn-fill text-primary me-2"></i>{{ translations.video_title }}</h5>
+                        </div>
+                        <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-sm border border-light-subtle bg-dark position-relative" id="videoWrapperDiv">
+                            <video controls autoplay preload="metadata" width="100%" class="w-100 h-100" style="object-fit: cover; border-radius: 16px;" onerror="console.warn('[VIDEO ERROR] Missing MP4 file:', '{{ video.video_url }}'); handleVideoError();">
+                                <source src="{{ video.video_url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <div class="small text-muted mt-2 d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-translate me-1"></i>{{ translations.preferred_language }}: {{ video.language if video.language else current_language }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- AI Tutor Mascot Container -->
+                    <div id="lumiLessonMascot" class="mb-4"></div>
+
+                    <!-- Duolingo Step-by-Step Card Stepper Header -->
+                    <div class="card p-3 mb-4 border-0 shadow-sm rounded-4 bg-white">
+                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                            <span id="cardStepProgressText" class="fw-bold text-primary fs-6">
+                                <i class="bi bi-collection-play-fill me-1"></i> Card 1 of {{ sentences_data|length }}
+                            </span>
+                            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1.5 rounded-pill">
+                                <i class="bi bi-star-fill text-warning me-1"></i> Interactive Phonics & Letter Card
+                            </span>
+                        </div>
+                        <div class="progress rounded-pill" style="height: 10px;">
+                            <div id="cardStepProgressBar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated rounded-pill" style="width: 20%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Redesigned Bilingual Sentence Textbook System -->
+                    <div class="sentence-textbook-container mt-3">
+                        {% for s in sentences_data %}
+                        <div class="card sentence-card border border-light-subtle rounded-4 p-4 mb-4 shadow-sm bg-white position-relative" id="card_s_{{ loop.index }}" data-sentence="{{ s.sentence|escape }}" data-pronunciation="{{ s.pronunciation|escape }}" {% if loop.first %}style="display: block; transition: all 0.3s ease;"{% else %}style="display: none; transition: all 0.3s ease;"{% endif %}>
+                            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-light-subtle pb-2">
+                                <span class="badge bg-primary rounded-pill px-3 py-1 fw-bold fs-8">Card {{ loop.index }} of {{ sentences_data|length }}</span>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-bold" onclick="speakRedesignedSentence(this.closest('.sentence-card').getAttribute('data-sentence'), '{{ preferred_language }}', '{{ learning_language }}')">
+                                        🔊 Listen
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 fw-bold" id="speakBtn_{{ loop.index }}" onclick="speakPracticeSentence(this.closest('.sentence-card').getAttribute('data-sentence'), this.closest('.sentence-card').getAttribute('data-pronunciation'), '{{ loop.index }}')">
+                                        🎙️ Speak Now
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 1. Sentence / Letter in Learning Language -->
+                            <div class="learning-sentence-block text-center py-3 mb-2 bg-light bg-opacity-50 rounded-4 border border-light-subtle">
+                                <span class="d-block fw-bold text-success text-break" style="font-size: 56px; line-height: 1.2; font-family: 'Poppins', 'Noto Sans Telugu', 'Noto Sans Devanagari';">{{ s.sentence }}</span>
+                                {% if s.meaning %}
+                                    <span class="fs-4 text-dark fw-bold d-block mt-2">{{ s.meaning }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- 2. Pronunciation line using Latin script -->
+                            <div class="pronunciation-line-block text-center mb-3 text-secondary font-monospace" style="font-size: 16px;">
+                                Pronunciation: "{{ s.pronunciation }}"
+                            </div>
+                            
+                            <!-- Speak status metrics -->
+                            <div id="speakStatus_{{ loop.index }}" class="small fw-semibold text-secondary mb-2 text-center" style="display: none;"></div>
+                            <div id="speakMetrics_{{ loop.index }}" class="p-2 bg-light rounded-3 mb-2" style="display: none;"></div>
+                            <canvas id="visualizer_{{ loop.index }}" class="w-100 bg-light rounded-3 mb-2" style="height: 50px; display: none;"></canvas>
+
+                            <!-- Custom Voice Recorder Widget -->
+                            <div class="voice-recorder-widget p-3 bg-light rounded-4 border border-light-subtle mb-3 mt-2 shadow-sm text-center" id="recorderWidget_{{ loop.index }}">
+                                <div class="small text-muted fw-bold mb-2"><i class="bi bi-mic-fill me-1 text-danger"></i>Voice Practice Recorder</div>
+                                <div class="d-flex justify-content-center align-items-center gap-2 mb-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-danger rounded-pill px-3 py-1.5 fw-bold" id="recordBtn_{{ loop.index }}" onclick="toggleVoiceRecording('{{ loop.index }}', this.closest('.sentence-card').getAttribute('data-sentence'))">
+                                        ⏺️ Record
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 py-1.5 fw-bold" id="playRecBtn_{{ loop.index }}" onclick="playVoiceRecording('{{ loop.index }}')" disabled>
+                                        ▶️ Play
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 fw-bold" id="deleteRecBtn_{{ loop.index }}" onclick="deleteVoiceRecording('{{ loop.index }}')" disabled>
+                                        🗑️ Delete
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3 py-1.5 fw-bold" id="retryRecBtn_{{ loop.index }}" onclick="retryVoiceRecording('{{ loop.index }}', this.closest('.sentence-card').getAttribute('data-sentence'))" disabled>
+                                        🔁 Retry
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-1.5 fw-bold shadow-sm" id="submitRecBtn_{{ loop.index }}" onclick="submitVoiceRecording('{{ loop.index }}', this.closest('.sentence-card').getAttribute('data-sentence'))" disabled>
+                                        📤 Submit
+                                    </button>
+                                </div>
+                                <div id="recorderStatus_{{ loop.index }}" class="small text-secondary font-monospace" style="font-size: 11px;">Status: Ready to record</div>
+                                <audio id="recordedAudio_{{ loop.index }}" class="d-none" controls></audio>
+                            </div>
+
+                            <!-- 5. Practice Questions based on Sentence -->
+                            {% if s.quiz %}
+                            <div class="practice-quiz-block p-3 rounded-4 bg-light border border-light-subtle mt-3">
+                                <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-question-circle-fill me-1"></i>Practice Quiz: {{ s.quiz.question }}</h6>
+                                <div class="row g-2">
+                                    {% for option in s.quiz.options %}
+                                    <div class="col-md-4">
+                                        <div class="quiz-btn-option border rounded-3 p-2.5 bg-white text-center fw-bold text-dark fs-6" style="cursor: pointer; transition: all 0.2s; border: 2px solid #e2e8f0 !important;" data-option="{{ option|escape }}" data-answer="{{ s.quiz.answer|escape }}" onclick="checkSentenceQuiz(this, this.getAttribute('data-option'), this.getAttribute('data-answer'), '{{ loop.index }}')">
+                                            {{ option }}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div id="quizFeedback_{{ loop.index }}" class="small fw-bold mt-2 text-center" style="display: none;"></div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Stepper Navigation Footer -->
+                    <div class="card p-3 border-0 shadow-sm rounded-4 bg-white mt-3 d-flex flex-row align-items-center justify-content-between flex-wrap gap-2">
+                        <button id="prevStepBtn" type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold" onclick="prevCardStep()" disabled>
+                            <i class="bi bi-arrow-left me-1"></i> Previous Card
+                        </button>
+                        <div class="text-center">
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1.5 rounded-pill fw-bold" style="font-size: 12px;">CARD STEPPER</span>
+                        </div>
+                        <button id="nextStepBtn" type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" onclick="nextCardStep()">
+                            Next Card <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                    </div>
+
+                    <!-- Mark as Completed Form (Enabled once validation succeeds) -->
+                    <form action="/complete_lesson/{{ lesson.id }}" method="POST" class="mt-5" id="completeLessonForm">
+                        <button id="completeBtn" type="button" class="btn btn-success btn-lg w-100 py-3 rounded-pill fw-bold shadow transition-all" onclick="openSpinWheel()" disabled>
+                            <i class="bi bi-lock-fill me-2" id="completeIcon"></i>{{ translations.complete_lesson_activity_first }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<!-- Safe data passing via script type="application/json" to prevent JS parse errors -->
+<script id="lesson-speech-data" type="application/json">
+{
+    "title": {{ translated_title|tojson|safe }},
+    "sentences": {{ sentences_data|tojson|safe }}
+}
+</script>
+
+<script>
+const lessonSpeechData = JSON.parse(document.getElementById('lesson-speech-data').textContent);
+
+let lessonSpeechQueue = [];
+let isLessonSpeakingActive = false;
+
+function speakEntireLesson() {
+    if (!('speechSynthesis' in window)) {
+        alert("Speech Synthesis is not supported in this browser.");
+        return;
+    }
+    
+    if (localStorage.getItem("voice_tutor_muted") === "true") {
+        alert("Voice tutor is muted. Please enable speaker/unmute in the Voice Control Panel first.");
+        return;
+    }
+    
+    window.speechSynthesis.cancel();
+    lessonSpeechQueue = [];
+    isLessonSpeakingActive = true;
+    
+    const langCodes = {
+        "English": "en-US",
+        "Telugu": "te-IN",
+        "Hindi": "hi-IN",
+        "Tamil": "ta-IN",
+        "Kannada": "kn-IN",
+        "Malayalam": "ml-IN",
+        "Marathi": "mr-IN"
+    };
+    
+    const prefLangCode = langCodes["{{ preferred_language }}"] || "en-US";
+    const learnLangCode = langCodes["{{ learning_language }}"] || "en-US";
+    
+    const voices = window.speechSynthesis.getVoices() || [];
+    const prefVoice = voices.find(v => v.lang.replace('_', '-').toLowerCase().startsWith(prefLangCode.split('-')[0].toLowerCase()));
+    const learnVoice = voices.find(v => v.lang.replace('_', '-').toLowerCase().startsWith(learnLangCode.split('-')[0].toLowerCase()));
+
+    function enqueue(text, voice, langCode) {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = langCode;
+        u.rate = 0.85;
+        if (voice) u.voice = voice;
+        lessonSpeechQueue.push(u);
+    }
+    
+    enqueue("Lesson title: " + lessonSpeechData.title, prefVoice, prefLangCode);
+    
+    lessonSpeechData.sentences.forEach((s, idx) => {
+        enqueue("Sentence " + (idx + 1) + ":", prefVoice, prefLangCode);
+        enqueue(s.sentence, learnVoice, learnLangCode);
+        
+        if (s.quiz) {
+            enqueue("Practice quiz question: " + s.quiz.question, prefVoice, prefLangCode);
+            s.quiz.options.forEach((opt, oIdx) => {
+                enqueue("Option " + (oIdx + 1) + ": " + opt, prefVoice, prefLangCode);
+            });
+        }
+    });
+    
+    if (lessonSpeechQueue.length === 0) return;
+    
+    for (let i = 0; i < lessonSpeechQueue.length - 1; i++) {
+        lessonSpeechQueue[i].onend = function() {
+            if (isLessonSpeakingActive) {
+                window.speechSynthesis.speak(lessonSpeechQueue[i+1]);
+            }
+        };
+    }
+    
+    lessonSpeechQueue[lessonSpeechQueue.length - 1].onend = function() {
+        isLessonSpeakingActive = false;
+        console.log("Entire lesson reading completed.");
+    };
+    
+    window.speechSynthesis.speak(lessonSpeechQueue[0]);
+}
+
+// ----------------------------------------
+// Interactive Card Stepper Logic (Duolingo Style)
+// ----------------------------------------
+let currentCardIndex = 1;
+const totalCards = parseInt("{{ sentences_data|length }}") || 1;
+
+function showCardStep(stepIndex) {
+    currentCardIndex = stepIndex;
+    for (let i = 1; i <= totalCards; i++) {
+        const card = document.getElementById("card_s_" + i);
+        if (card) {
+            if (i === stepIndex) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        }
+    }
+    
+    const percent = Math.round((stepIndex / totalCards) * 100);
+    const progressBar = document.getElementById("cardStepProgressBar");
+    const progressText = document.getElementById("cardStepProgressText");
+    if (progressBar) progressBar.style.width = percent + "%";
+    if (progressText) progressText.innerHTML = `<i class="bi bi-collection-play-fill me-1"></i> Card ${stepIndex} of ${totalCards} (${percent}%)`;
+    
+    const prevBtn = document.getElementById("prevStepBtn");
+    const nextBtn = document.getElementById("nextStepBtn");
+    if (prevBtn) prevBtn.disabled = (stepIndex === 1);
+    if (nextBtn) {
+        if (stepIndex === totalCards) {
+            nextBtn.innerHTML = 'Finish Practice <i class="bi bi-check-circle-fill ms-1"></i>';
+            nextBtn.classList.remove('btn-primary');
+            nextBtn.classList.add('btn-success');
+        } else {
+            nextBtn.innerHTML = 'Next Card <i class="bi bi-arrow-right ms-1"></i>';
+            nextBtn.classList.remove('btn-success');
+            nextBtn.classList.add('btn-primary');
+        }
+    }
+    
+    if (stepIndex === totalCards && typeof enableCompletion === 'function') {
+        enableCompletion();
+    }
+}
+
+function prevCardStep() {
+    if (currentCardIndex > 1) {
+        showCardStep(currentCardIndex - 1);
+    }
+}
+
+function nextCardStep() {
+    if (currentCardIndex < totalCards) {
+        showCardStep(currentCardIndex + 1);
+    } else {
+        if (typeof enableCompletion === 'function') {
+            enableCompletion();
+        }
+        const completeBtn = document.getElementById("completeBtn");
+        if (completeBtn) {
+            completeBtn.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (totalCards > 0) {
+        showCardStep(1);
+    }
+});
+
+function speakPracticeSentence(expectedText, pronunciation, index) {
+    const statusDiv = document.getElementById("speakStatus_" + index);
+    const metricsDiv = document.getElementById("speakMetrics_" + index);
+    const canvas = document.getElementById("visualizer_" + index);
+    const statusLabel = document.getElementById("recorderStatus_" + index);
+
+    if (statusDiv) statusDiv.style.display = "block";
+    if (metricsDiv) metricsDiv.style.display = "block";
+    if (canvas) canvas.style.display = "block";
+    if (statusLabel) statusLabel.innerText = "Status: Listening via Speech Coach...";
+
+    const langName = `{{ lesson.language }}` || `{{ preferred_language }}` || "English";
+
+    if (typeof startAdvancedSpeech === 'function') {
+        startAdvancedSpeech({
+            expectedText: expectedText,
+            languageName: langName,
+            statusId: "speakStatus_" + index,
+            micBtnId: "speakBtn_" + index,
+            canvasId: "visualizer_" + index,
+            metricsPanelId: "speakMetrics_" + index,
+            onSuccess: function(wpm, confidence) {
+                if (typeof enableCompletion === 'function') enableCompletion();
+                if (statusLabel) statusLabel.innerHTML = "<span class='text-success fw-bold'>Speech analyzed successfully!</span>";
+                fetch("/api/learning-path/submit-voice-attempt", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        lesson_id: parseInt("{{ lesson.id }}"),
+                        sentence_index: parseInt(index),
+                        transcript: window.lastSpokenTranscript || expectedText,
+                        pronunciation_score: window.lastSpeechScore || 85,
+                        speaking_score: window.lastSpeechScore || 85,
+                        listening_score: 80.0
+                    })
+                }).catch(err => console.warn(err));
+            },
+            onFailure: function(score) {
+                if (typeof enableCompletion === 'function') enableCompletion();
+                if (statusLabel) statusLabel.innerHTML = "<span class='text-warning fw-bold'>Speech recorded! Practice again to increase accuracy.</span>";
+            }
+        });
+    } else {
+        alert("Voice recognition is starting... Please allow microphone access.");
+    }
+}
+
+let mediaRecorders = {};
+let recordedBlobs = {};
+let recordedUrls = {};
+let activeRecogs = {};
+let recogTranscripts = {};
+
+function toggleVoiceRecording(index, expectedText) {
+    const recordBtn = document.getElementById("recordBtn_" + index);
+    const statusLabel = document.getElementById("recorderStatus_" + index);
+    
+    if (mediaRecorders[index] && mediaRecorders[index].state === "recording") {
+        mediaRecorders[index].stop();
+        if (activeRecogs[index]) {
+            try { activeRecogs[index].stop(); } catch(e) {}
+        }
+        recordBtn.innerHTML = "⏺️ Record";
+        recordBtn.classList.remove("recording-active");
+        statusLabel.innerText = "Status: Recording stopped";
+        return;
+    }
+    
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorders[index] = mediaRecorder;
+        recordedBlobs[index] = [];
+        
+        // Start background SpeechRecognition matching the lesson language
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recog = new SpeechRecognition();
+            recog.continuous = false;
+            recog.interimResults = false;
+            
+            // Map regional language to browser BCP-47 locale code
+            let locale = "en-US";
+            const lang = `{{ lesson.language }}`.toLowerCase().trim();
+            if (lang.includes("telugu")) locale = "te-IN";
+            else if (lang.includes("hindi")) locale = "hi-IN";
+            else if (lang.includes("tamil")) locale = "ta-IN";
+            else if (lang.includes("kannada")) locale = "kn-IN";
+            else if (lang.includes("marathi")) locale = "mr-IN";
+            
+            recog.lang = locale;
+            recogTranscripts[index] = "";
+            
+            recog.onresult = function(e) {
+                if (e.results && e.results[0]) {
+                    recogTranscripts[index] = e.results[0][0].transcript;
+                    console.log(`[Background Recog Result index ${index}]:`, recogTranscripts[index]);
+                }
+            };
+            
+            recog.onerror = function(e) {
+                console.warn("[Background Recog Error]:", e);
+            };
+            
+            activeRecogs[index] = recog;
+            recog.start();
+        } else {
+            console.warn("SpeechRecognition not supported in this browser.");
+        }
+        
+        mediaRecorder.ondataavailable = function(e) {
+            if (e.data && e.data.size > 0) {
+                recordedBlobs[index].push(e.data);
+            }
+        };
+        
+        mediaRecorder.onstop = function() {
+            const blob = new Blob(recordedBlobs[index], { type: 'audio/webm' });
+            const url = URL.createObjectURL(blob);
+            recordedUrls[index] = url;
+            
+            const audioElem = document.getElementById("recordedAudio_" + index);
+            audioElem.src = url;
+            
+            document.getElementById("playRecBtn_" + index).disabled = false;
+            document.getElementById("deleteRecBtn_" + index).disabled = false;
+            document.getElementById("retryRecBtn_" + index).disabled = false;
+            document.getElementById("submitRecBtn_" + index).disabled = false;
+            
+            statusLabel.innerText = "Status: Recording ready to play or submit";
+            stream.getTracks().forEach(track => track.stop());
+        };
+        
+        mediaRecorder.start();
+        recordBtn.innerHTML = "⏹️ Stop";
+        recordBtn.classList.add("recording-active");
+        statusLabel.innerText = "Status: Recording...";
+    }).catch(err => {
+        console.error("Microphone error:", err);
+        statusLabel.innerHTML = `<span class="text-danger fw-bold">Microphone access denied: ${err.message || err}</span>`;
+        alert("Microphone permission is required to practice speaking. Please enable it in your browser settings.");
+    });
+}
+
+function playVoiceRecording(index) {
+    const audioElem = document.getElementById("recordedAudio_" + index);
+    if (audioElem && audioElem.src) {
+        audioElem.play().catch(e => console.warn(e));
+        document.getElementById("recorderStatus_" + index).innerText = "Status: Playing recording...";
+        audioElem.onended = () => {
+            document.getElementById("recorderStatus_" + index).innerText = "Status: Ready";
+        };
+    }
+}
+
+function deleteVoiceRecording(index) {
+    recordedBlobs[index] = null;
+    recordedUrls[index] = null;
+    recogTranscripts[index] = "";
+    const audioElem = document.getElementById("recordedAudio_" + index);
+    audioElem.removeAttribute("src");
+    
+    document.getElementById("playRecBtn_" + index).disabled = true;
+    document.getElementById("deleteRecBtn_" + index).disabled = true;
+    document.getElementById("retryRecBtn_" + index).disabled = true;
+    document.getElementById("submitRecBtn_" + index).disabled = true;
+    
+    document.getElementById("recorderStatus_" + index).innerText = "Status: Recording deleted";
+}
+
+function retryVoiceRecording(index, expectedText) {
+    deleteVoiceRecording(index);
+    toggleVoiceRecording(index, expectedText);
+}
+
+function submitVoiceRecording(index, expectedText) {
+    const statusLabel = document.getElementById("recorderStatus_" + index);
+    statusLabel.innerText = "Status: Submitting for analysis...";
+    
+    const spokenText = recogTranscripts[index] || "";
+    if (!spokenText.trim()) {
+        statusLabel.innerHTML = "<span class='text-danger fw-bold'>No speech recognized. Trying audio upload fallback...</span>";
+        console.log(`[Fallback] No transcript for index ${index}. Checking recorded audio blob.`);
+
+        // If we have a recorded audio blob, upload it to the server for transcription/comparison
+        if (recordedBlobs[index] && recordedBlobs[index].length > 0) {
+            const blob = new Blob(recordedBlobs[index], { type: 'audio/webm' });
+            const form = new FormData();
+            form.append('audio', blob, 'recording.webm');
+            form.append('expected', expectedText);
+            form.append('lesson_id', '{{ lesson.id }}');
+
+            fetch('/api/multilingual/compare-voice', {
+                method: 'POST',
+                body: form
+            }).then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            }).then(data => {
+                console.log('[Fallback] server response:', data);
+                // If server returns a transcript or score, continue with the same flow
+                const spoken = data.transcript || data.spoken || '';
+                if (spoken) {
+                    // populate recogTranscripts so downstream logic can use it
+                    recogTranscripts[index] = spoken;
+                    // reuse existing flow by calling submitVoiceRecording again
+                    submitVoiceRecording(index, expectedText);
+                } else {
+                    statusLabel.innerHTML = "<span class='text-danger fw-bold'>Fallback failed: no transcript returned.</span>";
+                    setTimeout(() => {
+                        alert('No speech was captured and server transcription failed. Please try speaking again.');
+                    }, 800);
+                }
+            }).catch(err => {
+                console.error('[Fallback] upload error:', err);
+                statusLabel.innerHTML = "<span class='text-danger fw-bold'>Audio upload failed. Try again.</span>";
+                setTimeout(() => {
+                    alert('Audio upload failed. Please try again.');
+                }, 800);
+            });
+        } else {
+            statusLabel.innerHTML = "<span class='text-danger fw-bold'>No speech recognized. Speak clearly while recording!</span>";
+            setTimeout(() => {
+                alert("No speech was captured. We are launching the real-time Speech Coach visualizer so you can speak directly!");
+                speakPracticeSentence(expectedText, '', index);
+            }, 1500);
+        }
+        return;
+    }
+    
+    fetch("/api/multilingual/compare-voice", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            expected: expectedText,
+            spoken: spokenText
+        })
+    }).then(res => {
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        return res.json();
+    }).then(data => {
+        const score = data.score || 0;
+        statusLabel.innerText = `Pronunciation Match: ${score}%`;
+        
+        // Save attempt with improved error reporting and a single retry for transient failures
+        const savePayload = {
+            lesson_id: parseInt(`{{ lesson.id }}`),
+            sentence_index: index,
+            transcript: spokenText,
+            pronunciation_score: score,
+            speaking_score: score,
+            listening_score: 0.0
+        };
+
+        let saveRetry = 0;
+        function doSave() {
+            fetch("/api/learning-path/submit-voice-attempt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(savePayload)
+            }).then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => {
+                        throw new Error(`HTTP ${res.status}: ${text}`);
+                    });
+                }
+                return res.json();
+            }).then(saveData => {
+                let msg = `Match success: ${score}%! `;
+                if (saveData && saveData.improvement && saveData.improvement > 0) {
+                    msg += `Improved by +${saveData.improvement}%!`;
+                }
+                playMascotFeedback("lumiLessonMascot", true, msg, "Well done!", `{{ lesson.language }}`);
+                statusLabel.innerText = "Status: Analyzed & Saved (Match: " + score + "%)";
+                if (typeof enableCompletion === 'function') enableCompletion();
+            }).catch(err => {
+                console.error("Save attempt failed:", err);
+                if (saveRetry < 1) {
+                    saveRetry++;
+                    console.log("Retrying save (attempt ", saveRetry + 1, ")...");
+                    statusLabel.innerText = `Status: Match ${score}% (save failed, retrying...)`;
+                    setTimeout(doSave, 1000);
+                    return;
+                }
+                statusLabel.innerText = `Status: Score match is ${score}% (save failed)`;
+            });
+        }
+
+        doSave();
+        
+        sentencesSpoken.add(index);
+        checkCompletionState();
+    }).catch(err => {
+        console.error("Evaluation error:", err);
+        statusLabel.innerText = "Status: Server comparison failed. Try again!";
+    });
+}
+
+const sentencesCount = parseInt(`{{ sentences_data|length }}`);
+const quizzesCorrect = new Set();
+const sentencesSpoken = new Set();
+
+function checkCompletionState() {
+    // After removing meaning-based quizzes, require only speaking activity
+    // to mark a lesson complete. Keep requiredSpoken configurable as at
+    // least one sentence (or fewer if lesson has 0 sentences).
+    const requiredQuizzes = 0;
+    const requiredSpoken = Math.min(sentencesCount, 1);
+
+    if (sentencesSpoken.size >= requiredSpoken) {
+        enableCompletion();
+    } else {
+        let msg = "Complete activities: ";
+        if (requiredQuizzes > 0 && quizzesCorrect.size < requiredQuizzes) {
+            msg += `Answer at least ${requiredQuizzes} quiz question(s). `;
+        }
+        if (sentencesSpoken.size < requiredSpoken) {
+            msg += `Practice speaking at least ${requiredSpoken} sentence(s).`;
+        }
+        disableCompletion(msg);
+    }
+}
+
+function speakRedesignedSentence(sentence, preferredLanguage, learningLanguage) {
+    const isMuted = localStorage.getItem("voice_tutor_muted") === "true";
+    if (isMuted) return;
+    // Only speak the sentence in the learning language (pronunciation handled elsewhere)
+    if (!sentence) return;
+    speakTextWithCallback(sentence, learningLanguage, function() {});
+}
+
+let currentExpectedText = "";
+let currentSentenceIndex = 0;
+let isAssessmentRecording = false;
+let assessmentRecognition;
+
+function speakPracticeSentence(expectedText, pronunciation, sentenceIndex) {
+    currentExpectedText = expectedText;
+    currentSentenceIndex = sentenceIndex;
+    
+    document.getElementById("modal-target-word").textContent = expectedText;
+    document.getElementById("modal-translit").textContent = `(${pronunciation})`;
+    
+    // Reset Results Column
+    document.getElementById("feedback-score").textContent = "--";
+    document.getElementById("feedback-badge").textContent = "Not evaluated yet";
+    document.getElementById("feedback-badge").className = "fw-bold text-secondary mb-4 fs-6";
+    document.getElementById("feedback-text").textContent = "Speak the sentence clearly to analyze your speech.";
+    
+    const starContainer = document.getElementById("accuracy-stars");
+    starContainer.innerHTML = `
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+    `;
+    
+    document.getElementById("record-status").textContent = "Tap to Speak";
+    const recordBtn = document.getElementById("record-btn");
+    recordBtn.style.backgroundColor = "#6366f1";
+    document.getElementById("record-icon").className = "bi bi-mic-fill fs-2 text-white";
+    
+    const modal = new bootstrap.Modal(document.getElementById('voicePracticeModal'));
+    modal.show();
+}
+
+function toggleAssessmentRecording() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Speech recognition is not supported in this browser. Please use Chrome/Edge.");
+        return;
+    }
+
+    const recordBtn = document.getElementById("record-btn");
+    const recordIcon = document.getElementById("record-icon");
+    const recordStatus = document.getElementById("record-status");
+
+    if (isAssessmentRecording) {
+        assessmentRecognition.stop();
+        recordBtn.style.backgroundColor = "#6366f1";
+        recordIcon.className = "bi bi-mic-fill fs-2 text-white";
+        recordStatus.textContent = "Processing speech...";
+        isAssessmentRecording = false;
+        return;
+    }
+
+    assessmentRecognition = new SpeechRecognition();
+    const codes = {
+        "English": "en-US",
+        "Telugu": "te-IN",
+        "Hindi": "hi-IN",
+        "Tamil": "ta-IN",
+        "Kannada": "kn-IN",
+        "Marathi": "mr-IN"
+    };
+    
+    const targetLang = `{{ lesson.language }}`;
+    assessmentRecognition.lang = codes[targetLang] || "en-US";
+    assessmentRecognition.interimResults = false;
+    
+    recordStatus.textContent = "Listening...";
+    recordBtn.style.backgroundColor = "#ef4444";
+    recordIcon.className = "bi bi-mic-mute-fill fs-2 text-white";
+    isAssessmentRecording = true;
+
+    assessmentRecognition.start();
+
+    assessmentRecognition.onresult = function(event) {
+        const resultText = event.results[0][0].transcript;
+        recordStatus.textContent = `You said: "${resultText}"`;
+
+        fetch("/api/multilingual/compare-voice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                "expected": currentExpectedText,
+                "spoken": resultText
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success" || data.similarity !== undefined) {
+                const similarity = data.similarity || data.score || 0;
+                document.getElementById("feedback-score").textContent = similarity;
+                
+                // Update Badge
+                const badge = document.getElementById("feedback-badge");
+                if (similarity >= 90) {
+                    badge.textContent = "Excellent! Perfect accent! 🌟";
+                    badge.className = "fw-bold text-success mb-4 fs-6";
+                } else if (similarity >= 75) {
+                    badge.textContent = "Great! Keep it up! 🎉";
+                    badge.className = "fw-bold text-success mb-4 fs-6";
+                } else if (similarity >= 50) {
+                    badge.textContent = "Good effort! Keep practicing! 💪";
+                    badge.className = "fw-bold text-warning mb-4 fs-6";
+                } else {
+                    badge.textContent = "Try again! You can do it! 👍";
+                    badge.className = "fw-bold text-danger mb-4 fs-6";
+                }
+                
+                // Update Stars
+                const starContainer = document.getElementById("accuracy-stars");
+                starContainer.innerHTML = "";
+                const starsCount = Math.round(similarity / 20);
+                for (let s = 1; s <= 5; s++) {
+                    const icon = document.createElement("i");
+                    icon.className = s <= starsCount ? "bi bi-star-fill" : "bi bi-star";
+                    starContainer.appendChild(icon);
+                }
+                
+                document.getElementById("feedback-text").textContent = data.feedback || `You pronounced some words correctly. Similarity match at ${similarity}%.`;
+                
+                // Save attempt to backend
+                fetch("/api/save_voice_attempt", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        lesson_id: parseInt("{{ lesson.id }}"),
+                        expected_text: currentExpectedText,
+                        spoken_text: resultText,
+                        pronunciation_score: similarity,
+                        reading_speed: 80,
+                        speaking_score: similarity,
+                        listening_score: 0.0
+                    })
+                }).then(res => res.json()).then(saveData => {
+                    if (typeof sentencesSpoken !== 'undefined') {
+                        sentencesSpoken.add(currentSentenceIndex);
+                        if (typeof checkCompletionState === 'function') {
+                            checkCompletionState();
+                        }
+                    }
+                    const statusLabel = document.getElementById("recorderStatus_" + currentSentenceIndex);
+                    if (statusLabel) statusLabel.innerText = "Status: Analyzed & Saved (Score: " + similarity + "%)";
+                }).catch(err => {
+                    console.error("Error saving voice attempt:", err);
+                });
+            }
+        });
+    };
+
+    assessmentRecognition.onspeechend = function() {
+        assessmentRecognition.stop();
+        recordBtn.style.backgroundColor = "#6366f1";
+        recordIcon.className = "bi bi-mic-fill fs-2 text-white";
+        isAssessmentRecording = false;
+    };
+
+    assessmentRecognition.onerror = function(e) {
+        console.error(e);
+        recordStatus.textContent = "Could not recognize audio. Try again.";
+        recordBtn.style.backgroundColor = "#6366f1";
+        recordIcon.className = "bi bi-mic-fill fs-2 text-white";
+        isAssessmentRecording = false;
+    };
+}
+
+function retryRecordingInModal() {
+    // Reset Results UI
+    document.getElementById("feedback-score").textContent = "--";
+    document.getElementById("feedback-badge").textContent = "Not evaluated yet";
+    document.getElementById("feedback-badge").className = "fw-bold text-secondary mb-4 fs-6";
+    document.getElementById("feedback-text").textContent = "Speak the sentence clearly to analyze your speech.";
+    
+    const starContainer = document.getElementById("accuracy-stars");
+    starContainer.innerHTML = `
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+        <i class="bi bi-star"></i>
+    `;
+    
+    // Trigger recording
+    toggleAssessmentRecording();
+}
+
+function checkSentenceQuiz(element, selectedOption, correctOption, sentenceIndex) {
+    const feedbackId = "quizFeedback_" + sentenceIndex;
+    const feedbackDiv = document.getElementById(feedbackId);
+    
+    // Find options inside this card parent container
+    const parentCard = document.getElementById("card_s_" + sentenceIndex);
+    parentCard.querySelectorAll(".quiz-btn-option").forEach(opt => {
+        opt.classList.remove("bg-success", "text-white", "border-success", "bg-danger", "text-white", "border-danger");
+        opt.classList.add("bg-white", "text-secondary");
+    });
+    
+    const cleanSel = cleanText(selectedOption);
+    const cleanCorr = cleanText(correctOption);
+    
+    if (feedbackDiv) {
+        feedbackDiv.style.display = "block";
+    }
+    
+    if (cleanSel === cleanCorr) {
+        element.classList.remove("bg-white", "text-secondary");
+        element.classList.add("bg-success", "text-white", "border-success");
+        if (feedbackDiv) {
+            feedbackDiv.innerText = "✅ Correct meaning!";
+            feedbackDiv.className = "small fw-bold mt-2 text-center text-success";
+        }
+        quizzesCorrect.add(sentenceIndex);
+        checkCompletionState();
+    } else {
+        element.classList.remove("bg-white", "text-secondary");
+        element.classList.add("bg-danger", "text-white", "border-danger");
+        if (feedbackDiv) {
+            feedbackDiv.innerText = "❌ Incorrect meaning, try again!";
+            feedbackDiv.className = "small fw-bold mt-2 text-center text-danger";
+        }
+    }
+}
+
+// ----------------------------------------
+// Validation Utilities & States
+// ----------------------------------------
+const expectedContent = `{{ lesson.content }}`.trim();
+const completeBtn = document.getElementById("completeBtn");
+const completeIcon = document.getElementById("completeIcon");
+
+function enableCompletion() {
+    completeBtn.disabled = false;
+    completeBtn.classList.remove('btn-success');
+    completeBtn.classList.add('btn-primary', 'pulse-btn');
+    completeBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Mark Lesson as Completed!';
+}
+
+function disableCompletion(message = "Practice speaking at least 1 sentence to complete the lesson.") {
+    completeBtn.disabled = true;
+    completeBtn.classList.remove('btn-primary', 'pulse-btn');
+    completeBtn.classList.add('btn-success');
+    completeBtn.innerHTML = `<i class="bi bi-lock-fill me-2"></i>${message}`;
+}
+
+function cleanText(text) {
+    return text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?।]/g,"").trim().replace(/\s+/g, ' ');
+}
+
+// Levenshtein distance for speech validation
+function levenshtein(a, b) {
+    if (!a) return b ? b.length : 0;
+    if (!b) return a.length;
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+    }
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    matrix[i][j - 1] + 1,     // insertion
+                    matrix[i - 1][j] + 1      // deletion
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function getSimilarityScore(a, b) {
+    const aa = cleanText(a);
+    const bb = cleanText(b);
+    if (!aa && !bb) return 1.0;
+    const dist = levenshtein(aa, bb);
+    const maxLen = Math.max(aa.length, bb.length);
+    if (maxLen === 0) return 1.0;
+    return 1.0 - (dist / maxLen);
+}
+
+// Warm up SpeechSynthesis voices
+if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+}
+document.addEventListener("DOMContentLoaded", function() {
+    checkCompletionState();
+    if (typeof renderMascot === 'function') {
+        renderMascot("lumiLessonMascot", "wave", "Welcome to this lesson! Let's read, speak, and complete the quizzes below.", `{{ lesson.language }}`);
+    }
+});
+</script>
+
+<style>
+/* Glassmorphism Lesson Card */
+.lesson-card {
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 30px !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+.glass-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(8px) !important;
+    transition: all 0.3s;
+}
+
+.glass-btn:hover {
+    background: rgba(255, 255, 255, 0.35) !important;
+    transform: scale(1.05);
+}
+
+.quiz-option-card {
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.quiz-option-card:hover {
+    transform: translateX(6px);
+    background-color: #f8fafc !important;
+    border-color: #3b82f6 !important;
+}
+
+.pulse-glow {
+    animation: micGlow 1.5s infinite;
+}
+
+@keyframes micGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(220, 38, 38, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+}
+
+.pulse-btn {
+    animation: completionGlow 2s infinite;
+}
+
+@keyframes completionGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 12px rgba(37, 99, 235, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+}
+</style>
+
+<script>
+function handleVideoError() {
+    const container = document.getElementById("mainVideoContainer");
+    if (container) {
+        container.style.setProperty("display", "none", "important");
+    }
+}
+</script>
+
+<!-- Lucky Wheel Spin Modal -->
+<div class="modal fade" id="spinWheelModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-center p-4 bg-dark text-white">
+            <h3 class="fw-bold text-warning mb-2">🎁 Spin the Lucky Wheel!</h3>
+            <p class="text-white-50 small mb-4">You completed the lesson! Spin the wheel to claim your rewards and outfits.</p>
+            
+            <div class="position-relative d-inline-block mx-auto mb-4" style="width: 280px; height: 280px;">
+                <!-- Spin pointer -->
+                <div class="position-absolute start-50 translate-middle-x" style="top: -15px; z-index: 20; font-size: 2rem; color: #fbbf24;">▼</div>
+                
+                <!-- Wheel canvas -->
+                <canvas id="wheelCanvas" width="280" height="280" style="transition: transform 3s cubic-bezier(0.1, 0.8, 0.1, 1); border-radius: 50%; border: 6px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);"></canvas>
+                
+                <!-- Center spin button -->
+                <button type="button" id="spinBtn" class="btn btn-warning rounded-circle position-absolute top-50 start-50 translate-middle fw-bold border border-white border-3 shadow" style="width: 64px; height: 64px; z-index: 15; font-size: 14px; padding: 0;" onclick="spinTheWheel()">SPIN</button>
+            </div>
+            
+            <div id="spinResult" class="alert alert-success rounded-pill d-none fw-bold fs-5 mb-4 text-dark"></div>
+            
+            <button type="button" id="claimRewardsBtn" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold py-2.5 d-none" onclick="submitLessonCompletion()">
+                <i class="bi bi-trophy-fill me-2"></i>Claim & Continue
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+let hasSpun = false;
+
+function openSpinWheel() {
+    const modal = new bootstrap.Modal(document.getElementById('spinWheelModal'));
+    modal.show();
+    setTimeout(initWheelCanvas, 200);
+}
+
+const wheelPrizes = [
+    { label: "20 Coins", color: "#f59e0b" },
+    { label: "50 Coins", color: "#10b981" },
+    { label: "100 Coins", color: "#d97706" },
+    { label: "Astronaut", color: "#8b5cf6" },
+    { label: "Detective", color: "#3b82f6" },
+    { label: "Superhero", color: "#ef4444" }
+];
+const numSegments = wheelPrizes.length;
+const arc = Math.PI * 2 / numSegments;
+
+function initWheelCanvas() {
+    const canvas = document.getElementById("wheelCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    
+    ctx.clearRect(0, 0, 280, 280);
+    for (let i = 0; i < numSegments; i++) {
+        const angle = i * arc;
+        ctx.fillStyle = wheelPrizes[i].color;
+        ctx.beginPath();
+        ctx.arc(140, 140, 134, angle, angle + arc, false);
+        ctx.lineTo(140, 140);
+        ctx.fill();
+        
+        ctx.save();
+        ctx.fillStyle = "#ffffff";
+        ctx.translate(140, 140);
+        ctx.rotate(angle + arc / 2);
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(wheelPrizes[i].label, 120, 5);
+        ctx.restore();
+    }
+}
+
+function spinTheWheel() {
+    if (hasSpun) return;
+    hasSpun = true;
+    
+    document.getElementById("spinBtn").disabled = true;
+    
+    // Call Spin API
+    fetch("/api/spin_wheel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const labelMap = {
+                "20 Coins": 0,
+                "50 Coins": 1,
+                "100 Coins": 2,
+                "astronaut": 3,
+                "detective": 4,
+                "superhero": 5,
+                "30 Coins": 1
+            };
+            
+            const targetVal = data.prize_type === "coins" ? data.prize_label : data.prize_val;
+            const segmentIdx = labelMap[targetVal] !== undefined ? labelMap[targetVal] : 1;
+            
+            const targetDegrees = 360 - (segmentIdx * 60) - 30; 
+            const finalDegrees = 1800 + targetDegrees; 
+            
+            const canvas = document.getElementById("wheelCanvas");
+            canvas.style.transform = "rotate(" + finalDegrees + "deg)";
+            
+            setTimeout(() => {
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                
+                const resDiv = document.getElementById("spinResult");
+                resDiv.innerText = data.msg;
+                resDiv.classList.remove("d-none");
+                
+                document.getElementById("claimRewardsBtn").classList.remove("d-none");
+            }, 3200);
+        } else {
+            alert("Error spinning wheel!");
+            document.getElementById("spinBtn").disabled = false;
+            hasSpun = false;
+        }
+    })
+    .catch(err => {
+        console.error("Spin error:", err);
+        document.getElementById("spinBtn").disabled = false;
+        hasSpun = false;
+    });
+}
+
+function submitLessonCompletion() {
+    const form = document.getElementById("completeLessonForm");
+    if (form) {
+        form.submit();
+    }
+}
+</script>
+
+<!-- Voice Practice Modal -->
+<div class="modal fade" id="voicePracticeModal" tabindex="-1" aria-labelledby="voiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-0 bg-light py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-link text-dark p-0 me-3 fs-4" data-bs-dismiss="modal" style="text-decoration: none;">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="voiceModalLabel">Voice Assessment</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4 bg-light bg-opacity-50">
+                <div class="row g-4">
+                    <!-- Left Card: Assessment Prompt & Mic -->
+                    <div class="col-md-6">
+                        <div class="card border-0 rounded-4 shadow-sm p-4 h-100 bg-white">
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-3">Read the sentence shown below</span>
+                            
+                            <div class="d-flex flex-column align-items-center justify-content-center my-auto py-4 text-center">
+                                <h3 id="modal-target-word" class="fw-bold text-dark mb-2 px-2" style="font-size: 28px; line-height: 1.4; font-family: 'Poppins', 'Noto Sans Telugu', 'Noto Sans Devanagari';">வணக்கம்</h3>
+                                <p id="modal-translit" class="text-secondary mb-2 fs-6 fw-semibold">(vanakkam)</p>
+                                <p id="modal-meaning" class="text-muted fs-6 mb-4">Hello</p>
+                                
+                                <!-- Circular Microphone Button -->
+                                <div class="position-relative my-3">
+                                    <button id="record-btn" onclick="toggleAssessmentRecording()" class="btn d-inline-flex align-items-center justify-content-center shadow-lg border-0 rounded-circle" 
+                                            style="width: 80px; height: 80px; background-color: #6366f1; transition: all 0.3s ease;">
+                                        <i id="record-icon" class="bi bi-mic-fill fs-2 text-white"></i>
+                                    </button>
+                                </div>
+                                <p id="record-status" class="text-secondary small mt-2 fw-medium">Tap to Speak</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Card: Assessment Result & Score -->
+                    <div class="col-md-6">
+                        <div class="card border-0 rounded-4 shadow-sm p-4 h-100 bg-white d-flex flex-column">
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-3">Your Result</span>
+                            
+                            <div class="d-flex flex-column align-items-center text-center my-auto">
+                                <span class="text-muted small fw-bold text-uppercase d-block mb-1">Pronunciation Score</span>
+                                
+                                <div class="d-flex align-items-baseline mb-2">
+                                    <h1 class="display-3 fw-bold mb-0" id="feedback-score" style="color: #4f46e5;">--</h1>
+                                    <span class="fs-4 text-muted fw-normal ms-1"> / 100</span>
+                                </div>
+                                
+                                <p class="fw-bold text-success mb-4 fs-6" id="feedback-badge">Not evaluated yet</p>
+                                
+                                <!-- Accuracy Stars -->
+                                <div class="w-100 text-start border-top pt-3 mb-3">
+                                    <span class="text-muted small fw-bold text-uppercase d-block mb-2">Accuracy</span>
+                                    <div class="d-flex gap-1 text-warning fs-4" id="accuracy-stars">
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- Feedback Text -->
+                                <div class="w-100 text-start border-top pt-3 mb-4">
+                                    <span class="text-muted small fw-bold text-uppercase d-block mb-2">Feedback</span>
+                                    <p class="text-secondary small mb-0 lh-base" id="feedback-text">
+                                        Speak the sentence clearly to analyze your speech.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <button id="retry-assessment-btn" onclick="retryRecordingInModal()" class="btn text-white w-100 py-2.5 rounded-3 fw-bold mt-auto" 
+                                    style="background-color: #6366f1; border: none; transition: background-color 0.2s;">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

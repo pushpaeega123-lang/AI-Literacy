@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container py-5">
+    <!-- Redesigned Professional Parent Header -->
+    <div class="card border-0 rounded-5 p-5 shadow-lg mb-5 text-white" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-4">
+            <div>
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="badge backdrop-blur text-white px-3 py-2 rounded-pill fs-7 fw-bold border border-white border-opacity-25" style="background: rgba(255, 255, 255, 0.2) !important;">
+                        <i class="bi bi-shield-check me-1"></i> Parent Control Center
+                    </span>
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fs-7 fw-bold">
+                        🔥 Daily Streak: {{ metrics.streak or user.streak }} Days
+                    </span>
+                </div>
+                <h1 class="display-5 fw-extrabold mb-1">Parent Dashboard: {{ user.fullname }}</h1>
+                <p class="lead text-white-50 mb-0">Monitor learning metrics, analyze pronunciation performance, and download educational reports.</p>
+            </div>
+            
+            <!-- Download PDF/Excel/CSV Controls -->
+            <div class="d-flex gap-2">
+                <a href="/parent/report/csv" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-filetype-csv me-1"></i> CSV
+                </a>
+                <a href="/parent/report/excel" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-filetype-xls me-1"></i> Excel
+                </a>
+                <a href="/parent/report/pdf" target="_blank" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm text-dark">
+                    <i class="bi bi-file-pdf-fill me-1"></i> PDF Report
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Drawer -->
+    {% if notifications %}
+    <div class="card border-0 rounded-4 shadow-sm p-4 bg-white border border-info border-opacity-25 mb-5">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-bell-fill text-info me-2"></i>Recent Notifications</h5>
+        <div class="d-flex flex-column gap-2">
+            {% for n in notifications %}
+            <div class="p-3 bg-light rounded-3 border-start border-4 border-info d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="fw-bold text-dark mb-1">{{ n.title }}</h6>
+                    <p class="text-secondary mb-0 small">{{ n.message }}</p>
+                </div>
+                <small class="text-muted">{{ n.created_at }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Top Grid Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm p-4 text-center h-100 bg-white border border-light-subtle">
+                <span class="fs-1 d-block mb-2">📚</span>
+                <h3 class="fw-bold text-dark mb-1">{{ metrics.lessons_completed }}</h3>
+                <small class="text-secondary fw-semibold">Lessons Completed</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm p-4 text-center h-100 bg-white border border-light-subtle">
+                <span class="fs-1 d-block mb-2">🎯</span>
+                <h3 class="fw-bold text-dark mb-1">{{ metrics.average_score }}%</h3>
+                <small class="text-secondary fw-semibold">Average Score</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm p-4 text-center h-100 bg-white border border-light-subtle">
+                <span class="fs-1 d-block mb-2">🗣️</span>
+                <h3 class="fw-bold text-dark mb-1">{{ "%.1f"|format(metrics.pronunciation_score) }}%</h3>
+                <small class="text-secondary fw-semibold">Pronunciation Score</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm p-4 text-center h-100 bg-white border border-light-subtle">
+                <span class="fs-1 d-block mb-2">🪙</span>
+                <h3 class="fw-bold text-dark mb-1">{{ user.coins }}</h3>
+                <small class="text-secondary fw-semibold">Coins Earned</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Analysis Section -->
+    <div class="row g-4 mb-5">
+        <!-- Chart 1: Skill Breakdown -->
+        <div class="col-lg-6">
+            <div class="card border-0 rounded-4 shadow-lg p-4 bg-white border border-light-subtle h-100">
+                <h5 class="fw-bold text-dark mb-4"><i class="bi bi-graph-up text-primary me-2"></i>Skill Progress Matrix</h5>
+                <div style="height: 300px;">
+                    <canvas id="skillsRadarChart"
+                        data-speaking="{{ metrics.speaking_score or 80 }}"
+                        data-reading="{{ metrics.reading_score or 85 }}"
+                        data-writing="{{ metrics.writing_score or 75 }}"
+                        data-listening="{{ metrics.listening_score or 90 }}"
+                        data-vocabulary="{{ metrics.vocabulary_score or 85 }}"
+                        data-grammar="{{ metrics.grammar_score or 70 }}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 2: Pronunciation & Speed -->
+        <div class="col-lg-6">
+            <div class="card border-0 rounded-4 shadow-lg p-4 bg-white border border-light-subtle h-100">
+                <h5 class="fw-bold text-dark mb-4"><i class="bi bi-mic-fill text-warning me-2"></i>Pronunciation Trends</h5>
+                <div style="height: 300px;">
+                    <canvas id="pronunciationLineChart"
+                        data-pronunciation="{{ metrics.pronunciation_score or 85 }}"
+                        data-reading-speed="{{ metrics.reading_speed_wpm or 95 }}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Recommended and Recent Actions Grid -->
+    <div class="row g-4 mb-5">
+        <!-- Profile & Recommendations -->
+        <div class="col-lg-5">
+            <div class="card border-0 rounded-4 shadow-sm p-4 bg-white border border-light-subtle h-100">
+                <h5 class="fw-bold text-dark mb-3">Student Settings</h5>
+                <div class="d-flex flex-column gap-3 mb-4">
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-secondary small">Preferred Language</span>
+                        <span class="fw-bold text-dark">{{ user.language }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-secondary small">Learning Level</span>
+                        <span class="fw-bold text-warning">{{ user.learning_level }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-secondary small">XP Earned</span>
+                        <span class="fw-bold text-dark">{{ user.xp }} XP</span>
+                    </div>
+                </div>
+                
+                <h5 class="fw-bold text-dark mb-3">Goal Recommendation</h5>
+                <p class="text-secondary small">{{ metrics.active_goal }}</p>
+            </div>
+        </div>
+
+        <!-- Recent Activities Feed -->
+        <div class="col-lg-7">
+            <div class="card border-0 rounded-4 shadow-sm p-4 bg-white border border-light-subtle h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-clock-history text-secondary me-2"></i>Recent Activity Feed</h5>
+                {% if activity_logs %}
+                <div class="d-flex flex-column gap-3">
+                    {% for log in activity_logs %}
+                    <div class="d-flex align-items-start gap-3 border-bottom pb-3">
+                        <div class="bg-light p-2 rounded text-dark fs-5">⚙️</div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold text-dark mb-1">{{ log.action }}</h6>
+                            <p class="text-secondary mb-0 small">{{ log.details }}</p>
+                        </div>
+                        <small class="text-muted">{{ log.timestamp }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted small"><i class="bi bi-info-circle me-1"></i>No recent logs.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Assessment History Tables -->
+    <div class="card border-0 rounded-4 shadow-lg p-5 bg-white border border-light-subtle">
+        <h4 class="fw-bold text-dark mb-4"><i class="bi bi-journal-text text-primary me-2"></i>Detailed Assessment History</h4>
+        {% if history %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-dark">Date</th>
+                        <th class="text-dark">Score</th>
+                        <th class="text-dark">Correct Answers</th>
+                        <th class="text-dark">Language</th>
+                        <th class="text-dark">Learning Group</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attempt in history %}
+                    <tr>
+                        <td class="text-secondary small">
+                            <a href="/assessment/review/{{ attempt.id }}" class="text-primary fw-semibold"><i class="bi bi-eye me-1"></i>{{ attempt.timestamp }}</a>
+                        </td>
+                        <td class="fw-bold text-info">{{ attempt.score }}%</td>
+                        <td class="text-secondary">{{ attempt.correct }} / {{ attempt.total }}</td>
+                        <td class="text-secondary fw-semibold">{{ attempt.language }}</td>
+                        <td><span class="badge bg-secondary text-capitalize">{{ attempt.age_group }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 bg-light rounded-3 text-secondary small">
+            <i class="bi bi-info-circle me-1"></i>No assessment history records found.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Chart.js Data
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Radar Chart: Skills Matrix
+    const radarCanvas = document.getElementById("skillsRadarChart");
+    if (radarCanvas) {
+        const radarCtx = radarCanvas.getContext("2d");
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Speaking', 'Reading', 'Writing', 'Listening', 'Vocabulary', 'Grammar'],
+                datasets: [{
+                    label: 'Competency Score (%)',
+                    data: [
+                        parseFloat(radarCanvas.dataset.speaking) || 80,
+                        parseFloat(radarCanvas.dataset.reading) || 85,
+                        parseFloat(radarCanvas.dataset.writing) || 75,
+                        parseFloat(radarCanvas.dataset.listening) || 90,
+                        parseFloat(radarCanvas.dataset.vocabulary) || 85,
+                        parseFloat(radarCanvas.dataset.grammar) || 70
+                    ],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2563eb'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#e2e8f0' },
+                        grid: { color: '#e2e8f0' },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Line Chart: Pronunciation & Accuracy Trends
+    const lineCanvas = document.getElementById("pronunciationLineChart");
+    if (lineCanvas) {
+        const lineCtx = lineCanvas.getContext("2d");
+        const pronunciationScore = parseFloat(lineCanvas.dataset.pronunciation) || 85;
+        const readingSpeedWpm = parseFloat(lineCanvas.dataset.readingSpeed) || 95;
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                datasets: [{
+                    label: 'Pronunciation (%)',
+                    data: [70, 75, 82, 80, pronunciationScore],
+                    borderColor: '#fbbf24',
+                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3
+                }, {
+                    label: 'Reading Speed (WPM)',
+                    data: [60, 70, 85, 90, readingSpeedWpm],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 150
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

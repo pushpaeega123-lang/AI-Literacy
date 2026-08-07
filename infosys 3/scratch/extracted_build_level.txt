@@ -1,0 +1,350 @@
+1159: def _build_level_questions(language, profile, pool):
+1160:     questions = []
+1161:     age_band = profile["age_band"]
+1162:     level = profile["level"]
+1163: 
+1164:     def get_pool(key, fallback=None):
+1165:         if key in pool:
+1166:             return pool[key]
+1167:         if fallback and fallback in pool:
+1168:             return pool[fallback]
+1169:         return []
+1170: 
+1171:     def make_options(correct, base_opts):
+1172:         opts = [correct] + [opt for opt in base_opts if opt != correct]
+1173:         opts = list(dict.fromkeys(opts))
+1174:         while len(opts) < 4:
+1175:             opts.append(f"Option {len(opts) + 1}")
+1176:         return opts[:4]
+1177: 
+1178:     def build_reading_question(position):
+1179:         if level in ["Beginner", "Basic"]:
+1180:             pool_data = get_pool("simple_words", "spelling")
+1181:             item = pool_data[position % len(pool_data)] if pool_data else ("apple", "Apple", ["Apple", "Banana", "Chair", "Tree"], "Apple is the correct word for the fruit.")
+1182:             return {
+1183:                 "type": "reading",
+1184:                 "skill": "reading",
+1185:                 "prompt": f"Read the word and choose the matching picture: {item[0]}",
+1186:                 "options": make_options(item[1], item[2]),
+1187:                 "answer": item[1],
+1188:                 "explanation": item[3],
+1189:                 "age_band": age_band,
+1190:                 "level": level,
+1191:                 "language": language,
+1192:                 "skill_score_key": "reading",
+1193:             }
+1194:         if level == "Intermediate":
+1195:             pool_data = get_pool("sentences", "comps")
+1196:             item = pool_data[position % len(pool_data)] if pool_data else ("The cat is on the mat.", "The cat is on the mat.", ["The dog is on the mat.", "The cat is under the mat.", "The cat is on the mat."], "Choose the correct sentence.")
+1197:             return {
+1198:                 "type": "reading",
+1199:                 "skill": "reading",
+1200:                 "prompt": f"Read this sentence and choose the best answer: {item[0]}",
+1201:                 "options": make_options(item[1], item[2]),
+1202:                 "answer": item[1],
+1203:                 "explanation": item[3],
+1204:                 "age_band": age_band,
+1205:                 "level": level,
+1206:                 "language": language,
+1207:                 "skill_score_key": "reading",
+1208:             }
+1209:         pool_data = get_pool("paragraphs", "comps")
+1210:         item = pool_data[position % len(pool_data)] if pool_data else ("A boy planted a tree in the garden.", "Where did the boy plant a tree?", "In the garden", ["In the garden", "In the car", "In the school", "In the bed"], "The boy planted a tree in the garden.")
+1211:         return {
+1212:             "type": "reading",
+1213:             "skill": "reading",
+1214:             "prompt": f"Read the paragraph and answer: {item[1]}",
+1215:             "text": item[0],
+1216:             "options": make_options(item[2], item[3]),
+1217:             "answer": item[2],
+1218:             "explanation": item[4],
+1219:             "age_band": age_band,
+1220:             "level": level,
+1221:             "language": language,
+1222:             "skill_score_key": "reading",
+1223:         }
+1224: 
+1225:     def build_writing_question(position):
+1226:         if level in ["Beginner", "Basic"]:
+1227:             pool_data = get_pool("objects", "spelling")
+1228:             item = pool_data[position % len(pool_data)] if pool_data else ({"image_url": "/static/images/apple.svg", "alt": "Apple"}, "Apple", "Copy the word and write it clearly.")
+1229:             return {
+1230:                 "type": "writing",
+1231:                 "skill": "writing",
+1232:                 "prompt": "Write the name of the picture shown.",
+1233:                 "text": item[0],
+1234:                 "answer": item[1],
+1235:                 "explanation": item[2],
+1236:                 "age_band": age_band,
+1237:                 "level": level,
+1238:                 "language": language,
+1239:                 "skill_score_key": "writing",
+1240:             }
+1241:         if level == "Intermediate":
+1242:             pool_data = get_pool("sentence_writing", "writing_templates")
+1243:             item = pool_data[position % len(pool_data)] if pool_data else ("Describe your pet.", "I have a small pet dog.", "Write one short sentence about your pet.")
+1244:             return {
+1245:                 "type": "writing",
+1246:                 "skill": "writing",
+1247:                 "prompt": f"Write a short sentence: {item[0]}",
+1248:                 "answer": item[1],
+1249:                 "explanation": item[2],
+1250:                 "age_band": age_band,
+1251:                 "level": level,
+1252:                 "language": language,
+1253:                 "skill_score_key": "writing",
+1254:             }
+1255:         pool_data = get_pool("paragraph_writing", "writing_templates")
+1256:         item = pool_data[position % len(pool_data)] if pool_data else ("a day at school", "I went to school and learned new things.", "Write a short paragraph about a day at school.")
+1257:         return {
+1258:             "type": "writing",
+1259:             "skill": "writing",
+1260:             "prompt": f"Write a short paragraph about: {item[0]}",
+1261:             "answer": item[1],
+1262:             "explanation": item[2],
+1263:             "age_band": age_band,
+1264:             "level": level,
+1265:             "language": language,
+1266:             "skill_score_key": "writing",
+1267:         }
+1268: 
+1269:     def build_listening_question(position):
+1270:         if level in ["Beginner", "Basic"]:
+1271:             pool_data = get_pool("listening_words", "listening")
+1272:             item = pool_data[position % len(pool_data)] if pool_data else ("Apple", "Apple", ["Apple", "Banana", "House", "Dog"], "Choose the word you heard.")
+1273:             return {
+1274:                 "type": "listening",
+1275:                 "skill": "listening",
+1276:                 "prompt": "Listen and choose the right word.",
+1277:                 "text": item[0],
+1278:                 "options": make_options(item[1], item[2]),
+1279:                 "answer": item[1],
+1280:                 "explanation": item[3],
+1281:                 "age_band": age_band,
+1282:                 "level": level,
+1283:                 "language": language,
+1284:                 "skill_score_key": "listening",
+1285:             }
+1286:         if level == "Intermediate":
+1287:             pool_data = get_pool("listening_sentences", "comps")
+1288:             item = pool_data[position % len(pool_data)] if pool_data else ("The cat sleeps.", "Where is the cat?", "On the mat", ["On the mat", "In the tree", "In the car", "On the bed"], "Listen and answer the question.")
+1289:             return {
+1290:                 "type": "listening",
+1291:                 "skill": "listening",
+1292:                 "prompt": f"Listen to the sentence and answer: {item[1]}",
+1293:                 "text": item[0],
+1294:                 "options": make_options(item[2], item[3]),
+1295:                 "answer": item[2],
+1296:                 "explanation": item[4],
+1297:                 "age_band": age_band,
+1298:                 "level": level,
+1299:                 "language": language,
+1300:                 "skill_score_key": "listening",
+1301:             }
+1302:         pool_data = get_pool("listening_paragraphs", "comps")
+1303:         item = pool_data[position % len(pool_data)] if pool_data else ("Ria went to the market.", "What did Ria buy?", "Fruits", ["Fruits", "Vegetables", "Books", "Toys"], "Listen and answer the question.")
+1304:         return {
+1305:             "type": "listening",
+1306:             "skill": "listening",
+1307:             "prompt": f"Listen to the passage and answer: {item[1]}",
+1308:             "text": item[0],
+1309:             "options": make_options(item[2], item[3]),
+1310:             "answer": item[2],
+1311:             "explanation": item[4],
+1312:             "age_band": age_band,
+1313:             "level": level,
+1314:             "language": language,
+1315:             "skill_score_key": "listening",
+1316:         }
+1317: 
+1318:     def build_speaking_question(position):
+1319:         if level in ["Beginner", "Basic"]:
+1320:             pool_data = get_pool("speaking_phrases", "speaking")
+1321:             item = pool_data[position % len(pool_data)] if pool_data else "I like apples"
+1322:             return {
+1323:                 "type": "speaking",
+1324:                 "skill": "speaking",
+1325:                 "prompt": f"Say this sentence aloud: {item}",
+1326:                 "hint": item,
+1327:                 "answer": item,
+1328:                 "explanation": "Speak the phrase clearly and confidently.",
+1329:                 "age_band": age_band,
+1330:                 "level": level,
+1331:                 "language": language,
+1332:                 "skill_score_key": "speaking",
+1333:             }
+1334:         pool_data = get_pool("speaking_responses", "speaking")
+1335:         item = pool_data[position % len(pool_data)] if pool_data else ("What is your name?", "My name is Ria.")
+1336:         return {
+1337:             "type": "speaking",
+1338:             "skill": "speaking",
+1339:             "prompt": f"Speak a short answer: {item[0]}",
+1340:             "hint": item[1],
+1341:             "answer": item[1],
+1342:             "explanation": "Answer the question with a short spoken response.",
+1343:             "age_band": age_band,
+1344:             "level": level,
+1345:             "language": language,
+1346:             "skill_score_key": "speaking",
+1347:         }
+1348: 
+1349:     def build_comprehension_question(position):
+1350:         if level in ["Beginner", "Basic"]:
+1351:             pool_data = get_pool("shape_words", "reading_letters")
+1352:             item = pool_data[position % len(pool_data)] if pool_data else ("A shape with three sides", "Triangle", ["Triangle", "Circle", "Square", "Star"], "A triangle has three sides.")
+1353:             return {
+1354:                 "type": "comprehension",
+1355:                 "skill": "comprehension",
+1356:                 "prompt": f"Match the word with the picture or shape: {item[0]}",
+1357:                 "options": make_options(item[1], item[2]),
+1358:                 "answer": item[1],
+1359:                 "explanation": item[3],
+1360:                 "age_band": age_band,
+1361:                 "level": level,
+1362:                 "language": language,
+1363:                 "skill_score_key": "comprehension",
+1364:             }
+1365:         if level == "Intermediate":
+1366:             pool_data = get_pool("vocabulary", "comps")
+1367:             item = pool_data[position % len(pool_data)] if pool_data else ("Joyful", "Happy", ["Happy", "Sad", "Hungry", "Cold"], "Joyful means happy.")
+1368:             return {
+1369:                 "type": "comprehension",
+1370:                 "skill": "comprehension",
+1371:                 "prompt": f"Choose the meaning of this word: {item[0]}",
+1372:                 "options": make_options(item[1], item[2]),
+1373:                 "answer": item[1],
+1374:                 "explanation": item[3],
+1375:                 "age_band": age_band,
+1376:                 "level": level,
+1377:                 "language": language,
+1378:                 "skill_score_key": "comprehension",
+1379:             }
+1380:         pool_data = get_pool("grammar", "comps")
+1381:         item = pool_data[position % len(pool_data)] if pool_data else ("Choose the correct sentence.", "She is reading a book.", ["She is reading a book.", "She are reading a book.", "She reading a book."], "This sentence is grammatically correct.")
+1382:         return {
+1383:             "type": "comprehension",
+1384:             "skill": "comprehension",
+1385:             "prompt": f"Choose the correct sentence: {item[0]}",
+1386:             "options": make_options(item[1], item[2]),
+1387:             "answer": item[1],
+1388:             "explanation": item[3],
+1389:             "age_band": age_band,
+1390:             "level": level,
+1391:             "language": language,
+1392:             "skill_score_key": "comprehension",
+1393:         }
+1394: 
+1395:     builders = {
+1396:         "reading": build_reading_question,
+1397:         "writing": build_writing_question,
+1398:         "listening": build_listening_question,
+1399:         "speaking": build_speaking_question,
+1400:         "comprehension": build_comprehension_question,
+1401:     }
+1402: 
+1403:     for index, skill in enumerate(profile["activities"]):
+1404:         builder = builders.get(skill)
+1405:         if not builder:
+1406:             continue
+1407:         question = builder(index)
+1408:         question["name"] = f"q{index + 1}"
+1409:         questions.append(question)
+1410: 
+1411:     return questions
+1412: 
+1413: 
+1414: def _legacy_get_assessment_questions(language, age=None, learning_level=None, mode=None):
+1415:     try:
+1416:         age_val = int(age) if age is not None else session.get("age", 8)
+1417:     except (ValueError, TypeError):
+1418:         age_val = 8
+1419: 
+1420:     if age_val <= 5:
+1421:         # Pre-school play-based assessment questions (Moo sound, red fruit strawberry, round circle shape, king of jungle lion, speak hello)
+1422:         multilingual_questions = {
+1423:             "English": [
+1424:                 {
+1425:                     "name": "q_sound",
+1426:                     "type": "listening",
+1427:                     "skill": "listening",
+1428:                     "prompt": "What animal makes this sound: 'Moo Moo'? 🐮",
+1429:                     "options": ["Cow 🐮", "Dog 🐶", "Lion 🦁", "Cat 🐱"],
+1430:                     "answer": "Cow 🐮",
+1431:                     "explanation": "Cows make the moo sound!"
+1432:                 },
+1433:                 {
+1434:                     "name": "q_color",
+1435:                     "type": "comprehension",
+1436:                     "skill": "comprehension",
+1437:                     "prompt": "Which of these is a red fruit? 🍓 (point or choose the picture)",
+1438:                     "options": ["Strawberry 🍓", "Banana 🍌", "Grape 🍇", "Pear 🍐"],
+1439:                     "answer": "Strawberry 🍓",
+1440:                     "explanation": "Strawberries are bright red and easy to recognize by color."
+1441:                 },
+1442:                 {
+1443:                     "name": "q_shape",
+1444:                     "type": "comprehension",
+1445:                     "skill": "comprehension",
+1446:                     "prompt": "Point to the round shape or choose the round picture. ⭕",
+1447:                     "options": ["Circle ⭕", "Square ⬛", "Triangle 🔺", "Star ⭐"],
+1448:                     "answer": "Circle ⭕",
+1449:                     "explanation": "A circle is round and has no corners."
+1450:                 },
+1451:                 {
+1452:                     "name": "q_animal",
+1453:                     "type": "comprehension",
+1454:                     "skill": "comprehension",
+1455:                     "prompt": "Which animal is often called the 'King of the Jungle'? 🦁",
+1456:                     "options": ["Lion 🦁", "Elephant 🐘", "Monkey 🐒", "Rabbit 🐰"],
+1457:                     "answer": "Lion 🦁",
+1458:                     "explanation": "The lion is commonly referred to as the king of the jungle."
+1459:                 },
+1460:                 {
+1461:                     "name": "q_speak",
+1462:                     "type": "speaking",
+1463:                     "skill": "speaking",
+1464:                     "prompt": "Click the microphone and repeat: 'Hello' 👋",
+1465:                     "hint": "Hello",
+1466:                     "options": [],
+1467:                     "answer": "Hello",
+1468:                     "explanation": "Practice saying Hello."
+1469:                 }
+1470:             ],
+1471:             "Telugu": [
+1472:                 {
+1473:                     "name": "q_sound",
+1474:                     "type": "listening",
+1475:                     "skill": "listening",
+1476:                     "prompt": "'బౌ బౌ' అని అరిచే జంతువు ఏది? 🐶",
+1477:                     "options": ["ఆవు 🐮", "కుక్క 🐶", "సింహం 🦁", "పిల్లి 🐱"],
+1478:                     "answer": "కుక్క 🐶",
+1479:                     "explanation": "కుక్కలు బౌ బౌ అని అరుస్తాయి!"
+1480:                 },
+1481:                 {
+1482:                     "name": "q_color",
+1483:                     "type": "comprehension",
+1484:                     "skill": "comprehension",
+1485:                     "prompt": "ఎరుపు రంగు పండును అని గుర్తించండి! 🍓 (పిక్ లేదా ఎంపిక చేయండి)",
+1486:                     "options": ["స్ట్రాబెర్రీ 🍓", "అరటిపండు 🍌", "ద్రాక్ష 🍇", "ఆపిల్ 🍎"],
+1487:                     "answer": "స్ట్రాబెర్రీ 🍓",
+1488:                     "explanation": "స్ట్రాబెర్రీలు ప్రత్యేకంగా ఎరుపు రంగులో ఉంటాయి."
+1489:                 },
+1490:                 {
+1491:                     "name": "q_shape",
+1492:                     "type": "comprehension",
+1493:                     "skill": "comprehension",
+1494:                     "prompt": "గుండ్రటి ఆకారాన్ని చూపండి లేదా సెలెక్ట్ చేయండి. ⭕",
+1495:                     "options": ["వృత్తం ⭕", "చతురస్రం ⬛", "త్రిభుజం 🔺", "నక్షత్రం ⭐"],
+1496:                     "answer": "వృత్తం ⭕",
+1497:                     "explanation": "వృత్తం ఒకవక గుండ్రంగా ఉంటుంది."
+1498:                 },
+1499:                 {
+1500:                     "name": "q_animal",
+1501:                     "type": "comprehension",
+1502:                     "skill": "comprehension",
+1503:                     "prompt": "అడవికి రాజుగా పేరుపొందిన జంతువు ఏది? 🦁",
+1504:                     "options": ["సింహం 🦁", "ఏనుగు 🐘", "కోతి 🐒", "కుందేలు 🐰"],
+1505:                     "answer": "సింహం 🦁",
+1506:                     "explanation": "సింహాన్ని సాధారణంగా అడవి రాజునిగా పిలుస్తారు."
+1507:                 },
+1508:                 {

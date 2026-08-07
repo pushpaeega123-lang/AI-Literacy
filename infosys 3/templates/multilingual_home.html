@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fs-7 mb-2"><i class="bi bi-translate me-1"></i>New Feature</span>
+                <h1 class="fw-bold text-dark mb-2">Learn a New Language</h1>
+                <p class="text-secondary">Learn any new language using a language you already know.</p>
+            </div>
+
+            <!-- Language Pair Selection Card -->
+            <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 mb-5 bg-white">
+                <div class="row g-4 align-items-center">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-secondary small text-uppercase">I know this language</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="bi bi-person-fill text-primary"></i></span>
+                            <select id="known_lang" class="form-select bg-light border-0 py-3 rounded-end-3 fw-semibold">
+                                <option value="English" {% if known_lang == 'English' %}selected{% endif %}>🇬🇧 English</option>
+                                <option value="Telugu" {% if known_lang == 'Telugu' %}selected{% endif %}>🇮🇳 Telugu (తెలుగు)</option>
+                                <option value="Hindi" {% if known_lang == 'Hindi' %}selected{% endif %}>🇮🇳 Hindi (हिंदी)</option>
+                                <option value="Tamil" {% if known_lang == 'Tamil' %}selected{% endif %}>🇮🇳 Tamil (தமிழ்)</option>
+                                <option value="Kannada" {% if known_lang == 'Kannada' %}selected{% endif %}>🇮🇳 Kannada (ಕನ್ನಡ)</option>
+                                <option value="Marathi" {% if known_lang == 'Marathi' %}selected{% endif %}>🇮🇳 Marathi (मराठी)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-center my-md-0 my-3">
+                        <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                            <i class="bi bi-arrow-left-right fs-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-secondary small text-uppercase">I want to learn</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="bi bi-translate text-success"></i></span>
+                            <select id="target_lang" class="form-select bg-light border-0 py-3 rounded-end-3 fw-semibold">
+                                <option value="" disabled selected>Select Language</option>
+                                <option value="English" {% if target_lang == 'English' %}selected{% endif %}>🇬🇧 English</option>
+                                <option value="Telugu" {% if target_lang == 'Telugu' %}selected{% endif %}>🇮🇳 Telugu (తెలుగు)</option>
+                                <option value="Hindi" {% if target_lang == 'Hindi' %}selected{% endif %}>🇮🇳 Hindi (हिंदी)</option>
+                                <option value="Tamil" {% if target_lang == 'Tamil' %}selected{% endif %}>🇮🇳 Tamil (தமிழ்)</option>
+                                <option value="Kannada" {% if target_lang == 'Kannada' %}selected{% endif %}>🇮🇳 Kannada (ಕನ್ನಡ)</option>
+                                <option value="Marathi" {% if target_lang == 'Marathi' %}selected{% endif %}>🇮🇳 Marathi (मराठी)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-message" class="alert alert-danger mt-4 d-none"></div>
+
+                <button onclick="startLearning()" class="btn btn-primary w-100 py-3 rounded-3 fw-bold mt-4 shadow-sm hover-lift transition-all">
+                    {{ translations.start_learning_now or 'Start Learning Now' }} <i class="bi bi-arrow-right-short ms-1"></i>
+                </button>
+            </div>
+
+            <!-- Features Grid -->
+            <h4 class="fw-bold text-dark text-center mb-4">{{ translations.why_learn_native or 'Why learn using your known language?' }}</h4>
+            <div class="row g-4">
+                <div class="col-sm-6">
+                    <div class="card h-100 p-4 border-0 rounded-4 shadow-xs bg-white text-center hover-lift transition-all">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-4 p-3 mb-3">
+                            <i class="bi bi-book-half fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">{{ translations.easy_understand or 'Easy to Understand' }}</h5>
+                        <p class="text-secondary small mb-0">{{ translations.easy_understand_desc or 'Vocabulary explanations and comparison lists are fully mapped to your native tongue.' }}</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card h-100 p-4 border-0 rounded-4 shadow-xs bg-white text-center hover-lift transition-all">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-4 p-3 mb-3">
+                            <i class="bi bi-mic-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">{{ translations.better_pronunciation or 'Better Pronunciation' }}</h5>
+                        <p class="text-secondary small mb-0">{{ translations.better_pronunciation_desc or 'Record voice practice sentences and receive immediate score cards comparing audio.' }}</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card h-100 p-4 border-0 rounded-4 shadow-xs bg-white text-center hover-lift transition-all">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-4 p-3 mb-3">
+                            <i class="bi bi-map-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">{{ translations.personalized_path or 'Personalized Path' }}</h5>
+                        <p class="text-secondary small mb-0">{{ translations.personalized_path_desc or 'Adaptive stages map sequence items depending on your speed.' }}</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card h-100 p-4 border-0 rounded-4 shadow-xs bg-white text-center hover-lift transition-all">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-4 p-3 mb-3">
+                            <i class="bi bi-lightning-charge-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">{{ translations.learn_faster or 'Learn Faster' }}</h5>
+                        <p class="text-secondary small mb-0">{{ translations.learn_faster_desc or 'Visual images combined with audio match your native learning contexts.' }}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+function startLearning() {
+    const known = document.getElementById("known_lang").value;
+    const target = document.getElementById("target_lang").value;
+    const errMsg = document.getElementById("error-message");
+
+    errMsg.classList.add("d-none");
+
+    if (!target) {
+        errMsg.textContent = "Please select the language you want to learn.";
+        errMsg.classList.remove("d-none");
+        return;
+    }
+
+    if (known === target) {
+        errMsg.textContent = "Your known language and target language cannot be the same.";
+        errMsg.classList.remove("d-none");
+        return;
+    }
+
+    fetch("/api/multilingual/set-languages", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "known_lang": known,
+            "target_lang": target
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            window.location.reload();
+        } else {
+            errMsg.textContent = data.message || "An error occurred.";
+            errMsg.classList.remove("d-none");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        errMsg.textContent = "Network error. Please try again.";
+        errMsg.classList.remove("d-none");
+    });
+}
+</script>
+{% endblock %}

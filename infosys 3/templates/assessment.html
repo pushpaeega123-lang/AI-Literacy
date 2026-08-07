@@ -1,0 +1,549 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% set preferred_lang = session.get('preferred_language', 'English') %}
+{% set learning_lang = session.get('learning_language', 'English') %}
+{% set current_lang = session.get('language', 'English') %}
+<style>
+.card-option-check * {
+    pointer-events: none;
+}
+.card-option-check {
+    transition: all 0.2s ease;
+}
+.card-option-check:hover {
+    border-color: #4f46e5 !important;
+    background-color: rgba(79, 70, 229, 0.02) !important;
+}
+.active-option-card {
+    border-color: #4f46e5 !important;
+    background-color: rgba(79, 70, 229, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+</style>
+<section class="assessment-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <!-- Main Multi-Step Assessment Card -->
+                <div class="card assessment-card shadow-lg border-0" style="border-radius: 24px;">
+                    <div class="card-body p-5">
+                        
+                        <!-- Progress Indicator (Only visible during question steps) -->
+                        <div id="assessmentProgressContainer" class="mb-4" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-dark small" id="questionStepLabel">Task 1 of {{ questions|length }}</span>
+                                <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fs-8" id="progressBarPercent">0% Completed</span>
+                            </div>
+                            <div class="progress" style="height: 8px; border-radius: 4px; background: #e2e8f0;">
+                                <div class="progress-bar" id="assessmentProgressBar" role="progressbar" style="width: 0%; background: linear-gradient(90deg, #4f46e5, #9333ea); border-radius: 4px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+
+                        <form action="/submit_assessment" method="POST" id="assessmentForm" class="needs-validation" novalidate>
+                            
+                            <!-- STEP 0: Welcome Screen -->
+                            <div class="step-container" id="step_0">
+                                <div class="text-center py-4">
+                                    
+                                    <!-- Stepper Header -->
+                                    <div class="d-flex align-items-center justify-content-center gap-3 mb-5 position-relative" style="max-width: 350px; margin: 0 auto;">
+                                        <div style="position: absolute; height: 3px; background: #e2e8f0; width: 80%; z-index: 1; top: 50%; transform: translateY(-50%);"></div>
+                                        <span class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width: 38px; height: 38px; background: #4f46e5; z-index: 2; font-size: 0.95rem;">1</span>
+                                        <span class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary border bg-white" style="width: 38px; height: 38px; z-index: 2; font-size: 0.95rem;">2</span>
+                                        <span class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary border bg-white" style="width: 38px; height: 38px; z-index: 2; font-size: 0.95rem;">3</span>
+                                        <span class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary border bg-white" style="width: 38px; height: 38px; z-index: 2; font-size: 0.95rem;">4</span>
+                                        <span class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary border bg-white" style="width: 38px; height: 38px; z-index: 2; font-size: 0.95rem;">5</span>
+                                    </div>
+
+                                    <!-- Lion Mascot Circle -->
+                                    <div class="mb-4 d-flex align-items-center justify-content-center">
+                                        <div class="rounded-circle bg-warning bg-opacity-20 d-flex align-items-center justify-content-center shadow-sm" style="width: 140px; height: 140px; border: 5px solid #fef08a; font-size: 5rem; line-height: 140px;">🦁</div>
+                                    </div>
+                                    <h4 class="fw-bold text-dark mb-2">{{ session.get('fullname', 'Learner') }}, {{ translations.assessment_welcome_header if translations and translations.assessment_welcome_header else "Let's start with some fun activities!" }}</h4>
+                                    <p class="text-secondary mb-4 fs-6">{{ translations.assessment_welcome_subtitle if translations and translations.assessment_welcome_subtitle else "This will help us create your personalized learning path." }}</p>
+                                    
+                                    <div class="mb-3">
+                                        <span class="badge bg-secondary text-white rounded-pill px-3 py-2 fw-semibold fs-7">{{ age_group_label }}</span>
+                                    </div>
+
+                                    <div class="row justify-content-center g-3 my-4">
+                                        <div class="col-md-5">
+                                            <div class="p-3 border border-light-subtle rounded-3 bg-light text-center">
+                                                <small class="text-muted d-block uppercase tracking-wide">{{ translations.assessment_interface_lang if translations and translations.assessment_interface_lang else "Interface Language" }}</small>
+                                                <strong class="text-dark fs-6">{{ session.get('preferred_language', 'English') }}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="p-3 border border-light-subtle rounded-3 bg-light text-center">
+                                                <small class="text-muted d-block uppercase tracking-wide">{{ translations.assessment_learning_lang if translations and translations.assessment_learning_lang else "Learning Language" }}</small>
+                                                <strong class="text-primary fs-6">{{ session.get('learning_language', 'English') }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold shadow-sm" onclick="nextStep()" style="background: linear-gradient(90deg, #4f46e5, #9333ea); border: none;">
+                                            {{ translations.take_assessment_btn if translations and translations.take_assessment_btn else 'Start Assessment' }} <i class="bi bi-arrow-right ms-1 text-white"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- STEP 1: Instructions Screen -->
+                            <div class="step-container" id="step_1" style="display: none;">
+                                <div class="text-start py-3">
+                                    <h3 class="fw-bold text-dark mb-3"><i class="bi bi-info-circle text-primary me-2"></i>{{ translations.instructions_title if translations and translations.instructions_title else 'Assessment Instructions' }}</h3>
+                                    <p class="text-secondary">{{ translations.instructions_subtitle if translations and translations.instructions_subtitle else 'Please read these simple guidelines carefully before starting:' }}</p>
+                                    
+                                    <div class="bg-light p-4 rounded-4 border border-light-subtle my-4">
+                                        <div class="d-flex mb-3 align-items-start">
+                                            <span class="badge bg-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">1</span>
+                                            <p class="mb-0 text-dark fw-medium">{{ translations.instructions_rule_1 if translations and translations.instructions_rule_1 else 'Answer all questions: There is no penalty for wrong answers. Try your best!' }}</p>
+                                        </div>
+                                        <div class="d-flex mb-3 align-items-start">
+                                            <span class="badge bg-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">2</span>
+                                            <p class="mb-0 text-dark fw-medium">{{ translations.instructions_rule_2 if translations and translations.instructions_rule_2 else 'Listen and Speak: Make sure your speakers are unmuted. For speaking tasks, click the microphone button to answer.' }}</p>
+                                        </div>
+                                        <div class="d-flex mb-3 align-items-start">
+                                            <span class="badge bg-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">3</span>
+                                            <p class="mb-0 text-dark fw-medium">{{ translations.instructions_rule_3 if translations and translations.instructions_rule_3 else 'No external help: Answer on your own so the AI Tutor can design the perfect path for you.' }}</p>
+                                        </div>
+                                        <div class="d-flex align-items-start">
+                                            <span class="badge bg-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">4</span>
+                                            <p class="mb-0 text-dark fw-medium">{{ translations.instructions_rule_4 if translations and translations.instructions_rule_4 else 'Auto-Save: Your progress is tracked locally. Do not close or refresh this tab.' }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between mt-4">
+                                        <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill px-4" onclick="prevStep()"><i class="bi bi-arrow-left me-1"></i> {{ translations.assessment_back if translations and translations.assessment_back else 'Back' }}</button>
+                                        <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm" onclick="nextStep()" style="background: linear-gradient(90deg, #4f46e5, #9333ea); border: none;">{{ translations.take_assessment_btn if translations and translations.take_assessment_btn else 'Start Assessment' }} <i class="bi bi-arrow-right ms-1 text-white"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- QUESTION STEPS (Dynamic 15 Steps) -->
+                            {% for question in questions %}
+                                <div class="step-container" id="step_{{ loop.index + 1 }}" style="display: none;">
+                                    <div class="assessment-question mb-4">
+                                        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                                            <span class="badge bg-dark text-white rounded-pill px-3 py-1.5 fs-8">Task {{ loop.index }} of {{ questions|length }}</span>
+                                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1.5 fs-8 text-uppercase fw-semibold">{{ question.type }}</span>
+                                        </div>
+                                        
+                                        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+                                            <h4 class="fw-bold mb-0 text-dark" id="prompt_text_{{ question.name }}">{{ question.prompt }}</h4>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-2 fw-bold shadow-sm speak-btn-read" id="readBtn_{{ question.name }}" 
+                                                    data-question-name="{{ question.name }}"
+                                                    data-prompt="{{ question.prompt|escape }}"
+                                                    data-text="{{ (question.text or '')|escape }}"
+                                                    data-options="[{% if question.options %}{% for opt in question.options %}&quot;{{ opt|escape }}&quot;{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}]"
+                                                    data-preferred-lang="{{ preferred_lang }}"
+                                                    data-learning-lang="{{ learning_lang }}"
+                                                    onclick="playQuestionSpeechFromBtn(this)">
+                                                    🔊 {% if question.type == 'listening' %}{{ translations.click_to_listen_audio }}{% else %}{{ translations.speaker_listen_prompt if translations and translations.speaker_listen_prompt else 'Read Aloud' }}{% endif %}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Interactive Options Grid (for Reading, Vocabulary, Listening) -->
+                                        {% if question.type == 'reading' or question.type == 'vocabulary' or question.type == 'listening' or question.type == 'grammar' or question.type == 'comprehension' %}
+                                            {% if question.image %}
+                                                <div class="text-center mb-4">
+                                                    <img src="{{ question.image.image_url }}" alt="{{ question.image.alt }}" class="img-fluid rounded-4" style="max-height: 220px; object-fit: contain;" />
+                                                </div>
+                                            {% elif question.text and question.type != 'listening' %}
+                                                <p class="lead fw-medium text-dark bg-light p-4 rounded-4 border border-light-subtle mb-4" style="line-height: 1.6; border-left: 5px solid #4f46e5 !important;">{{ question.text }}</p>
+                                            {% endif %}
+                                            
+                                            <div class="row g-3" id="options_container_{{ question.name }}">
+                                                {% for option in question.options %}
+                                                    <div class="col-md-6">
+                                                        <div class="form-check card-option-check p-4 rounded-4 border border-light-subtle bg-white transition cursor-pointer position-relative d-flex align-items-center" 
+                                                            data-question-name="{{ question.name }}"
+                                                            data-option-id="{{ question.name }}_{{ loop.index }}"
+                                                            onclick="selectCardOption(this, this.getAttribute('data-option-id'), this.getAttribute('data-question-name'))">
+                                                            <input class="form-check-input ms-0 me-3 cursor-pointer" type="radio" name="{{ question.name }}" id="{{ question.name }}_{{ loop.index }}" value="{{ option }}" required>
+                                                            <label class="form-check-label fw-bold text-dark cursor-pointer fs-6" for="{{ question.name }}_{{ loop.index }}">{{ option }}</label>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                        <!-- Input Fill in the Blanks (for Writing) -->
+                                        {% elif question.type == 'writing' %}
+                                            {% if question.image %}
+                                                <div class="text-center mb-4">
+                                                    <img src="{{ question.image.image_url }}" alt="{{ question.image.alt }}" class="img-fluid rounded-4" style="max-height: 220px; object-fit: contain;" />
+                                                </div>
+                                            {% endif %}
+                                            <div class="input-container bg-light p-4 rounded-4 border border-light-subtle">
+                                                <label class="form-label text-secondary fw-semibold small uppercase mb-2">Type your answer below:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white border-end-0 text-muted px-3"><i class="bi bi-pencil-fill"></i></span>
+                                                    <input type="text" class="form-control form-control-lg border-start-0 ps-1" name="{{ question.name }}" id="input_{{ question.name }}" placeholder="Enter answer..." required autocomplete="off">
+                                                </div>
+                                            </div>
+                                            
+                                        <!-- Drawing Canvas Tracing -->
+                                        {% elif question.type == 'drawing' %}
+                                            <div class="drawing-test-container text-center p-4 bg-white rounded-4 border border-light-subtle">
+                                                <span class="text-secondary small d-block mb-3">{{ translations.trace_instruction }}</span>
+                                                <div class="canvas-container position-relative bg-light" style="width: 320px; height: 220px; margin: 0 auto; border-radius: 16px; border: 2px dashed #cbd5e1;">
+                                                    <div class="canvas-guide-text position-absolute w-100 h-100 d-flex align-items-center justify-content-center text-muted" style="font-size: 90px; font-weight: bold; opacity: 0.15; pointer-events: none; user-select: none; font-family: 'Poppins', 'Noto Sans Telugu', 'Noto Sans Devanagari';">
+                                                        {{ question.text }}
+                                                    </div>
+                                                    <canvas id="canvas_{{ question.name }}" class="position-absolute start-0 top-0 w-100 h-100" style="cursor: crosshair;"></canvas>
+                                                </div>
+                                                <div class="canvas-btn-group mt-3 d-flex justify-content-center gap-2">
+                                                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" 
+                                                        data-canvas-id="canvas_{{ question.name }}"
+                                                        onclick="clearCanvas(this.getAttribute('data-canvas-id'))">
+                                                        <i class="bi bi-trash3 me-1"></i>Clear
+                                                    </button>
+                                                    <button type="button" class="btn btn-primary rounded-pill px-4" 
+                                                        data-canvas-id="canvas_{{ question.name }}"
+                                                        data-question-text="{{ question.text|escape }}"
+                                                        data-question-name="{{ question.name }}"
+                                                        onclick="checkDrawing(this.getAttribute('data-canvas-id'), this.getAttribute('data-question-text'), this.getAttribute('data-question-name'))">
+                                                        Check Tracing
+                                                    </button>
+                                                </div>
+                                                <div class="mt-3 text-center fw-bold" id="feedback_{{ question.name }}"></div>
+                                                <input type="hidden" id="input_{{ question.name }}" name="{{ question.name }}" value="" required>
+                                            </div>
+                                            
+                                        <!-- Advanced Speaking mic interface -->
+                                        {% elif question.type == 'speaking' %}
+                                            <div class="speaking-voice-container bg-light p-4 rounded-4 border border-light-subtle">
+                                                <div class="text-center mb-4">
+                                                    <span class="text-muted small d-block mb-2">{{ translations.sentence_to_speak }}</span>
+                                                    <h3 class="fw-bold text-primary mb-0" id="sentence_{{ question.name }}" style="letter-spacing: 0.5px;">{{ question.hint }}</h3>
+                                                </div>
+                                                
+                                                <div class="text-center py-4 bg-white rounded-4 border border-light-subtle shadow-sm p-4 mb-3">
+                                                    <button type="button" class="btn btn-outline-danger btn-lg rounded-circle p-3 mb-3 voice-mic-btn d-inline-flex align-items-center justify-content-center" id="micBtn_{{ question.name }}" 
+                                                        data-question-name="{{ question.name }}"
+                                                        data-hint="{{ question.hint|escape }}"
+                                                        data-lang="{{ learning_lang }}"
+                                                        onclick="startSpeechRecognitionAssessmentFromBtn(this)" 
+                                                        style="width: 76px; height: 76px; transition: all 0.3s;">
+                                                        <i class="bi bi-mic-fill fs-2"></i>
+                                                    </button>
+                                                    <div class="small fw-semibold text-secondary" id="status_{{ question.name }}">{{ translations.speak_mic_prompt }}</div>
+                                                    <canvas id="visualizer_{{ question.name }}" class="w-100 rounded-3 mt-3 bg-dark bg-opacity-10" style="height: 60px; display: none;"></canvas>
+                                                    <div id="metrics_{{ question.name }}" class="mt-3" style="display: none;"></div>
+                                                </div>
+                                                
+                                                <div class="mt-3">
+                                                    <label class="form-label text-muted small fw-semibold uppercase">{{ translations.speech_transcription }}</label>
+                                                    <input type="text" class="form-control form-control-lg text-center fw-bold bg-white border border-light-subtle" id="input_{{ question.name }}" name="{{ question.name }}" placeholder="Your spoken text will appear here..." readonly required>
+                                                    <div class="form-text text-center small text-muted mt-2">If speech recognition is not working, you can double-click this input to enable typing.</div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        
+                                    </div>
+
+                                    <div class="d-flex justify-content-between mt-5 border-top border-light-subtle pt-4">
+                                        <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill px-4" onclick="prevStep()"><i class="bi bi-arrow-left me-1"></i> {{ translations.prev_question if translations and translations.prev_question else 'Back' }}</button>
+                                        <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm" 
+                                            data-question-name="{{ question.name }}"
+                                            data-question-type="{{ question.type }}"
+                                            onclick="nextQuestionStep(this.getAttribute('data-question-name'), this.getAttribute('data-question-type'))" 
+                                            style="background: linear-gradient(90deg, #4f46e5, #9333ea); border: none;">{{ translations.next_question if translations and translations.next_question else 'Next' }} <i class="bi bi-arrow-right ms-1 text-white"></i></button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            <!-- FINAL STEP: Submit Assessment Confirmation -->
+                            <div class="step-container" id="step_{{ questions|length + 2 }}" style="display: none;">
+                                <div class="text-center py-4">
+                                    <div class="avatar-container mb-4" style="font-size: 80px;">🎉</div>
+                                    <h2 class="fw-bold text-dark mb-2">{{ translations.assessment_congrats_title if translations and translations.assessment_congrats_title else 'Congratulations!' }}</h2>
+                                    <p class="text-secondary mx-auto mb-4" style="max-width: 580px;">
+                                        {{ translations.assessment_congrats_desc if translations and translations.assessment_congrats_desc else 'You have successfully answered all tasks. Click the button below to submit and generate your personalized learning dashboard!' }}
+                                    </p>
+                                    
+                                    <div class="d-grid gap-2 justify-content-center">
+                                        <button class="btn btn-primary btn-lg py-3 px-5 rounded-pill fw-bold shadow-md pulse-btn" type="submit" style="background: linear-gradient(90deg, #4f46e5, #9333ea); border: none;">
+                                            <i class="bi bi-check-circle-fill me-2 text-white"></i>{{ translations.submit_assessment_btn if translations and translations.submit_assessment_btn else 'Submit Assessment' }}
+                                        </button>
+                                        <button type="button" class="btn btn-link text-secondary fw-semibold text-decoration-none mt-2" onclick="prevStep()">
+                                            <i class="bi bi-arrow-left me-1"></i> {{ translations.assessment_go_back_review if translations and translations.assessment_go_back_review else 'Go Back and Review' }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Custom Styling for Interactive Cards and active indicators -->
+<style>
+.card-option-check {
+    border-width: 2px !important;
+    transition: all 0.25s ease;
+}
+.card-option-check:hover {
+    border-color: #818cf8 !important;
+    background-color: #f8fafc !important;
+    transform: translateY(-2px);
+}
+.card-option-check.active-option-card {
+    border-color: #4f46e5 !important;
+    background-color: #eff6ff !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
+}
+.card-option-check.active-option-card label {
+    color: #1e40af !important;
+}
+</style>
+
+{% endblock %}
+
+{% block js %}
+<script>
+let currentStep = 0;
+const totalSteps = parseInt('{{ questions|length }}', 10) + 3; // welcome + instructions + N questions + submit
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize tracing canvases
+    document.querySelectorAll("canvas[id^='canvas_']").forEach(canvas => {
+        initDrawingCanvas(canvas.id);
+    });
+    
+    // Setup show/hide double-click fallbacks for readonly mic transcription fields
+    document.querySelectorAll('input[readonly]').forEach(input => {
+        input.addEventListener('dblclick', function() {
+            this.readOnly = false;
+            this.focus();
+            this.classList.remove('bg-light');
+            this.placeholder = "Fallback typing enabled. Enter text here...";
+        });
+    });
+    
+    showStep(currentStep);
+});
+
+function showStep(stepIndex) {
+    // Hide all steps
+    document.querySelectorAll('.step-container').forEach(step => {
+        step.style.display = 'none';
+    });
+    
+    // Show target step
+    const targetStep = document.getElementById('step_' + stepIndex);
+    if (targetStep) {
+        targetStep.style.display = 'block';
+    }
+    
+    // Stop all audio playbacks on changing steps
+    stopQuestionSpeech(null);
+    
+    // Update progress bar visibility and progress percentage
+    const progressContainer = document.getElementById('assessmentProgressContainer');
+    if (stepIndex >= 2 && stepIndex < totalSteps - 1) {
+        progressContainer.style.display = 'block';
+        const qIndex = stepIndex - 2; // 0-based question step index
+        const totalQs = parseInt('{{ questions|length }}', 10);
+        const percent = Math.round((qIndex / totalQs) * 100);
+        
+        document.getElementById('questionStepLabel').innerText = `Task ${qIndex + 1} of ${totalQs}`;
+        document.getElementById('progressBarPercent').innerText = `${percent}% Completed`;
+        document.getElementById('assessmentProgressBar').style.width = `${percent}%`;
+    } else {
+        progressContainer.style.display = 'none';
+    }
+}
+
+function nextStep() {
+    if (currentStep < totalSteps - 1) {
+        currentStep++;
+        showStep(currentStep);
+    }
+}
+
+function prevStep() {
+    if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+    }
+}
+
+function nextQuestionStep(questionName, questionType) {
+    // Validate that the question has been answered before moving next
+    let isAnswered = false;
+    
+    if (questionType === 'reading' || questionType === 'vocabulary' || questionType === 'listening' || questionType === 'grammar' || questionType === 'comprehension') {
+        const radios = document.getElementsByName(questionName);
+        for (let r of radios) {
+            if (r.checked) {
+                isAnswered = true;
+                break;
+            }
+        }
+    } else {
+        // Writing, Drawing, Speaking fields require inputs
+        const inputField = document.getElementById('input_' + questionName);
+        if (inputField && inputField.value.trim() !== '') {
+            isAnswered = true;
+        }
+    }
+    
+    if (!isAnswered) {
+        alert("Please answer the current task before moving to the next step.");
+        return;
+    }
+    
+    nextStep();
+}
+
+function selectCardOption(cardElement, radioId, questionName) {
+    // Check the radio input
+    const radio = document.getElementById(radioId);
+    if (radio) {
+        radio.checked = true;
+    }
+    
+    // Highlight selected card and un-highlight others of the same question
+    const optionsContainer = cardElement.closest('#options_container_' + questionName);
+    if (optionsContainer) {
+        optionsContainer.querySelectorAll('.card-option-check').forEach(card => {
+            card.classList.remove('active-option-card');
+        });
+    }
+    cardElement.classList.add('active-option-card');
+}
+
+function startSpeechRecognitionAssessment(questionName, expectedText, language) {
+    if (typeof startAdvancedSpeech !== 'function') {
+        alert("Advanced voice engine is still loading. Try again in a second.");
+        return;
+    }
+    startAdvancedSpeech({
+        expectedText: expectedText,
+        languageName: language,
+        inputId: `input_${questionName}`,
+        statusId: `status_${questionName}`,
+        micBtnId: `micBtn_${questionName}`,
+        canvasId: `visualizer_${questionName}`,
+        metricsPanelId: `metrics_${questionName}`
+    });
+}
+
+let currentUtterance = null;
+let currentActiveQuestion = null;
+
+function stopQuestionSpeech(questionName) {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+    if (window.currentHtmlAudio) {
+        try { window.currentHtmlAudio.pause(); } catch(e) {}
+    }
+    if (questionName) {
+        const readBtn = document.getElementById('readBtn_' + questionName);
+        const stopBtn = document.getElementById('stopBtn_' + questionName);
+        if (readBtn) readBtn.disabled = false;
+        if (stopBtn) stopBtn.disabled = true;
+    } else {
+        document.querySelectorAll('.speak-btn-read').forEach(btn => btn.disabled = false);
+        document.querySelectorAll('.speak-btn-stop').forEach(btn => btn.disabled = true);
+    }
+    currentActiveQuestion = null;
+}
+
+function playQuestionSpeech(questionName, prompt, text, options, preferredLanguage, learningLanguage) {
+    if (!prompt) return;
+    
+    if (currentActiveQuestion) {
+        stopQuestionSpeech(currentActiveQuestion);
+    }
+    
+    currentActiveQuestion = questionName;
+    const readBtn = document.getElementById('readBtn_' + questionName);
+    const stopBtn = document.getElementById('stopBtn_' + questionName);
+    
+    if (readBtn) readBtn.disabled = true;
+    if (stopBtn) stopBtn.disabled = false;
+    
+    const items = [];
+    const isMuted = localStorage.getItem("voice_tutor_muted") === "true";
+    
+    if (isMuted) {
+        stopQuestionSpeech(questionName);
+        return;
+    }
+
+    // 1. Prompt (spoken in learningLanguage)
+    if (prompt) {
+        items.push({ text: prompt, lang: learningLanguage });
+    }
+    
+    // 2. Text (spoken in learningLanguage)
+    if (text) {
+        items.push({ text: text, lang: learningLanguage });
+    }
+    
+    // 3. Options (spoken in learningLanguage)
+    if (options && options.length > 0) {
+        options.forEach((opt, idx) => {
+            items.push({ text: "Option " + (idx + 1) + ": " + opt, lang: learningLanguage });
+        });
+    }
+    
+    if (items.length === 0) {
+        stopQuestionSpeech(questionName);
+        return;
+    }
+    
+    // Sequential speech queue execution using our global hybrid player
+    let currentIdx = 0;
+    
+    function speakNext() {
+        if (currentIdx < items.length && currentActiveQuestion === questionName) {
+            const item = items[currentIdx];
+            speakTextWithCallback(item.text, item.lang, function() {
+                currentIdx++;
+                speakNext();
+            });
+        } else {
+            stopQuestionSpeech(questionName);
+        }
+    }
+    
+    speakNext();
+}
+
+function playQuestionSpeechFromBtn(btn) {
+    const questionName = btn.getAttribute('data-question-name');
+    const prompt = btn.getAttribute('data-prompt');
+    const text = btn.getAttribute('data-text');
+    let options = [];
+    try {
+        options = JSON.parse(btn.getAttribute('data-options') || '[]');
+    } catch(e) {
+        console.error("Failed to parse options", e);
+    }
+    const preferredLanguage = btn.getAttribute('data-preferred-lang');
+    const learningLanguage = btn.getAttribute('data-learning-lang');
+    playQuestionSpeech(questionName, prompt, text, options, preferredLanguage, learningLanguage);
+}
+
+function startSpeechRecognitionAssessmentFromBtn(btn) {
+    const questionName = btn.getAttribute('data-question-name');
+    const expectedText = btn.getAttribute('data-hint');
+    const language = btn.getAttribute('data-lang');
+    startSpeechRecognitionAssessment(questionName, expectedText, language);
+}
+</script>
+{% endblock %}

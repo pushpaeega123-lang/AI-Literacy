@@ -1,0 +1,2588 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Chart.js and Font Imports -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+    /* Premium Dashboard Styles overrides */
+    body {
+        background-color: #0b1120 !important;
+        color: #f8fafc !important;
+        font-family: 'Poppins', 'Outfit', sans-serif !important;
+        overflow-x: hidden;
+    }
+
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #0b1120;
+    }
+
+    /* Futurist Left Sidebar styling */
+    .admin-sidebar {
+        width: 290px;
+        background: rgba(11, 17, 32, 0.9);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-direction: column;
+        padding: 30px 20px;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        transition: all 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #ffffff;
+        margin-bottom: 25px;
+        padding: 0 10px;
+    }
+
+    .brand-icon-glowing {
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, #a855f7, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4));
+    }
+
+    .brand-name {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+        display: block;
+        font-size: 0.68rem;
+        color: #a855f7;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        margin-top: -3px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu .nav-item {
+        margin-bottom: 5px;
+    }
+
+    .sidebar-menu .nav-link, .sidebar-menu .submenu-trigger {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 16px;
+        border-radius: 12px;
+        color: #94a3b8;
+        font-weight: 500;
+        font-size: 0.88rem;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        border: 1px solid transparent;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+    }
+
+    .sidebar-menu .nav-link:hover, .sidebar-menu .submenu-trigger:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .sidebar-menu .nav-link.active, .sidebar-menu .nav-link[aria-expanded="true"] {
+        color: #ffffff;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(59, 130, 246, 0.15));
+        border-color: rgba(168, 85, 247, 0.25);
+        box-shadow: 0 4px 20px rgba(168, 85, 247, 0.08);
+    }
+
+    .sidebar-menu i {
+        font-size: 1.05rem;
+    }
+
+    /* Sidebar Submenu */
+    .sidebar-submenu {
+        list-style: none;
+        padding-left: 28px;
+        margin: 5px 0 10px 0;
+    }
+
+    .sidebar-submenu .submenu-link {
+        display: block;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        color: #64748b;
+        text-decoration: none;
+        transition: all 0.2s;
+        border-radius: 6px;
+    }
+
+    .sidebar-submenu .submenu-link:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .admin-profile-card {
+        margin-top: 30px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 14px;
+    }
+
+    .profile-avatar-wrapper {
+        position: relative;
+    }
+
+    .online-indicator {
+        position: absolute;
+        bottom: 1px;
+        right: 1px;
+        width: 10px;
+        height: 10px;
+        background: #10b981;
+        border: 2px solid #0b1120;
+        border-radius: 50%;
+    }
+
+    /* Main view area styling */
+    .admin-main {
+        flex: 1;
+        margin-left: 290px;
+        padding: 40px;
+        background: #0b1120;
+        min-height: 100vh;
+    }
+
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .header-welcome h1 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 5px;
+        background: linear-gradient(135deg, #ffffff, #94a3b8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .header-welcome p {
+        color: #64748b;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+    }
+
+    .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .header-search {
+        position: relative;
+        width: 280px;
+    }
+
+    .header-search i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+    }
+
+    .header-search input {
+        width: 100%;
+        padding: 10px 15px 10px 42px;
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        color: #ffffff;
+        font-size: 0.88rem;
+        transition: all 0.3s ease;
+    }
+
+    .header-search input:focus {
+        outline: none;
+        border-color: #a855f7;
+        background: rgba(30, 41, 59, 0.6);
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.15);
+    }
+
+    .header-date {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(30, 41, 59, 0.4);
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 0.88rem;
+        color: #94a3b8;
+    }
+
+    /* Premium Futuristic Cards */
+    .premium-card {
+        background: rgba(17, 24, 39, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .premium-card:hover {
+        border-color: rgba(168, 85, 247, 0.2);
+    }
+
+    /* Stat Cards with Glow border system */
+    .stat-glow-card {
+        background: rgba(17, 24, 39, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        padding: 22px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        backdrop-filter: blur(15px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-glow-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--theme-color);
+    }
+
+    .stat-glow-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px var(--theme-glow);
+        border-color: rgba(255,255,255,0.12);
+    }
+
+    .stat-icon-glow {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: var(--theme-color);
+        margin-bottom: 16px;
+        text-shadow: 0 0 10px var(--theme-color);
+    }
+
+    .stat-label-futur {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .stat-value-futur {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 1.6rem;
+        color: #ffffff;
+        margin-bottom: 5px;
+    }
+
+    .stat-growth {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #10b981;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    /* Clean Light Mode Tables styling */
+    .admin-main .table-responsive {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .admin-main .table-responsive .table {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+        color: #334155 !important;
+        margin-bottom: 0;
+    }
+
+    /* Blue Header styling with strong contrast */
+    .admin-main .table-responsive .table thead,
+    .admin-main .table-responsive .table thead tr,
+    .admin-main .table-responsive .table thead th {
+        background: #2563eb !important; /* Vibrant primary blue header */
+        color: #ffffff !important; /* Crisp white header text */
+        border-bottom: 2px solid #1d4ed8 !important;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        padding: 16px 20px !important;
+    }
+
+    /* Table body cell styling */
+    .admin-main .table-responsive .table tbody td {
+        background: #ffffff !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        color: #334155 !important; /* Dark grey for body text readability */
+        font-size: 0.88rem;
+    }
+
+    /* Alternating row styling (zebra) */
+    .admin-main .table-responsive .table tbody tr:nth-of-type(odd) td {
+        background: #f8fafc !important;
+    }
+
+    /* Hover effect */
+    .admin-main .table-responsive .table tbody tr:hover td {
+        background: #eff6ff !important; /* Light blue tint on hover */
+        color: #1e3a8a !important; /* Dark blue text on hover */
+    }
+
+    /* Emails inside tables */
+    .admin-main .table-responsive .table code {
+        background: transparent !important;
+        color: #2563eb !important; /* Professional blue for emails */
+        font-family: inherit;
+        font-size: 0.88rem;
+        padding: 0;
+    }
+
+    /* User names in the first column */
+    .admin-main .table-responsive .table td.text-white,
+    .admin-main .table-responsive .table td .text-white {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+
+    .badge-premium {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        display: inline-block;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* Status/Role badges styled for light theme */
+    .admin-main .bg-rose { background: #ffe4e6 !important; color: #e11d48 !important; }
+    .admin-main .bg-emerald { background: #dcfce7 !important; color: #15803d !important; }
+    .admin-main .bg-indigo { background: #e0e7ff !important; color: #4338ca !important; }
+    .admin-main .bg-purple { background: #f3e8ff !important; color: #7e22ce !important; }
+
+    /* Custom form styling in light theme */
+    .admin-main .form-control, 
+    .admin-main .form-select {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px;
+        color: #1e293b !important;
+        padding: 10px 14px;
+        font-size: 0.88rem;
+    }
+
+    .admin-main .form-control:focus, 
+    .admin-main .form-select:focus {
+        background: #ffffff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.15) !important;
+        outline: none;
+    }
+
+    .admin-main .form-select option {
+        background: #ffffff !important;
+        color: #1e293b !important;
+    }
+
+    /* Light Theme Modals */
+    .modal-content {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 20px;
+        color: #1e293b !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* Clean Light Mode admin main area styling */
+    .admin-main {
+        background: #f8fafc !important;
+        color: #1e293b !important;
+    }
+
+    /* Headings inside admin main area */
+    .admin-main .header-welcome h1 {
+        background: linear-gradient(135deg, #1e293b, #475569) !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+
+    .admin-main .header-welcome p {
+        color: #64748b !important;
+    }
+
+    /* General card backgrounds and layout */
+    .admin-main .premium-card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+        color: #1e293b !important;
+    }
+
+    .admin-main .premium-card h4, 
+    .admin-main .premium-card h5 {
+        color: #0f172a !important;
+    }
+
+    .admin-main .stat-glow-card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .admin-main .stat-value-futur {
+        color: #0f172a !important;
+    }
+
+    .admin-main .stat-label-futur {
+        color: #64748b !important;
+    }
+
+    .admin-main .stat-icon-glow {
+        background: rgba(59, 130, 246, 0.05) !important;
+        border: 1px solid rgba(59, 130, 246, 0.1) !important;
+        text-shadow: none !important;
+    }
+
+    .admin-main .stat-glow-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 10px 25px var(--theme-glow) !important;
+        border-color: var(--theme-color) !important;
+    }
+
+    /* Header Controls */
+    .admin-main .header-search input {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #1e293b !important;
+    }
+
+    .admin-main .header-search input:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.15) !important;
+    }
+
+    .admin-main .header-search i {
+        color: #64748b !important;
+    }
+
+    .admin-main .header-date {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #475569 !important;
+    }
+
+    /* Override any text-white classes to slate-900 in light mode */
+    .admin-main .text-white,
+    .admin-main h1.text-white,
+    .admin-main h2.text-white,
+    .admin-main h3.text-white,
+    .admin-main h4.text-white,
+    .admin-main h5.text-white,
+    .admin-main h6.text-white {
+        color: #0f172a !important;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e2e8f0 !important;
+    }
+
+    /* Override black badges (bg-dark) in light mode tables */
+    .admin-main .badge.bg-dark {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+    .admin-main .badge.bg-dark.text-muted {
+        color: #475569 !important;
+    }
+    .admin-main .badge.bg-dark.text-white {
+        color: #475569 !important;
+    }
+
+    /* Actions cards styled for light theme */
+    .admin-main .action-grid-card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+    }
+
+    .admin-main .action-grid-card:hover {
+        background: #f8fafc !important;
+        border-color: var(--action-color) !important;
+        box-shadow: 0 4px 15px var(--action-glow) !important;
+    }
+
+    .admin-main .action-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.04) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--action-color);
+        font-size: 1.15rem;
+    }
+
+    .admin-main .action-title {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #0f172a !important;
+    }
+
+    .admin-main .action-desc {
+        font-size: 0.72rem;
+        color: #64748b !important;
+    }
+
+    /* Hide submenus by default unless shown */
+    .collapse:not(.show) {
+        display: none;
+    }
+</style>
+
+<div class="admin-wrapper">
+    <!-- LEFT SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon-glowing">🤖</div>
+            <div class="brand-text">
+                <span class="brand-name">AI Literacy</span>
+                <span class="brand-subtitle">Admin Space</span>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <ul class="sidebar-menu nav nav-pills flex-column" id="adminTabs" role="tablist">
+            <!-- Hidden Tab Triggers for Submenu Navigation -->
+            <div class="d-none">
+                <button id="learners-tab" data-bs-toggle="tab" data-bs-target="#tab-learners" type="button" role="tab"></button>
+                <button id="parents-tab" data-bs-toggle="tab" data-bs-target="#tab-parents" type="button" role="tab"></button>
+                <button id="content-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab"></button>
+                <button id="assessments-tab" data-bs-toggle="tab" data-bs-target="#tab-assessments" type="button" role="tab"></button>
+                <button id="analytics-tab" data-bs-toggle="tab" data-bs-target="#tab-analytics" type="button" role="tab"></button>
+                <button id="reports-tab" data-bs-toggle="tab" data-bs-target="#tab-reports" type="button" role="tab"></button>
+            </div>
+
+            <!-- Dashboard Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#tab-dashboard" type="button" role="tab">
+                    <i class="bi bi-grid-1x2-fill"></i> {{ translations.admin_sidebar_dashboard or 'Dashboard' }}
+                </button>
+            </li>
+
+            <!-- User Management Collapse Menu -->
+            <li class="nav-item w-100">
+                <button class="submenu-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submenu-users" aria-expanded="false">
+                    <i class="bi bi-people-fill"></i> {{ translations.admin_sidebar_users or 'User Management' }} <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem;"></i>
+                </button>
+                <div class="collapse" id="submenu-users">
+                    <ul class="sidebar-submenu">
+                        <li><a href="#tab-learners" class="submenu-link" onclick="showTab('#tab-learners'); setLearnerFilter('all')">{{ translations.admin_sidebar_view_users or 'View Users' }}</a></li>
+                        <li><a href="#tab-learners" class="submenu-link" onclick="showTab('#tab-learners'); openAddUserModal()">{{ translations.admin_sidebar_add_user or 'Add User' }}</a></li>
+                        <li><a href="#tab-learners" class="submenu-link" onclick="showTab('#tab-learners'); focusSearch('learnerSearch')">{{ translations.admin_sidebar_search_users or 'Search Users' }}</a></li>
+                        <li><a href="#tab-parents" class="submenu-link" onclick="showTab('#tab-parents')">{{ translations.admin_sidebar_parents or 'Parent Accounts' }}</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- Lesson Management Collapse Menu -->
+            <li class="nav-item w-100">
+                <button class="submenu-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submenu-lessons" aria-expanded="false">
+                    <i class="bi bi-journal-bookmark-fill"></i> {{ translations.admin_sidebar_lessons or 'Lesson Management' }} <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem;"></i>
+                </button>
+                <div class="collapse" id="submenu-lessons">
+                    <ul class="sidebar-submenu">
+                        <li><a href="#tab-content" class="submenu-link" onclick="showTab('#tab-content')">{{ translations.admin_sidebar_view_lessons or 'View Lessons' }}</a></li>
+                        <li><a href="#tab-content" class="submenu-link" onclick="showTab('#tab-content'); openAddLessonModal()">{{ translations.admin_sidebar_add_lesson or 'Add Lesson' }}</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- Assessment Management Collapse Menu -->
+            <li class="nav-item w-100">
+                <button class="submenu-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submenu-assessments" aria-expanded="false">
+                    <i class="bi bi-patch-question-fill"></i> {{ translations.admin_sidebar_assessments or 'Assessment Management' }} <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem;"></i>
+                </button>
+                <div class="collapse" id="submenu-assessments">
+                    <ul class="sidebar-submenu">
+                        <li><a href="#tab-assessments" class="submenu-link" onclick="showTab('#tab-assessments')">{{ translations.admin_sidebar_question_bank or 'Question Bank' }}</a></li>
+                        <li><a href="#tab-assessments" class="submenu-link" onclick="showTab('#tab-assessments'); openAddQuestionModal()">{{ translations.admin_sidebar_create_question or 'Create Question' }}</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- AI Recommendation Management Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" data-bs-target="#tab-recommendations" type="button" role="tab">
+                    <i class="bi bi-robot"></i> {{ translations.admin_sidebar_ai_recs or 'AI Recommendations' }}
+                </button>
+            </li>
+
+            <!-- Voice Learning Management Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" id="voice-tab" data-bs-toggle="tab" data-bs-target="#tab-voice" type="button" role="tab">
+                    <i class="bi bi-mic-fill"></i> {{ translations.admin_sidebar_voice or 'Voice Learning' }}
+                </button>
+            </li>
+
+            <!-- Language Management Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" id="languages-tab" data-bs-toggle="tab" data-bs-target="#tab-languages" type="button" role="tab">
+                    <i class="bi bi-globe"></i> {{ translations.admin_sidebar_languages or 'Languages' }}
+                </button>
+            </li>
+
+            <!-- Learning Games Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" id="games-tab" data-bs-toggle="tab" data-bs-target="#tab-games" type="button" role="tab">
+                    <i class="bi bi-controller"></i> {{ translations.admin_sidebar_games or 'Learning Games' }}
+                </button>
+            </li>
+
+            <!-- Progress & Analytics Collapse Menu -->
+            <li class="nav-item w-100">
+                <button class="submenu-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submenu-progress" aria-expanded="false">
+                    <i class="bi bi-graph-up-arrow"></i> {{ translations.admin_sidebar_reports or 'Progress & Reports' }} <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem;"></i>
+                </button>
+                <div class="collapse" id="submenu-progress">
+                    <ul class="sidebar-submenu">
+                        <li><a href="#tab-analytics" class="submenu-link" onclick="showTab('#tab-analytics')">{{ translations.admin_sidebar_analytics or 'System Analytics' }}</a></li>
+                        <li><a href="#tab-reports" class="submenu-link" onclick="showTab('#tab-reports')">{{ translations.admin_sidebar_export_reports or 'Export Reports' }}</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- Notifications Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#tab-notifications" type="button" role="tab">
+                    <i class="bi bi-bell-fill"></i> {{ translations.admin_sidebar_notifications or 'Notifications' }}
+                </button>
+            </li>
+
+            <!-- Feedback Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#tab-feedback" type="button" role="tab">
+                    <i class="bi bi-chat-left-heart-fill"></i> {{ translations.admin_sidebar_feedback or 'Feedback' }}
+                </button>
+            </li>
+
+            <!-- Settings Link -->
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#tab-settings" type="button" role="tab">
+                    <i class="bi bi-gear-fill"></i> {{ translations.admin_sidebar_settings or 'Settings' }}
+                </button>
+            </li>
+
+            <!-- Logout -->
+            <li class="nav-item w-100 mt-auto pt-3" role="presentation">
+                <a href="/admin/logout" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-left"></i> {{ translations.admin_sidebar_logout or 'Logout' }}
+                </a>
+            </li>
+        </ul>
+
+        <!-- Profile footer -->
+        <div class="admin-profile-card d-flex align-items-center gap-3">
+            <div class="profile-avatar-wrapper position-relative">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=admin" alt="Admin Avatar" class="profile-avatar rounded-circle border border-2 border-primary" style="width: 44px; height: 44px; background: rgba(255,255,255,0.05);">
+                <span class="online-indicator"></span>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name fw-bold text-white small">{{ session.get('fullname', 'Administrator') }}</div>
+                <div class="profile-role text-muted" style="font-size: 0.74rem;">System Admin</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <main class="admin-main">
+        <!-- TOP HEADER -->
+        <header class="admin-header">
+            <div class="header-welcome">
+                <h1>{{ translations.admin_welcome_title or 'Welcome back, Admin! 👋' }}</h1>
+                <p>{{ translations.admin_welcome_subtitle or "Here's what's happening with AI Literacy today." }}</p>
+            </div>
+            <div class="header-controls">
+                <div class="header-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="globalSearch" placeholder="Search parameters, modules..." onkeyup="globalSearchFilter()">
+                </div>
+                <div class="header-date">
+                    <i class="bi bi-calendar3"></i>
+                    <span>{{ today_date or "30/07/2026" }}</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Flash alerts inside Content Area -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert" style="background: rgba(15, 23, 42, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.08);">
+                        <i class="bi {% if category == 'success' %}bi-check-circle-fill text-success{% else %}bi-exclamation-triangle-fill text-danger{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="tab-content" id="adminTabContent">
+            
+            <!-- 1. DASHBOARD -->
+            <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
+                
+                <!-- STATISTICS SECTION -->
+                <div class="row g-4 mb-5">
+                    <!-- Cards representing the requested metrics -->
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #a855f7; --theme-glow: rgba(168, 85, 247, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-people"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_total_users or 'Total Users' }}</div>
+                            <div class="stat-value-futur">{{ stats.total_users }}</div>
+                            <div class="stat-growth">All Registered Profiles</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #10b981; --theme-glow: rgba(16, 185, 129, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-person-check-fill"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_active_users or 'Active Users' }}</div>
+                            <div class="stat-value-futur">{{ stats.active_users }}</div>
+                            <div class="stat-growth">Status Active</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #3b82f6; --theme-glow: rgba(59, 130, 246, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-journal-text"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_total_lessons or 'Total Lessons' }}</div>
+                            <div class="stat-value-futur">{{ stats.total_lessons }}</div>
+                            <div class="stat-growth">In Curriculum</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #06b6d4; --theme-glow: rgba(6, 182, 212, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-patch-question-fill"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_total_assessments or 'Total Assessments' }}</div>
+                            <div class="stat-value-futur">{{ stats.total_assessments_taken }}</div>
+                            <div class="stat-growth">Evaluated Exams</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #f59e0b; --theme-glow: rgba(245, 158, 11, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-translate"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_languages_supported or 'Languages Supported' }}</div>
+                            <div class="stat-value-futur">{{ stats.languages_supported }}</div>
+                            <div class="stat-growth">Active Dialects</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #ec4899; --theme-glow: rgba(236, 72, 153, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-percent"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_completion_rate or 'Lesson Completion Rate' }}</div>
+                            <div class="stat-value-futur">{{ stats.lesson_completion_rate }}%</div>
+                            <div class="stat-growth">Progress Metric</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #f97316; --theme-glow: rgba(249, 115, 22, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-mic-fill"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_voice_assessments or 'Total Voice Assessments' }}</div>
+                            <div class="stat-value-futur">{{ stats.total_voice_practice }}</div>
+                            <div class="stat-growth">Spoken Evaluated</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-glow-card" style="--theme-color: #38bdf8; --theme-glow: rgba(56, 189, 248, 0.15);">
+                            <div class="stat-icon-glow"><i class="bi bi-calendar-plus-fill"></i></div>
+                            <div class="stat-label-futur">{{ translations.admin_stat_todays_regs or "Today's Registrations" }}</div>
+                            <div class="stat-value-futur">{{ stats.todays_registrations }}</div>
+                            <div class="stat-growth">New Learners Today</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN GRIDS -->
+                <div class="row g-4 mb-5">
+                    <!-- Monthly User Registrations Chart -->
+                    <div class="col-lg-8">
+                        <div class="premium-card h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold mb-0 text-white">Monthly User Registrations</h5>
+                                <span class="badge bg-dark border border-secondary text-white rounded-pill px-3 py-1 font-size-xs">2026 Trend</span>
+                            </div>
+                            <div style="height: 310px;">
+                                <canvas id="monthlyRegsChart" data-regs="{{ (monthly_regs or []) | tojson | safe }}"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Age Group Distribution Chart -->
+                    <div class="col-lg-4">
+                        <div class="premium-card h-100">
+                            <h5 class="fw-bold mb-4 text-white">Age Group Distribution</h5>
+                            <div style="height: 230px; position: relative;" class="d-flex justify-content-center align-items-center">
+                                <canvas id="ageDistributionChart"
+                                        data-toddler="{{ (age_bins and age_bins.get('toddler')) or 0 }}"
+                                        data-young="{{ (age_bins and age_bins.get('young')) or 0 }}"
+                                        data-middle="{{ (age_bins and age_bins.get('middle')) or 0 }}"
+                                        data-older="{{ (age_bins and age_bins.get('older')) or 0 }}"
+                                        data-senior="{{ (age_bins and age_bins.get('senior')) or 0 }}"></canvas>
+                            </div>
+                            <div class="row g-2 mt-4 text-center" style="font-size: 0.75rem;">
+                                <div class="col">
+                                    <div class="text-muted fw-bold">Toddler</div>
+                                    <div class="fw-extrabold text-primary">{{ (age_bins and age_bins.get('toddler')) or 0 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-muted fw-bold">Young</div>
+                                    <div class="fw-extrabold text-info">{{ (age_bins and age_bins.get('young')) or 0 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-muted fw-bold">Middle</div>
+                                    <div class="fw-extrabold text-success">{{ (age_bins and age_bins.get('middle')) or 0 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-muted fw-bold">Older</div>
+                                    <div class="fw-extrabold text-warning">{{ (age_bins and age_bins.get('older')) or 0 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <!-- Recent Activities timeline -->
+                    <div class="col-lg-4">
+                        <div class="premium-card h-100" style="max-height: 480px; overflow-y: auto;">
+                            <h5 class="fw-bold mb-4 text-white">Recent Activities Timeline</h5>
+                            <div class="timeline-futur">
+                                {% for act in recent_activities %}
+                                    {% if act.action == 'LOGIN' %}
+                                        {% set border_color = '#10b981' %}
+                                    {% elif act.action == 'LOGOUT' %}
+                                        {% set border_color = '#ef4444' %}
+                                    {% elif 'LESSON' in act.action %}
+                                        {% set border_color = '#3b82f6' %}
+                                    {% else %}
+                                        {% set border_color = '#a855f7' %}
+                                    {% endif %}
+                                    <div class="timeline-item-futur" {{ 'style="border-left: 2px solid ' ~ border_color ~ '; padding-left: 15px; margin-bottom: 15px;"' | safe }}>
+                                        <div class="timeline-title fw-bold small text-white">{{ act.fullname or "System" }}</div>
+                                        <div class="timeline-desc text-muted" style="font-size: 0.78rem;">{{ act.action }}: {{ act.details }}</div>
+                                        <div class="timeline-time text-secondary" style="font-size: 0.7rem;">{{ act.timestamp }}</div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted">No events registered yet.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Performing Learners -->
+                    <div class="col-lg-8">
+                        <div class="premium-card h-100" style="max-height: 480px; overflow-y: auto;">
+                            <h5 class="fw-bold mb-4 text-white">Top Performing Learners</h5>
+                            <div class="table-responsive">
+                                <table class="table premium-table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>{{ translations.full_name or 'Name' }}</th>
+                                            <th>{{ translations.learning_level or 'Level' }}</th>
+                                            <th>Lessons</th>
+                                            <th>XP</th>
+                                            <th>{{ translations.admin_col_status or 'Status' }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% set ns = namespace(count=0) %}
+                                        {% for user in learners %}
+                                            {% if user.role == 'student' and ns.count < 5 %}
+                                                {% set ns.count = ns.count + 1 %}
+                                                <tr>
+                                                    <td><span class="fw-bold">#{{ ns.count }}</span></td>
+                                                    <td class="fw-bold text-white">{{ user.fullname }}</td>
+                                                    <td><span class="badge-premium bg-indigo">{{ user.learning_level }}</span></td>
+                                                    <td>{{ user.completed_lessons_count or 0 }} Completed</td>
+                                                    <td class="text-warning fw-bold">{{ user.xp or 0 }} XP</td>
+                                                    <td><span class="badge rounded-pill bg-success">Active</span></td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. LEARNERS (USER MANAGEMENT) -->
+            <div class="tab-pane fade" id="tab-learners" role="tabpanel">
+                <div class="premium-card">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                        <h4 class="fw-bold mb-0 text-white">{{ translations.admin_sidebar_users or 'User Management' }}</h4>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="text" id="learnerSearch" class="form-control" style="width: 200px;" placeholder="Search..." onkeyup="filterLearners()">
+                            <select id="roleFilter" class="form-select" style="width: 130px;" onchange="filterLearners()">
+                                <option value="all">All Roles</option>
+                                <option value="student">Student</option>
+                                <option value="parent">Parent</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <select id="statusFilter" class="form-select" style="width: 130px;" onchange="filterLearners()">
+                                <option value="all">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table premium-table align-middle text-white" id="learnersTable">
+                            <thead>
+                                <tr>
+                                    <th>{{ translations.full_name or 'Name' }}</th>
+                                    <th>{{ translations.email or 'Email' }}</th>
+                                    <th>{{ translations.age or 'Age' }}</th>
+                                    <th>{{ translations.admin_col_category or 'Role' }}</th>
+                                    <th>{{ translations.admin_col_language or 'Language' }}</th>
+                                    <th>{{ translations.learning_level or 'Level' }}</th>
+                                    <th>{{ translations.admin_col_status or 'Status' }}</th>
+                                    <th>{{ translations.admin_col_action or 'Actions' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in learners %}
+                                    <tr>
+                                        <td class="fw-bold text-white">{{ user.fullname }}</td>
+                                        <td><code>{{ user.email }}</code></td>
+                                        <td>{{ user.age or 'N/A' }} yrs</td>
+                                        <td><span class="badge-premium {% if user.role == 'admin' %}bg-rose{% elif user.role == 'parent' %}bg-emerald{% else %}bg-indigo{% endif %}">{{ user.role }}</span></td>
+                                        <td>{{ user.language or 'English' }}</td>
+                                        <td><span class="fw-semibold text-primary">{{ user.learning_level }}</span></td>
+                                        <td><span class="badge rounded-pill {% if user.account_status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">{{ user.account_status }}</span></td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-info rounded-pill px-2.5" onclick="editLearnerModal(this)"
+                                                    data-id="{{ user.id }}" data-fullname="{{ user.fullname }}" data-age="{{ user.age }}"
+                                                    data-role="{{ user.role }}" data-language="{{ user.language or 'English' }}" data-level="{{ user.learning_level }}"
+                                                    data-status="{{ user.account_status }}">
+                                                    Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-primary rounded-pill px-2.5" onclick="viewLearnerProgress(this.getAttribute('data-id'))" data-id="{{ user.id }}">
+                                                    Progress
+                                                </button>
+                                                <form action="/admin/student/{{ user.id }}/toggle-status" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm {% if user.account_status == 'active' %}btn-outline-warning{% else %}btn-outline-success{% endif %} rounded-pill px-2.5">
+                                                        Toggle Status
+                                                    </button>
+                                                </form>
+                                                <form action="/admin/student/{{ user.id }}/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2.5">Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. LEARNING CONTENT (LESSON MANAGEMENT) -->
+            <div class="tab-pane fade" id="tab-content" role="tabpanel">
+                <div class="premium-card">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                        <h4 class="fw-bold mb-0 text-white">{{ translations.admin_panel_title_content or 'Lesson Content Management' }}</h4>
+                        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addLessonModal">Add Lesson Module</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table premium-table align-middle text-white">
+                            <thead>
+                                <tr>
+                                    <th>{{ translations.admin_col_title or 'Title' }}</th>
+                                    <th>{{ translations.admin_col_category or 'Category' }}</th>
+                                    <th>{{ translations.admin_col_language or 'Language' }}</th>
+                                    <th>{{ translations.admin_col_difficulty or 'Difficulty' }}</th>
+                                    <th>{{ translations.admin_col_media or 'Media Assets' }}</th>
+                                    <th>{{ translations.admin_col_action or 'Actions' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for l in lessons %}
+                                    <tr>
+                                        <td class="fw-bold text-white">{{ l.title }}</td>
+                                        <td><span class="badge bg-dark border text-muted">{{ l.category }}</span></td>
+                                        <td>{{ l.language }}</td>
+                                        <td><span class="badge-premium bg-purple">{{ l.difficulty }}</span></td>
+                                        <td>
+                                            {% if l.video_url %}<span class="badge bg-info text-dark me-1">Video</span>{% endif %}
+                                            {% if l.pdf_url %}<span class="badge bg-danger text-white me-1">PDF</span>{% endif %}
+                                            {% if l.audio_url %}<span class="badge bg-success text-white me-1">Audio</span>{% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="editLessonModal(this)"
+                                                    data-id="{{ l.id }}" data-title="{{ l.title }}" data-category="{{ l.category }}"
+                                                    data-language="{{ l.language }}" data-difficulty="{{ l.difficulty }}" data-content="{{ l.content }}">
+                                                    Edit
+                                                </button>
+                                                <form action="/admin/lesson/{{ l.id }}/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this lesson?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. ASSESSMENTS -->
+            <div class="tab-pane fade" id="tab-assessments" role="tabpanel">
+                <div class="premium-card">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                        <h4 class="fw-bold mb-0 text-white">{{ translations.admin_panel_title_assessments or 'Assessment & Question Bank' }}</h4>
+                        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addAssessmentModal">Create Question</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table premium-table align-middle text-white">
+                            <thead>
+                                <tr>
+                                    <th>{{ translations.admin_col_prompt or 'Question Prompt' }}</th>
+                                    <th>{{ translations.admin_col_language or 'Language' }}</th>
+                                    <th>{{ translations.admin_col_age_group or 'Age Group' }}</th>
+                                    <th>Type</th>
+                                    <th>Modality</th>
+                                    <th>{{ translations.admin_col_action or 'Actions' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for q in custom_questions %}
+                                    <tr>
+                                        <td class="fw-bold text-white" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ q.prompt or q.text }}</td>
+                                        <td>{{ q.language }}</td>
+                                        <td><span class="badge bg-dark border text-muted">{{ q.age_group }}</span></td>
+                                        <td><span class="badge bg-info text-dark">{{ q.type or 'MCQ' }}</span></td>
+                                        <td><span class="badge-premium bg-emerald">{{ q.modality or 'Reading' }}</span></td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="editAssessmentModal(this)"
+                                                    data-id="{{ q.id }}" data-category="{{ q.category or q.modality }}" data-language="{{ q.language }}"
+                                                    data-difficulty="{{ q.difficulty or q.level }}" data-prompt="{{ q.prompt or q.text }}"
+                                                    data-options="{{ q.options or '' }}" data-correct="{{ q.correct_index or q.answer }}"
+                                                    data-explanation="{{ q.explanation or '' }}">
+                                                    Edit
+                                                </button>
+                                                <form action="/admin/assessment/{{ q.id }}/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. AI RECOMMENDATIONS -->
+            <div class="tab-pane fade" id="tab-recommendations" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-7">
+                        <div class="premium-card">
+                            <h5 class="fw-bold text-white mb-4">{{ translations.admin_panel_title_recs or 'AI Recommendations History & Logs' }}</h5>
+                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                <table class="table premium-table align-middle text-white">
+                                    <thead>
+                                        <tr>
+                                            <th>Learner</th>
+                                            <th>Rec Type</th>
+                                            <th>Assigned Item</th>
+                                            <th>Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for rec in recommendations_logs %}
+                                            <tr>
+                                                <td class="fw-bold text-white">{{ rec.fullname }}</td>
+                                                <td><span class="badge bg-indigo">{{ rec.recommendation_type }}</span></td>
+                                                <td>{{ rec.title }}</td>
+                                                <td class="small text-muted" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ rec.reason }}">{{ rec.reason }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="premium-card">
+                            <h5 class="fw-bold text-white mb-4">Configure AI Rules Engine</h5>
+                            <form action="/admin/recommendation/settings" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label">Rules Schema Configuration (JSON)</label>
+                                    <textarea name="recommendation_rules" class="form-control font-monospace" rows="12" required>{{ recommendation_rules }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold">Update Rule Logic</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. VOICE LEARNING (VOICE PRACTICE) -->
+            <div class="tab-pane fade" id="tab-voice" role="tabpanel">
+                <div class="premium-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold text-white mb-0">{{ translations.admin_panel_title_voice or 'Voice Evaluation & Speech Assessment Logs' }}</h5>
+                        <a href="/admin/report/voice_learning/csv" class="btn btn-sm btn-outline-primary rounded-pill px-3">Download Speech Report</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table premium-table align-middle text-white">
+                            <thead>
+                                <tr>
+                                    <th>Learner</th>
+                                    <th>Expected Text</th>
+                                    <th>Spoken Evaluation</th>
+                                    <th>Pronunciation Score</th>
+                                    <th>Speech Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for v in voice_logs %}
+                                    <tr>
+                                        <td class="fw-bold text-white">{{ v.fullname }}</td>
+                                        <td><code>"{{ v.expected_text }}"</code></td>
+                                        <td><em>"{{ v.spoken_text }}"</em></td>
+                                        <td class="fw-bold {% if v.pronunciation_score >= 80 %}text-success{% elif v.pronunciation_score >= 50 %}text-warning{% else %}text-danger{% endif %}">{{ v.pronunciation_score }}%</td>
+                                        <td>{{ v.attempt_date or 'N/A' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. LANGUAGES -->
+            <div class="tab-pane fade" id="tab-languages" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="premium-card">
+                            <h5 class="fw-bold text-white mb-4">{{ translations.admin_panel_title_languages or 'Supported Languages & Student Adoption' }}</h5>
+                            <div class="table-responsive">
+                                <table class="table premium-table align-middle text-white">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ translations.admin_col_language or 'Language' }}</th>
+                                            <th>Code</th>
+                                            <th>Active</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for lang in all_languages %}
+                                            <tr>
+                                                <td class="fw-bold text-white">{{ lang.name }}</td>
+                                                <td><code>{{ lang.code }}</code></td>
+                                                <td>
+                                                    <span class="badge {% if lang.is_active == 1 %}bg-success{% else %}bg-secondary{% endif %}">
+                                                        {% if lang.is_active == 1 %}Active{% else %}Inactive{% endif %}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <form action="/admin/language/delete/{{ lang.code }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this language? This will also remove translations.');">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="premium-card mb-4">
+                            <h5 class="fw-bold text-white mb-3">Add Supported Language</h5>
+                            <form action="/admin/language/add" method="POST">
+                                <div class="mb-2">
+                                    <label class="form-label small">Language Name</label>
+                                    <input type="text" name="name" class="form-control" placeholder="e.g. Gujarati" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Locale Code</label>
+                                    <input type="text" name="code" class="form-control" placeholder="e.g. gu" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold btn-sm">Add Language</button>
+                            </form>
+                        </div>
+
+                        <div class="premium-card">
+                            <h5 class="fw-bold text-white mb-3">Quick Edit Translation Key</h5>
+                            <form action="/admin/language/translations/edit" method="POST">
+                                <div class="mb-2">
+                                    <label class="form-label small">Target Language</label>
+                                    <select name="code" class="form-select" required>
+                                        {% for lang in all_languages %}
+                                            <option value="{{ lang.code }}">{{ lang.name }} ({{ lang.code }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Translation Key</label>
+                                    <input type="text" name="key" class="form-control" placeholder="e.g. welcome_title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Translated Value</label>
+                                    <input type="text" name="value" class="form-control" placeholder="Translated text value..." required>
+                                </div>
+                                <button type="submit" class="btn btn-warning text-dark rounded-pill w-100 fw-bold btn-sm">Save Translation</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. LEARNING GAMES -->
+            <div class="tab-pane fade" id="tab-games" role="tabpanel">
+                <div class="premium-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold text-white mb-0">{{ translations.admin_panel_title_games or 'Platform Learning Games Configuration' }}</h5>
+                        <span class="badge bg-emerald bg-opacity-20 text-emerald border border-emerald-subtle rounded-pill px-3 py-1 font-size-xs">All Modules Enabled</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table premium-table align-middle text-white">
+                            <thead>
+                                <tr>
+                                    <th>Game Title</th>
+                                    <th>Category ID</th>
+                                    <th>Min XP Requirements</th>
+                                    <th>Active Status</th>
+                                    <th>Administrative Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold text-white">Temple Spelling Run</td>
+                                    <td><code>temple_run</code></td>
+                                    <td><span class="text-warning font-monospace">0 XP</span></td>
+                                    <td><span class="badge bg-success rounded-pill">Active</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" checked onclick="toggleGameConfig('temple_run', this)">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-white">Ninja Vocabulary Slice</td>
+                                    <td><code>ninja_fruit</code></td>
+                                    <td><span class="text-warning font-monospace">200 XP</span></td>
+                                    <td><span class="badge bg-success rounded-pill">Active</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" checked onclick="toggleGameConfig('ninja_fruit', this)">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-white">Alphabet Treasure Hunt</td>
+                                    <td><code>treasure_hunt</code></td>
+                                    <td><span class="text-warning font-monospace">500 XP</span></td>
+                                    <td><span class="badge bg-success rounded-pill">Active</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" checked onclick="toggleGameConfig('treasure_hunt', this)">
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. PARENTS -->
+            <div class="tab-pane fade" id="tab-parents" role="tabpanel">
+                <div class="premium-card">
+                    <h5 class="fw-bold text-white mb-4">{{ translations.admin_panel_title_parents or 'Parent Portal Accounts' }}</h5>
+                    <div class="table-responsive">
+                        <table class="table premium-table align-middle text-white">
+                            <thead>
+                                <tr>
+                                    <th>{{ translations.admin_col_parent_name or 'Parent Name' }}</th>
+                                    <th>{{ translations.admin_col_parent_email or 'Parent Email' }}</th>
+                                    <th>{{ translations.admin_col_target_child or 'Target Child Account' }}</th>
+                                    <th>{{ translations.admin_col_verification or 'Verification Status' }}</th>
+                                    <th>{{ translations.admin_col_action or 'Actions' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in learners %}
+                                    {% if user.role == 'parent' %}
+                                        <tr>
+                                            <td class="fw-bold text-white">{{ user.fullname }}</td>
+                                            <td><code>{{ user.email }}</code></td>
+                                            <td><span class="badge bg-dark border text-muted">Linked Profile</span></td>
+                                            <td><span class="badge bg-success rounded-pill">Verified</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="editLearnerModal(this)"
+                                                    data-id="{{ user.id }}" data-fullname="{{ user.fullname }}" data-age="{{ user.age }}"
+                                                    data-role="{{ user.role }}" data-language="{{ user.language or 'English' }}" data-level="{{ user.learning_level }}"
+                                                    data-status="{{ user.account_status }}">
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. ANALYTICS -->
+            <div class="tab-pane fade" id="tab-analytics" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <!-- Lesson Completion Stats -->
+                    <div class="col-md-6">
+                        <div class="premium-card">
+                            <h5 class="fw-bold mb-4 text-white">{{ translations.admin_sidebar_analytics or 'Lesson Completion Statistics' }}</h5>
+                            <div style="height: 300px;">
+                                <canvas id="completionsChart" data-stats='{{ (lesson_completions or {}) | tojson | safe }}'></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assessment Performance Chart -->
+                    <div class="col-md-6">
+                        <div class="premium-card">
+                            <h5 class="fw-bold mb-4 text-white">Assessment Average Score (%)</h5>
+                            <div style="height: 300px;">
+                                <canvas id="assessmentPerfChart" data-perf='{{ (assessment_perf or {}) | tojson | safe }}'></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Language Distribution Chart -->
+                    <div class="col-md-6">
+                        <div class="premium-card">
+                            <h5 class="fw-bold mb-4 text-white">Language-wise User Distribution</h5>
+                            <div style="height: 300px;">
+                                <canvas id="languageDistributionChart" data-dist='{{ (lang_dist or {}) | tojson | safe }}'></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student Level Distribution -->
+                    <div class="col-md-6">
+                        <div class="premium-card">
+                            <h5 class="fw-bold mb-4 text-white">Student Enrollment by Level</h5>
+                            <div style="height: 300px;">
+                                <canvas id="analyticsLevelsChart"
+                                        data-beginner="{{ level_stats['Beginner'] or 0 }}"
+                                        data-basic="{{ level_stats['Basic'] or 0 }}"
+                                        data-intermediate="{{ level_stats['Intermediate'] or 0 }}"
+                                        data-advanced="{{ level_stats['Advanced'] or 0 }}"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11. REPORTS EXPORT -->
+            <div class="tab-pane fade" id="tab-reports" role="tabpanel">
+                <div class="premium-card">
+                    <h5 class="fw-bold mb-4 text-white">{{ translations.admin_panel_title_reports or 'Generate & Download Reports' }}</h5>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="premium-card p-3 border">
+                                <h6 class="fw-bold text-white mb-2">User Growth Report</h6>
+                                <p class="small text-muted mb-3">Registrations, user status details and user adoption analytics.</p>
+                                <div class="d-flex gap-2">
+                                    <a href="/admin/report/user_growth/csv" class="btn btn-sm btn-outline-success w-50">CSV</a>
+                                    <a href="/admin/report/user_growth/pdf" target="_blank" class="btn btn-sm btn-outline-primary w-50">PDF</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="premium-card p-3 border">
+                                <h6 class="fw-bold text-white mb-2">Lesson Completion Report</h6>
+                                <p class="small text-muted mb-3">Logs of student module completion rates and learning volume.</p>
+                                <div class="d-flex gap-2">
+                                    <a href="/admin/report/lesson_completion/csv" class="btn btn-sm btn-outline-success w-50">CSV</a>
+                                    <a href="/admin/report/lesson_completion/pdf" target="_blank" class="btn btn-sm btn-outline-primary w-50">PDF</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="premium-card p-3 border">
+                                <h6 class="fw-bold text-white mb-2">Assessment Report</h6>
+                                <p class="small text-muted mb-3">Scores, correct answers, time taken and test catalog details.</p>
+                                <div class="d-flex gap-2">
+                                    <a href="/admin/report/assessment/csv" class="btn btn-sm btn-outline-success w-50">CSV</a>
+                                    <a href="/admin/report/assessment/pdf" target="_blank" class="btn btn-sm btn-outline-primary w-50">PDF</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="premium-card p-3 border">
+                                <h6 class="fw-bold text-white mb-2">AI Recommendation Report</h6>
+                                <p class="small text-muted mb-3">Personalized suggestion logs, success rates, rules outcomes.</p>
+                                <div class="d-flex gap-2">
+                                    <a href="/admin/report/ai_recommendation/csv" class="btn btn-sm btn-outline-success w-50">CSV</a>
+                                    <a href="/admin/report/ai_recommendation/pdf" target="_blank" class="btn btn-sm btn-outline-primary w-50">PDF</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="premium-card p-3 border">
+                                <h6 class="fw-bold text-white mb-2">Voice Learning Report</h6>
+                                <p class="small text-muted mb-3">Pronunciation metrics, spoken texts verification and results logs.</p>
+                                <div class="d-flex gap-2">
+                                    <a href="/admin/report/voice_learning/csv" class="btn btn-sm btn-outline-success w-50">CSV</a>
+                                    <a href="/admin/report/voice_learning/pdf" target="_blank" class="btn btn-sm btn-outline-primary w-50">PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 12. NOTIFICATIONS -->
+            <div class="tab-pane fade" id="tab-notifications" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="premium-card">
+                            <h5 class="fw-bold text-white mb-4"><i class="bi bi-bell-fill me-1 text-primary"></i> {{ translations.admin_panel_title_notifications or 'Send Announcement Notification' }}</h5>
+                            <form action="/admin/notifications/send" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label">Select Target Learner Profile</label>
+                                    <select name="target" class="form-select" required>
+                                        <option value="all">Broadcast Alert (All Learners)</option>
+                                        {% for user in learners %}
+                                            {% if user.role == 'student' %}
+                                                <option value="{{ user.id }}">{{ user.fullname }} ({{ user.email }})</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Message Title</label>
+                                    <input type="text" name="title" class="form-control" placeholder="e.g. Weekly Achievement Unlocked!" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Content Body</label>
+                                    <textarea name="message" class="form-control" rows="4" placeholder="Enter message here..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold">Dispatch Alert Notification</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13. FEEDBACK -->
+            <div class="tab-pane fade" id="tab-feedback" role="tabpanel">
+                <div class="premium-card">
+                    <h5 class="fw-bold mb-4 text-white">{{ translations.admin_panel_title_feedback or 'Recent Learner Feedback' }}</h5>
+                    <div class="table-responsive">
+                        <table class="table premium-table align-middle text-white">
+                            <thead>
+                                <tr>
+                                    <th>Learner</th>
+                                    <th>Rating</th>
+                                    <th>Message</th>
+                                    <th>Reply Log</th>
+                                    <th>{{ translations.admin_col_status or 'Status' }}</th>
+                                    <th>{{ translations.admin_col_action or 'Actions' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for f in feedbacks %}
+                                    <tr>
+                                        <td class="fw-bold text-white">{{ f.fullname }}</td>
+                                        <td class="text-warning">
+                                            {% for i in range(f.rating) %}⭐{% endfor %}
+                                        </td>
+                                        <td>{{ f.message }}</td>
+                                        <td><em class="text-muted">{{ f.reply or 'No reply yet' }}</em></td>
+                                        <td>
+                                            <span class="badge {% if f.status == 'resolved' %}bg-success{% elif f.status == 'replied' %}bg-info text-dark{% else %}bg-warning text-dark{% endif %}">
+                                                {{ f.status | capitalize }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-info rounded-pill px-3 btn-sm" onclick="openReplyFeedbackModal(this.getAttribute('data-id'), this.getAttribute('data-message'))" data-id="{{ f.id }}" data-message="{{ f.message }}">Reply</button>
+                                                {% if f.status != 'resolved' %}
+                                                    <form action="/admin/feedback/resolve/{{ f.id }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 btn-sm">Resolve</button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 14. SETTINGS -->
+            <div class="tab-pane fade" id="tab-settings" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="premium-card h-100">
+                            <h5 class="fw-bold text-white mb-4"><i class="bi bi-gear-fill me-1 text-primary"></i> {{ translations.admin_panel_title_settings or 'Platform Core Configurations' }}</h5>
+                            <form action="/admin/settings/update" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label">Platform Name</label>
+                                    <input type="text" name="site_name" class="form-control" value="{{ settings.site_name or 'AI Regional Literacy' }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tutor AI Speech Voice Model</label>
+                                    <select name="tutor_voice" class="form-select">
+                                        <option value="default" {% if settings.tutor_voice == 'default' %}selected{% endif %}>Google TTS Regional Default</option>
+                                        <option value="high_quality" {% if settings.tutor_voice == 'high_quality' %}selected{% endif %}>Neural Language Synthesis Engine</option>
+                                        <option value="experimental" {% if settings.tutor_voice == 'experimental' %}selected{% endif %}>Whisper Synthetic Audio Pipeline</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">User Self-Registration API Access</label>
+                                    <select name="allow_registration" class="form-select">
+                                        <option value="true" {% if settings.allow_registration == 'true' %}selected{% endif %}>Enabled (Allow registrations)</option>
+                                        <option value="false" {% if settings.allow_registration == 'false' %}selected{% endif %}>Disabled (Admin Only)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Maintenance Mode Override</label>
+                                    <select name="maintenance_mode" class="form-select">
+                                        <option value="false" {% if settings.maintenance_mode == 'false' %}selected{% endif %}>Online (Normal operation)</option>
+                                        <option value="true" {% if settings.maintenance_mode == 'true' %}selected{% endif %}>Maintenance mode (Admin access only)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold">Save System Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ======================================================== -->
+<!-- MODALS -->
+<!-- ======================================================== -->
+
+<!-- 1. ADD USER MODAL -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/admin/user/add" method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Add New Platform User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="fullname" class="form-control" placeholder="e.g. John Doe" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control" placeholder="e.g. john@example.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Account Role</label>
+                    <select name="role" class="form-select">
+                        <option value="student">Student (Learner)</option>
+                        <option value="parent">Parent Portal</option>
+                        <option value="admin">System Admin</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Age</label>
+                    <input type="number" name="age" class="form-control" value="8" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Default Language</label>
+                    <select name="language" class="form-select">
+                        <option value="English">English</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Kannada">Kannada</option>
+                        <option value="Marathi">Marathi</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Default Learning Level</label>
+                    <select name="learning_level" class="form-select">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Create User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2. EDIT USER MODAL -->
+<div class="modal fade" id="editLearnerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/admin/learner/edit" method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Modify User Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="user_id" id="edit_learner_id">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="fullname" id="edit_learner_name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Age</label>
+                    <input type="number" name="age" id="edit_learner_age" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Account Role</label>
+                    <select name="role" id="edit_learner_role" class="form-select">
+                        <option value="student">student</option>
+                        <option value="parent">parent</option>
+                        <option value="admin">admin</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Curriculum Language</label>
+                    <select name="language" id="edit_learner_lang" class="form-select">
+                        <option value="English">English</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Kannada">Kannada</option>
+                        <option value="Marathi">Marathi</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Proficiency Placement Level</label>
+                    <select name="learning_level" id="edit_learner_level" class="form-select">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Account Status</label>
+                    <select name="account_status" id="edit_learner_status" class="form-select">
+                        <option value="active">active</option>
+                        <option value="inactive">inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Update Profile</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 3. VIEW LEARNER PROGRESS MODAL -->
+<div class="modal fade" id="viewProgressModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Learner Detailed Progress</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="max-height: 550px; overflow-y: auto;">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="premium-card p-3" style="background: rgba(255,255,255,0.02);">
+                            <h6 class="fw-bold text-white mb-2">Profile Overview</h6>
+                            <div class="small">
+                                <div><strong>Name:</strong> <span id="prog_name"></span></div>
+                                <div><strong>Email:</strong> <span id="prog_email"></span></div>
+                                <div><strong>Language:</strong> <span id="prog_lang"></span></div>
+                                <div><strong>Level:</strong> <span id="prog_level"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="premium-card p-3" style="background: rgba(255,255,255,0.02);">
+                            <h6 class="fw-bold text-white mb-2">Performance Metrics</h6>
+                            <div class="small">
+                                <div><strong>Experience Points:</strong> <span id="prog_xp" class="text-warning"></span> XP</div>
+                                <div><strong>Mascot Coins:</strong> <span id="prog_coins" class="text-info"></span> Coins</div>
+                                <div><strong>Active Streak:</strong> <span id="prog_streak" class="text-success"></span> Days</div>
+                                <div><strong>Path Progress:</strong> <span id="prog_percent"></span>%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold text-white mb-2">Completed Lessons Log</h6>
+                <div class="table-responsive mb-4" style="max-height: 150px;">
+                    <table class="table premium-table table-sm text-white">
+                        <thead>
+                            <tr>
+                                <th>Lesson Title</th>
+                                <th>{{ translations.admin_col_category or 'Category' }}</th>
+                                <th>{{ translations.admin_col_difficulty or 'Difficulty' }}</th>
+                                <th>Date Completed</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prog_lessons_body"></tbody>
+                    </table>
+                </div>
+
+                <h6 class="fw-bold text-white mb-2">Assessment Results Log</h6>
+                <div class="table-responsive mb-4" style="max-height: 150px;">
+                    <table class="table premium-table table-sm text-white">
+                        <thead>
+                            <tr>
+                                <th>Exam Score</th>
+                                <th>Correct/Total</th>
+                                <th>Dialect</th>
+                                <th>Date Taken</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prog_assessments_body"></tbody>
+                    </table>
+                </div>
+
+                <h6 class="fw-bold text-white mb-2">Voice practice attempts</h6>
+                <div class="table-responsive" style="max-height: 150px;">
+                    <table class="table premium-table table-sm text-white">
+                        <thead>
+                            <tr>
+                                <th>Expected text</th>
+                                <th>Spoken text</th>
+                                <th>Similarity Score</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prog_voice_body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. ADD LESSON MODAL -->
+<div class="modal fade" id="addLessonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/admin/lesson" method="POST" enctype="multipart/form-data" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Add Learning Module</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Lesson Title</label>
+                    <input type="text" name="title" class="form-control" required placeholder="e.g. Basic Alphabets Vowels">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category Subtopic</label>
+                    <select name="category" class="form-select">
+                        <option value="Alphabet">Alphabet Identification</option>
+                        <option value="Vocabulary">Vocabulary building</option>
+                        <option value="Reading">Comprehension & Reading</option>
+                        <option value="Grammar">Grammar Rules</option>
+                        <option value="Speaking">Pronunciation</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Language</label>
+                    <select name="language" class="form-select">
+                        <option value="English">English</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Kannada">Kannada</option>
+                        <option value="Marathi">Marathi</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Difficulty Category</label>
+                    <select name="difficulty" class="form-select">
+                        <option value="toddler">toddler (Easy)</option>
+                        <option value="young">young (Basic)</option>
+                        <option value="middle">middle (Medium)</option>
+                        <option value="older">older (Advanced)</option>
+                        <option value="career">career (Professional)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Age Group Assignment</label>
+                    <select name="age_group" class="form-select">
+                        <option value="toddler">Toddler (Age 2-5)</option>
+                        <option value="young">Young Learner (Age 5-8)</option>
+                        <option value="middle">Middle Learner (Age 8-12)</option>
+                        <option value="older">Adolescent / Youth (Age 12+)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Lesson Texts Content</label>
+                    <textarea name="content" class="form-control" rows="4" required placeholder="Lesson textual content..."></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Upload Video Asset (MP4)</label>
+                    <input type="file" name="video_file" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Upload PDF Materials</label>
+                    <input type="file" name="pdf_file" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small">Upload Pronunciation Audio Guide (MP3)</label>
+                    <input type="file" name="audio_file" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Create Lesson</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 5. EDIT LESSON MODAL -->
+<div class="modal fade" id="editLessonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/admin/lesson/edit" method="POST" enctype="multipart/form-data" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Modify Lesson Module</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="lesson_id" id="edit_lesson_id">
+                <div class="mb-3">
+                    <label class="form-label">Lesson Title</label>
+                    <input type="text" name="title" id="edit_lesson_title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category Subtopic</label>
+                    <select name="category" id="edit_lesson_category" class="form-select">
+                        <option value="Alphabet">Alphabet Identification</option>
+                        <option value="Vocabulary">Vocabulary building</option>
+                        <option value="Reading">Comprehension & Reading</option>
+                        <option value="Grammar">Grammar Rules</option>
+                        <option value="Speaking">Pronunciation</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Language</label>
+                    <select name="language" id="edit_lesson_lang" class="form-select">
+                        <option value="English">English</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Kannada">Kannada</option>
+                        <option value="Marathi">Marathi</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Difficulty Category</label>
+                    <select name="difficulty" id="edit_lesson_diff" class="form-select">
+                        <option value="toddler">toddler</option>
+                        <option value="young">young</option>
+                        <option value="middle">middle</option>
+                        <option value="older">older</option>
+                        <option value="career">career</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Lesson Texts Content</label>
+                    <textarea name="content" id="edit_lesson_content" class="form-control" rows="4" required></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Update Video Asset</label>
+                    <input type="file" name="video_file" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Update PDF Materials</label>
+                    <input type="file" name="pdf_file" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small">Update Pronunciation Audio Guide</label>
+                    <input type="file" name="audio_file" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 6. ADD ASSESSMENT QUESTION MODAL -->
+<div class="modal fade" id="addAssessmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/admin/assessment/add" method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Create Assessment Question</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Skill Modality</label>
+                    <select name="category" class="form-select">
+                        <option value="Reading">Reading</option>
+                        <option value="Writing">Writing</option>
+                        <option value="Comprehension">Comprehension</option>
+                        <option value="Speaking">Speaking (Voice Question)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Question Type</label>
+                    <select name="type" class="form-select">
+                        <option value="mcq">Multiple Choice Question (MCQ)</option>
+                        <option value="voice">Voice Prompt Speech assessment</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Language</label>
+                    <select name="language" class="form-select">
+                        <option value="English">English</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Kannada">Kannada</option>
+                        <option value="Marathi">Marathi</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Difficulty Level</label>
+                    <select name="difficulty" class="form-select">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Question Prompt / Text</label>
+                    <input type="text" name="prompt" class="form-control" required placeholder="e.g. Which letter is 'A'?">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Options (Comma-separated, leave blank for Voice questions)</label>
+                    <input type="text" name="options" class="form-control" placeholder="e.g. A, B, C, D">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Correct Option Index or Answer Text</label>
+                    <input type="text" name="correct_index" class="form-control" required placeholder="Index 0 for option A, or full word for Voice">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Explanation</label>
+                    <input type="text" name="explanation" class="form-control" placeholder="Explain correctness reasons...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Create Question</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 7. EDIT ASSESSMENT QUESTION MODAL -->
+<div class="modal fade" id="editAssessmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/admin/assessment/edit" method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Modify Assessment Question</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="question_id" id="edit_question_id">
+                <div class="mb-3">
+                    <label class="form-label">Skill Modality</label>
+                    <input type="text" name="category" id="edit_question_category" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Language</label>
+                    <select name="language" id="edit_question_lang" class="form-select">
+                        <option value="English">English</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Kannada">Kannada</option>
+                        <option value="Marathi">Marathi</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Difficulty Level</label>
+                    <select name="difficulty" id="edit_question_diff" class="form-select">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Question Prompt / Text</label>
+                    <input type="text" name="prompt" id="edit_question_prompt" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Options (Comma-separated)</label>
+                    <input type="text" name="options" id="edit_question_options" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Correct Option Index or Answer Text</label>
+                    <input type="text" name="correct_index" id="edit_question_correct" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Explanation</label>
+                    <input type="text" name="explanation" id="edit_question_expl" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 8. REPLY FEEDBACK MODAL -->
+<div class="modal fade" id="replyFeedbackModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/admin/feedback/reply" method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white">Reply to Learner Feedback</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="feedback_id" id="reply_feedback_id">
+                <div class="mb-3">
+                    <label class="form-label">Feedback Message</label>
+                    <p id="reply_feedback_msg" class="p-3 bg-dark rounded text-secondary small"></p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Your Response Reply</label>
+                    <textarea name="reply" class="form-control" rows="4" placeholder="Type reply message..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Submit Response</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Tab switching based on URL hashes
+    document.addEventListener("DOMContentLoaded", function () {
+        var hash = window.location.hash;
+        if (hash) {
+            var triggerEl = document.querySelector('button[data-bs-target="' + hash + '"]');
+            if (triggerEl) {
+                var tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+        }
+
+        // Keep hash updated
+        var tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
+        tabButtons.forEach(function (button) {
+            button.addEventListener("shown.bs.tab", function (e) {
+                window.location.hash = e.target.getAttribute("data-bs-target");
+            });
+        });
+
+        // Initialize Charts
+        initCharts();
+    });
+
+    // Tab programmatic navigation helper
+    function showTab(targetHash) {
+        var triggerEl = document.querySelector('button[data-bs-target="' + targetHash + '"]');
+        if (triggerEl) {
+            var tab = new bootstrap.Tab(triggerEl);
+            tab.show();
+            window.location.hash = targetHash;
+        }
+    }
+
+    // Set filter values programmatically
+    function setLearnerFilter(role) {
+        document.getElementById("roleFilter").value = role;
+        filterLearners();
+    }
+
+    function openAddUserModal() {
+        var modal = new bootstrap.Modal(document.getElementById("addUserModal"));
+        modal.show();
+    }
+
+    // Modal populate helpers
+    function editLearnerModal(btn) {
+        document.getElementById("edit_learner_id").value = btn.getAttribute("data-id");
+        document.getElementById("edit_learner_name").value = btn.getAttribute("data-fullname");
+        document.getElementById("edit_learner_age").value = btn.getAttribute("data-age");
+        document.getElementById("edit_learner_role").value = btn.getAttribute("data-role");
+        document.getElementById("edit_learner_lang").value = btn.getAttribute("data-language");
+        document.getElementById("edit_learner_level").value = btn.getAttribute("data-level");
+        document.getElementById("edit_learner_status").value = btn.getAttribute("data-status");
+        
+        var modal = new bootstrap.Modal(document.getElementById("editLearnerModal"));
+        modal.show();
+    }
+
+    // Edit lesson trigger
+    function editLessonModal(btn) {
+        document.getElementById("edit_lesson_id").value = btn.getAttribute("data-id");
+        document.getElementById("edit_lesson_title").value = btn.getAttribute("data-title");
+        document.getElementById("edit_lesson_category").value = btn.getAttribute("data-category");
+        document.getElementById("edit_lesson_lang").value = btn.getAttribute("data-language");
+        document.getElementById("edit_lesson_diff").value = btn.getAttribute("data-difficulty");
+        document.getElementById("edit_lesson_content").value = btn.getAttribute("data-content");
+
+        var modal = new bootstrap.Modal(document.getElementById("editLessonModal"));
+        modal.show();
+    }
+
+    // Edit assessment trigger
+    function editAssessmentModal(btn) {
+        document.getElementById("edit_question_id").value = btn.getAttribute("data-id");
+        document.getElementById("edit_question_category").value = btn.getAttribute("data-category");
+        document.getElementById("edit_question_lang").value = btn.getAttribute("data-language");
+        document.getElementById("edit_question_diff").value = btn.getAttribute("data-difficulty");
+        document.getElementById("edit_question_prompt").value = btn.getAttribute("data-prompt");
+        document.getElementById("edit_question_options").value = btn.getAttribute("data-options");
+        document.getElementById("edit_question_correct").value = btn.getAttribute("data-correct");
+        document.getElementById("edit_question_expl").value = btn.getAttribute("data-explanation");
+
+        var modal = new bootstrap.Modal(document.getElementById("editAssessmentModal"));
+        modal.show();
+    }
+
+    function openReplyFeedbackModal(id, message) {
+        document.getElementById("reply_feedback_id").value = id;
+        document.getElementById("reply_feedback_msg").innerText = message;
+        var modal = new bootstrap.Modal(document.getElementById("replyFeedbackModal"));
+        modal.show();
+    }
+
+    function openAddLessonModal() {
+        var modal = new bootstrap.Modal(document.getElementById("addLessonModal"));
+        modal.show();
+    }
+
+    function openAddQuestionModal() {
+        var modal = new bootstrap.Modal(document.getElementById("addAssessmentModal"));
+        modal.show();
+    }
+
+    function focusSearch(searchId) {
+        setTimeout(function() {
+            var input = document.getElementById(searchId);
+            if (input) {
+                input.focus();
+            }
+        }, 100);
+    }
+
+    // Global dashboard search filter
+    function globalSearchFilter() {
+        var input = document.getElementById("globalSearch");
+        var filter = input.value.toUpperCase();
+        
+        // Search table lines in Active Learners if visible
+        var learnersTable = document.getElementById("learnersTable");
+        if (learnersTable) {
+            var tr = learnersTable.getElementsByTagName("tr");
+            for (var i = 1; i < tr.length; i++) {
+                var txt = tr[i].innerText || tr[i].textContent;
+                if (txt.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    // Learner list filtering
+    function filterLearners() {
+        var searchInput = document.getElementById("learnerSearch");
+        var searchFilter = searchInput.value.toUpperCase();
+        var roleFilter = document.getElementById("roleFilter").value.toUpperCase();
+        var statusFilter = document.getElementById("statusFilter").value.toUpperCase();
+        var table = document.getElementById("learnersTable");
+        var tr = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < tr.length; i++) {
+            var tdName = tr[i].getElementsByTagName("td")[0];
+            var tdEmail = tr[i].getElementsByTagName("td")[1];
+            var tdRole = tr[i].getElementsByTagName("td")[3];
+            var tdStatus = tr[i].getElementsByTagName("td")[6];
+
+            if (tdName && tdEmail && tdRole && tdStatus) {
+                var nameVal = tdName.textContent || tdName.innerText;
+                var emailVal = tdEmail.textContent || tdEmail.innerText;
+                var roleVal = tdRole.textContent || tdRole.innerText;
+                var statusVal = tdStatus.textContent || tdStatus.innerText;
+
+                var matchesSearch = nameVal.toUpperCase().indexOf(searchFilter) > -1 || emailVal.toUpperCase().indexOf(searchFilter) > -1;
+                var matchesRole = roleFilter === "ALL" || roleVal.toUpperCase().indexOf(roleFilter) > -1;
+                var matchesStatus = statusFilter === "ALL" || statusVal.toUpperCase().indexOf(statusFilter) > -1;
+
+                if (matchesSearch && matchesRole && matchesStatus) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    // View detailed learner progress trigger
+    function viewLearnerProgress(userId) {
+        fetch('/admin/learner/' + userId + '/progress')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("prog_name").innerText = data.user.fullname;
+                    document.getElementById("prog_email").innerText = data.user.email;
+                    document.getElementById("prog_lang").innerText = data.user.language;
+                    document.getElementById("prog_level").innerText = data.user.learning_level;
+
+                    document.getElementById("prog_xp").innerText = data.user.xp || 0;
+                    document.getElementById("prog_coins").innerText = data.user.coins || 0;
+                    document.getElementById("prog_streak").innerText = data.user.streak || 0;
+                    document.getElementById("prog_percent").innerText = data.user.progress_percentage || 0;
+
+                    // Populate lessons
+                    let lessonsBody = document.getElementById("prog_lessons_body");
+                    lessonsBody.innerHTML = "";
+                    data.lessons.forEach(l => {
+                        let tr = document.createElement("tr");
+                        tr.innerHTML = `<td>${l.title}</td><td>${l.category}</td><td>${l.difficulty}</td><td>${l.timestamp}</td>`;
+                        lessonsBody.appendChild(tr);
+                    });
+
+                    // Populate assessments
+                    let assessmentsBody = document.getElementById("prog_assessments_body");
+                    assessmentsBody.innerHTML = "";
+                    data.assessments.forEach(a => {
+                        let tr = document.createElement("tr");
+                        tr.innerHTML = `<td>${a.score}%</td><td>${a.correct}/${a.total}</td><td>${a.language}</td><td>${a.timestamp}</td>`;
+                        assessmentsBody.appendChild(tr);
+                    });
+
+                    // Populate voice
+                    let voiceBody = document.getElementById("prog_voice_body");
+                    voiceBody.innerHTML = "";
+                    data.voice_practice.forEach(v => {
+                        let tr = document.createElement("tr");
+                        tr.innerHTML = `<td>"${v.expected_text}"</td><td>"${v.spoken_text}"</td><td>${v.pronunciation_score}%</td><td>${v.timestamp}</td>`;
+                        voiceBody.appendChild(tr);
+                    });
+
+                    var modal = new bootstrap.Modal(document.getElementById("viewProgressModal"));
+                    modal.show();
+                } else {
+                    alert("Failed to load progress records: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error loading progress: ", error);
+                alert("An error occurred while fetching progress data.");
+            });
+    }
+
+    // Toggle game configuration status
+    function toggleGameConfig(gameId, chk) {
+        fetch('/api/admin/games/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ game_id: gameId, enabled: chk.checked })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert("Failed to update game configuration status.");
+                chk.checked = !chk.checked;
+            }
+        });
+    }
+
+    // Chart.js initialization
+    function initCharts() {
+        // 1. Monthly User Registrations Chart
+        var regsEl = document.getElementById('monthlyRegsChart');
+        var ctxRegs = regsEl.getContext('2d');
+        var regsData = JSON.parse(regsEl.getAttribute('data-regs') || '[]');
+        
+        new Chart(ctxRegs, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Registrations',
+                    data: regsData,
+                    borderColor: '#a855f7',
+                    backgroundColor: 'rgba(168, 85, 247, 0.05)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // 2. Age Distribution Chart (Doughnut)
+        var ageEl = document.getElementById('ageDistributionChart');
+        var ctxAge = ageEl.getContext('2d');
+        
+        new Chart(ctxAge, {
+            type: 'doughnut',
+            data: {
+                labels: ['Toddler', 'Young', 'Middle', 'Older', 'Senior'],
+                datasets: [{
+                    data: [
+                        Number(ageEl.dataset.toddler || 0),
+                        Number(ageEl.dataset.young || 0),
+                        Number(ageEl.dataset.middle || 0),
+                        Number(ageEl.dataset.older || 0),
+                        Number(ageEl.dataset.senior || 0)
+                    ],
+                    backgroundColor: ['#4f46e5', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // 3. Lesson Completion Statistics by Language
+        var complEl = document.getElementById('completionsChart');
+        var ctxCompl = complEl.getContext('2d');
+        var complStats = JSON.parse(complEl.getAttribute('data-stats') || '{}');
+        
+        new Chart(ctxCompl, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(complStats),
+                datasets: [{
+                    label: 'Completions',
+                    data: Object.values(complStats),
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // 4. Assessment Performance Chart
+        var perfEl = document.getElementById('assessmentPerfChart');
+        var ctxPerf = perfEl.getContext('2d');
+        var perfStats = JSON.parse(perfEl.getAttribute('data-perf') || '{}');
+        
+        new Chart(ctxPerf, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(perfStats),
+                datasets: [{
+                    label: 'Average Score (%)',
+                    data: Object.values(perfStats),
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // 5. Language-wise User Distribution
+        var distEl = document.getElementById('languageDistributionChart');
+        var ctxDist = distEl.getContext('2d');
+        var distStats = JSON.parse(distEl.getAttribute('data-dist') || '{}');
+        
+        new Chart(ctxDist, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(distStats),
+                datasets: [{
+                    data: Object.values(distStats),
+                    backgroundColor: ['#a855f7', '#3b82f6', '#06b6d4', '#f97316', '#ec4899', '#10b981'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }
+            }
+        });
+
+        // 6. Analytics Levels Bar Chart
+        var levelsBarEl = document.getElementById('analyticsLevelsChart');
+        var ctxAnalyticLevels = levelsBarEl.getContext('2d');
+        
+        new Chart(ctxAnalyticLevels, {
+            type: 'bar',
+            data: {
+                labels: ['Beginner', 'Basic', 'Intermediate', 'Advanced'],
+                datasets: [{
+                    label: 'Students',
+                    data: [
+                        Number(levelsBarEl.dataset.beginner || 0),
+                        Number(levelsBarEl.dataset.basic || 0),
+                        Number(levelsBarEl.dataset.intermediate || 0),
+                        Number(levelsBarEl.dataset.advanced || 0)
+                    ],
+                    backgroundColor: ['#4f46e5', '#3b82f6', '#10b981', '#f59e0b'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

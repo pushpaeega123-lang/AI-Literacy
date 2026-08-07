@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="assessment-result-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <!-- Main Header Card -->
+                <div class="card result-hero-card border-0 p-5 text-center text-white mb-4 shadow-lg" 
+                     style="background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%); border-radius: 24px;">
+                    <h2 class="fw-bold mb-2"><i class="bi bi-award-fill text-warning me-2"></i>{{ translations.assessment_completed_successfully if translations and translations.assessment_completed_successfully else 'Assessment Completed Successfully!' }}</h2>
+                    <p class="text-white-50 mb-4">{{ translations.lumi_analyzed_skills if translations and translations.lumi_analyzed_skills else 'Lumi has analyzed your literacy skills and predicted your learning level.' }}</p>
+                    
+                    <div class="row align-items-center justify-content-center g-4">
+                        <div class="col-sm-5">
+                            <div class="score-circle mx-auto my-2 d-flex align-items-center justify-content-center flex-column" 
+                                 style="width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 5px solid #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);">
+                                <span class="fs-1 fw-bold text-white">{{ score }}%</span>
+                                <span class="fs-8 text-white-50 uppercase tracking-wide">{{ translations.accuracy_label if translations and translations.accuracy_label else 'Accuracy' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 text-start text-center-mobile">
+                            <h5 class="text-white-50 mb-1 small uppercase tracking-wider">{{ translations.predicted_proficiency_level if translations and translations.predicted_proficiency_level else 'Predicted Proficiency Level' }}</h5>
+                            <h1 class="display-5 fw-extrabold text-warning mb-2" style="letter-spacing: -0.5px;">{{ learner_level }}</h1>
+                            <div class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-50 px-3 py-1.5 rounded-pill small">
+                                {{ translations.ready_start_path if translations and translations.ready_start_path else 'Ready to start learning path!' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Skill Analytics Dashboard -->
+                <div class="card p-5 mb-4 border-0 shadow-lg" style="background: #ffffff; border-radius: 24px;">
+                    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-shield-check text-primary me-2"></i>{{ translations.skill_evaluation_report if translations and translations.skill_evaluation_report else 'Skill Evaluation Report' }}</h4>
+                    <div class="row g-4">
+                        {% for cat_name, cat_score in cat_scores.items() %}
+                        <div class="col-md-6">
+                            <div class="p-3 border border-light-subtle rounded-3 bg-light">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong class="text-dark text-capitalize fs-6">{{ cat_name }}</strong>
+                                    <span class="badge bg-primary text-white">{{ cat_score }}%</span>
+                                </div>
+                                <div class="progress" style="height: 8px; border-radius: 4px; background: #e2e8f0;">
+                                    <div class="progress-bar" role="progressbar" {{ ('style="width: ' ~ cat_score ~ '%; background: #4f46e5;"') | safe }} aria-valuenow="{{ cat_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small mt-1.5" style="font-size: 0.75rem;">
+                                    <span>{% if cat_score >= 70 %}{{ translations.strong_skill_label if translations and translations.strong_skill_label else 'Strong Skill' }}{% else %}{{ translations.needs_practice_label if translations and translations.needs_practice_label else 'Needs Practice' }}{% endif %}</span>
+                                    <span>{% if cat_score >= 70 %}{{ translations.priority_low if translations and translations.priority_low else 'Priority: Low' }}{% else %}{{ translations.priority_high if translations and translations.priority_high else 'Priority: High' }}{% endif %}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Strong and Weak Skills Lists -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm h-100" style="background: #ecfdf5; border-radius: 16px; border-left: 5px solid #10b981 !important;">
+                            <h5 class="fw-bold text-success mb-3"><i class="bi bi-emoji-smile-fill me-2"></i>{{ translations.strong_skills_title if translations and translations.strong_skills_title else 'Strong Skills' }}</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% if strong_skills and strong_skills != 'None' and strong_skills != 'ఇంకా బలమైన నೈಪುಣ್ಯాలు గుర్తించబడలేదు.' %}
+                                    {% for skill in strong_skills.split(',') %}
+                                        <span class="badge bg-success text-white px-3 py-2 rounded-pill">{{ skill.strip() }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted small">{{ translations.no_strong_skills if translations and translations.no_strong_skills else 'No strong skills identified yet.' }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm h-100" style="background: #fef2f2; border-radius: 16px; border-left: 5px solid #ef4444 !important;">
+                            <h5 class="fw-bold text-danger mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ translations.weak_skills_title if translations and translations.weak_skills_title else 'Weak Skills (Improvement Areas)' }}</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% if weak_skills and weak_skills != 'None' and weak_skills != 'ఇంకా బలహీనమైన నైపుణ్యాలు గుర్తించబడలేదు.' %}
+                                    {% for skill in weak_skills.split(',') %}
+                                        <span class="badge bg-danger text-white px-3 py-2 rounded-pill">{{ skill.strip() }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted small">{{ translations.no_weak_skills if translations and translations.no_weak_skills else 'No weak skills identified yet.' }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid Card -->
+                <div class="card p-5 mb-4 border-0 shadow-lg" style="background: #ffffff; border-radius: 24px;">
+                    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-bar-chart-fill text-primary me-2"></i>{{ translations.performance_summary_report if translations and translations.performance_summary_report else 'Performance Summary Report' }}</h4>
+                    <div class="row g-4 text-center">
+                        <div class="col-6 col-md-3">
+                            <span class="text-secondary small d-block mb-1">{{ translations.assess_result_total }}</span>
+                            <span class="fs-4 fw-bold text-dark">{{ total }}</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="text-secondary small d-block mb-1">{{ translations.assess_result_attempted }}</span>
+                            <span class="fs-4 fw-bold text-dark">{{ attempted }}</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="text-secondary small d-block mb-1">{{ translations.assess_result_correct }}</span>
+                            <span class="fs-4 fw-bold text-success">{{ correct }}</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="text-secondary small d-block mb-1">{{ translations.assess_result_incorrect }}</span>
+                            <span class="fs-4 fw-bold text-danger">{{ incorrect }}</span>
+                        </div>
+                    </div>
+                    <div class="divider border-bottom border-light-subtle my-4"></div>
+                    <div class="row g-4 align-items-center">
+                        <div class="col-6 text-center">
+                            <span class="text-secondary small d-block mb-1">{{ translations.assess_result_status }}</span>
+                            <span class="badge {% if pass_status == 'Pass' %}bg-success{% else %}bg-danger{% endif %} px-4 py-2 fs-6 rounded-pill">
+                                {% if pass_status == 'Pass' %}
+                                    {{ translations.assess_result_pass }}
+                                {% else %}
+                                    {{ translations.assess_result_fail }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="col-6 text-center">
+                            <span class="text-secondary small d-block mb-1">{{ translations.assess_result_time }}</span>
+                            <span class="fs-5 fw-bold text-dark"><i class="bi bi-stopwatch text-muted me-1"></i>{{ time_taken }} {{ translations.seconds_text }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Question Review -->
+                <div class="card p-5 mb-4 border-0 shadow-lg" style="background: #ffffff; border-radius: 24px;">
+                    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-chat-left-text-fill text-primary me-2"></i>{{ translations.assess_result_review }}</h4>
+                    
+                    <div class="d-flex flex-column gap-4">
+                        {% for item in review_items %}
+                        {% if item.is_correct %}
+                        <div class="p-4 rounded-4 border bg-white" style="border-color: #d1fae5 !important; border-width: 2px !important;">
+                        {% else %}
+                        <div class="p-4 rounded-4 border bg-white" style="border-color: #fee2e2 !important; border-width: 2px !important;">
+                        {% endif %}
+                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                                <h6 class="fw-bold mb-0 text-dark">{{ translations.question_label if translations and translations.question_label else 'Question' }} {{ loop.index }}</h6>
+                                <span class="badge {% if item.is_correct %}bg-success{% else %}bg-danger{% endif %} rounded-pill px-3 py-1.5 fs-8">
+                                    {% if item.is_correct %}
+                                        <i class="bi bi-check-circle-fill me-1"></i>{{ translations.correct_label if translations and translations.correct_label else 'Correct' }}
+                                    {% else %}
+                                        <i class="bi bi-x-circle-fill me-1"></i>{{ translations.incorrect_label if translations and translations.incorrect_label else 'Incorrect' }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <p class="fs-5 fw-semibold text-dark mb-3">{{ item.prompt }}</p>
+                            
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <div class="p-2.5 rounded-3 border bg-light text-secondary fs-7">
+                                        <strong class="d-block text-dark">{{ translations.assess_result_your_ans }}</strong>
+                                        <span class="{% if item.is_correct %}text-success fw-semibold{% else %}text-danger fw-semibold{% endif %}">{{ item.user_answer }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-2.5 rounded-3 border bg-light text-secondary fs-7">
+                                        <strong class="d-block text-dark">{{ translations.assess_result_correct_ans }}</strong>
+                                        <span class="text-success fw-bold">{{ item.correct_answer }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if item.explanation %}
+                            <div class="alert alert-info border-0 mb-0 py-2.5 px-3 rounded-3 fs-7 text-secondary">
+                                <strong><i class="bi bi-info-circle-fill me-1 text-info"></i>{{ translations.assess_result_explanation }}</strong> {{ item.explanation }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Footer Navigation Buttons -->
+                <div class="d-flex justify-content-between gap-3 mt-4 flex-wrap">
+                    <a href="/dashboard" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm transition-all" style="background: linear-gradient(90deg, #4f46e5, #9333ea); border: none; transition: all 0.3s;">
+                        <i class="bi bi-speedometer2 me-2"></i>{{ translations.go_to_dashboard if translations and translations.go_to_dashboard else 'Go to Dashboard' }}
+                    </a>
+                    <a href="/week-module" class="btn btn-outline-secondary bg-white rounded-pill px-5 py-3 fw-bold shadow-sm transition-all" style="transition: all 0.3s;">
+                        <i class="bi bi-arrow-left-circle-fill me-2"></i>{{ translations.view_week_curriculum if translations and translations.view_week_curriculum else 'View Week Curriculum' }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Show local mascot phrase
+    triggerMascotPhrase("lumiMascotResultContainer", "assessment_post", "{{ current_language }}", "{{ session.fullname or 'Learner' }}", "", "{{ next_lesson.title if next_lesson else '' }}");
+});
+</script>
+{% endblock %}

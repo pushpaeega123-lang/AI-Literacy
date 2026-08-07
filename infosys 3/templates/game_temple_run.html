@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <a href="/learning-games" class="btn btn-outline-light rounded-pill px-4 fw-bold backdrop-blur" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">
+            <i class="bi bi-arrow-left me-1"></i> Hub
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fs-6 fw-bold">⭐ <span id="gameXpDisplay">{{ profile.xp }}</span> XP</span>
+            <span class="badge bg-success text-white px-3 py-2 rounded-pill fs-6 fw-bold">🪙 <span id="gameCoinDisplay">{{ profile.coins }}</span> Coins</span>
+        </div>
+    </div>
+
+    <div class="card border-0 rounded-4 shadow-lg p-4 bg-dark text-white position-relative overflow-hidden" style="min-height: 600px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;">
+        <div class="d-flex align-items-center gap-3 border-bottom border-secondary pb-3 mb-4">
+            <div class="fs-1">🏃‍♂️</div>
+            <div>
+                <h4 class="fw-bold mb-0 text-warning" id="gameTitle">Temple Run Learning</h4>
+                <p class="text-light text-opacity-75 small mb-0">Jump or Slide to collect learning coins and defeat the boss at 500m!</p>
+            </div>
+            <div class="ms-auto text-end">
+                <span class="badge bg-secondary border border-secondary px-3 py-2 rounded-pill fw-bold" id="gameScoreDisplay">Score: 0</span>
+            </div>
+        </div>
+
+        <div class="w-100 text-center position-relative">
+            <canvas id="gameCanvas" width="600" height="320" class="border border-secondary rounded-4 bg-black w-100" style="max-width: 600px;"></canvas>
+            <div class="d-flex justify-content-center gap-4 mt-3">
+                <button type="button" class="btn btn-warning btn-lg rounded-pill px-4 fw-bold shadow" onclick="triggerJump()"><i class="bi bi-arrow-up-circle me-1"></i> JUMP</button>
+                <button type="button" class="btn btn-info btn-lg rounded-pill px-4 fw-bold shadow text-white" onclick="triggerSlide()"><i class="bi bi-arrow-down-circle me-1"></i> SLIDE</button>
+            </div>
+        </div>
+
+        <div id="questionOverlay" class="position-absolute start-50 top-50 translate-middle p-4 bg-dark bg-opacity-95 border border-warning rounded-4 shadow-lg text-center d-none" style="width: 90%; max-width: 400px; z-index: 100;">
+            <h5 class="fw-bold text-warning mb-3" id="qTitle">Literacy Question</h5>
+            <p class="text-white-50 small mb-4" id="qPrompt">Select the correct answer to collect the coin!</p>
+            <div class="d-flex flex-column gap-2" id="qOptions"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="victoryModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4 bg-dark text-white">
+            <div class="display-1 mb-2">🎉</div>
+            <h2 class="fw-bold text-success mb-2">Game Completed!</h2>
+            <p class="text-white-50 mb-4">Fantastic job! You completed Temple Run!</p>
+            <div class="d-flex justify-content-center gap-4 mb-4">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-4 border border-warning">
+                    <div class="fs-4">⭐</div>
+                    <div class="fw-bold text-warning" id="earnedXpText">+50 XP</div>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded-4 border border-success">
+                    <div class="fs-4">🪙</div>
+                    <div class="fw-bold text-success" id="earnedCoinsText">+30 Coins</div>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="button" class="btn btn-outline-light rounded-pill w-100 fw-bold py-2.5" onclick="location.reload()">Play Again</button>
+                <a href="/learning-games" class="btn btn-warning text-dark rounded-pill w-100 fw-bold py-2.5">Hub</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+let score = 0;
+let distance = 0;
+let gameSpeed = 3.5;
+let isJumping = false;
+let isSliding = false;
+let playerY = 220;
+let obstacles = [];
+let coins = [];
+let isGameOver = false;
+let bossMode = false;
+let questionActive = false;
+
+const questionsPool = [
+    { q: "Which of these is a NOUN?", opt: ["Run", "Dog", "Beautiful"], ans: "Dog" },
+    { q: "Which of these is a VERB?", opt: ["Eat", "Happy", "Elephant"], ans: "Eat" },
+    { q: "Which of these is an ADJECTIVE?", opt: ["Quickly", "Sleep", "Bright"], ans: "Bright" },
+    { q: "Which word starts with 'T'?", opt: ["Apple", "Tiger", "Ocean"], ans: "Tiger" }
+];
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp" || e.key === " ") triggerJump();
+    if (e.key === "ArrowDown") triggerSlide();
+});
+
+function triggerJump() {
+    if (!isJumping && !isSliding && !questionActive && !isGameOver) {
+        isJumping = true;
+        let lift = 0;
+        const jumpInterval = setInterval(() => {
+            if (lift < 75) {
+                lift += 6;
+                playerY = 220 - lift;
+            } else {
+                clearInterval(jumpInterval);
+                const fallInterval = setInterval(() => {
+                    if (lift > 0) {
+                        lift -= 6;
+                        playerY = 220 - lift;
+                    } else {
+                        clearInterval(fallInterval);
+                        isJumping = false;
+                        playerY = 220;
+                    }
+                }, 15);
+            }
+        }, 15);
+    }
+}
+
+function triggerSlide() {
+    if (!isJumping && !isSliding && !questionActive && !isGameOver) {
+        isSliding = true;
+        playerY = 245;
+        setTimeout(() => {
+            isSliding = false;
+            playerY = 220;
+        }, 500);
+    }
+}
+
+function update() {
+    if (isGameOver || questionActive) return;
+
+    distance += 1;
+    score += 1;
+    document.getElementById("gameScoreDisplay").innerText = "Score: " + score;
+
+    if (distance >= 500 && !bossMode) {
+        bossMode = true;
+        obstacles = [];
+        coins = [];
+        triggerBossChallenge();
+    }
+
+    if (!bossMode) {
+        if (Math.random() < 0.015 && obstacles.length < 2) {
+            obstacles.push({ x: 600, y: Math.random() < 0.5 ? 180 : 230, type: Math.random() < 0.5 ? "high" : "low" });
+        }
+        if (Math.random() < 0.01 && coins.length < 3) {
+            coins.push({ x: 600, y: 200 });
+        }
+    }
+
+    obstacles.forEach((obs, idx) => {
+        obs.x -= gameSpeed;
+        if (obs.x < 90 && obs.x > 30) {
+            if (obs.type === "high" && !isSliding) {
+                gameSpeed = Math.max(2, gameSpeed - 1.5);
+                obstacles.splice(idx, 1);
+            } else if (obs.type === "low" && playerY > 190) {
+                gameSpeed = Math.max(2, gameSpeed - 1.5);
+                obstacles.splice(idx, 1);
+            }
+        }
+        if (obs.x < -20) obstacles.splice(idx, 1);
+    });
+
+    coins.forEach((c, idx) => {
+        c.x -= gameSpeed;
+        if (c.x < 90 && c.x > 30 && playerY < 240) {
+            coins.splice(idx, 1);
+            triggerQuestion();
+        }
+        if (c.x < -20) coins.splice(idx, 1);
+    });
+}
+
+function triggerQuestion() {
+    questionActive = true;
+    const q = questionsPool[Math.floor(Math.random() * questionsPool.length)];
+    document.getElementById("qTitle").innerText = q.q;
+    const optDiv = document.getElementById("qOptions");
+    optDiv.innerHTML = "";
+    q.opt.forEach(o => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-outline-warning text-white py-2 rounded-pill fw-bold";
+        btn.innerText = o;
+        btn.onclick = () => submitAnswer(o, q.ans);
+        optDiv.appendChild(btn);
+    });
+    document.getElementById("questionOverlay").classList.remove("d-none");
+}
+
+function submitAnswer(chosen, correct) {
+    document.getElementById("questionOverlay").classList.add("d-none");
+    questionActive = false;
+    if (chosen === correct) {
+        score += 50;
+        gameSpeed += 1;
+        confetti({ particleCount: 20, spread: 35 });
+    } else {
+        gameSpeed = Math.max(2, gameSpeed - 1.5);
+    }
+}
+
+function triggerBossChallenge() {
+    questionActive = true;
+    const bossQuestions = [
+        { q: "Spell the word for 📖:", opt: ["Bok", "Book", "Buke"], ans: "Book" },
+        { q: "Is 'Lumi runs quickly' quickly an adverb?", opt: ["Yes", "No"], ans: "Yes" },
+        { q: "Opposite of 'Cool'?", opt: ["Warm", "Cold", "Ice"], ans: "Warm" }
+    ];
+    let qCount = 0;
+    
+    function askBossQ() {
+        if (qCount >= bossQuestions.length) {
+            isGameOver = true;
+            finishGame(score, 50, 30);
+            return;
+        }
+        const q = bossQuestions[qCount];
+        document.getElementById("qTitle").innerText = "👹 Boss Battle! " + q.q;
+        const optDiv = document.getElementById("qOptions");
+        optDiv.innerHTML = "";
+        q.opt.forEach(o => {
+            const btn = document.createElement("button");
+            btn.className = "btn btn-danger py-2 rounded-pill fw-bold";
+            btn.innerText = o;
+            btn.onclick = () => {
+                if (o === q.ans) {
+                    qCount++;
+                    confetti({ particleCount: 30, spread: 45 });
+                    askBossQ();
+                } else {
+                    score = Math.max(0, score - 20);
+                    askBossQ();
+                }
+            };
+            optDiv.appendChild(btn);
+        });
+        document.getElementById("questionOverlay").classList.remove("d-none");
+    }
+    askBossQ();
+}
+
+function finishGame(finalScore = 100, xpEarned = 50, coinsEarned = 30) {
+    confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+    document.getElementById("earnedXpText").innerText = `+${xpEarned} XP`;
+    document.getElementById("earnedCoinsText").innerText = `+${coinsEarned} Coins`;
+
+    fetch("/api/save_game_progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game_id: "temple_run", game_name: "Temple Run", score: finalScore, xp_earned: xpEarned, coins_earned: coinsEarned })
+    }).then(res => res.json()).then(data => {
+        if(data.success) {
+            document.getElementById("gameXpDisplay").innerText = data.xp;
+            document.getElementById("gameCoinDisplay").innerText = data.coins;
+        }
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('victoryModal'));
+    modal.show();
+}
+
+function draw() {
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(0, 0, 600, 320);
+
+    ctx.fillStyle = "#334155";
+    ctx.fillRect(0, 180, 600, 140);
+
+    ctx.fillStyle = "#475569";
+    ctx.fillRect(0, 260, 600, 60);
+
+    ctx.fillStyle = "#cbd5e1";
+    for (let i = 0; i < 700; i += 100) {
+        let xOffset = (i - (distance * gameSpeed) % 100);
+        ctx.fillRect(xOffset, 285, 30, 5);
+    }
+
+    if (bossMode) {
+        ctx.font = "60px Arial";
+        ctx.fillText("👹", 460, 240);
+        ctx.font = "bold 12px Arial";
+        ctx.fillStyle = "#f43f5e";
+        ctx.fillText("BOSS HEALTH: 100%", 440, 160);
+    }
+
+    ctx.fillStyle = isSliding ? "#f59e0b" : "#38bdf8";
+    ctx.beginPath();
+    ctx.arc(80, playerY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(80, playerY + 12);
+    ctx.lineTo(80, playerY + 35);
+    ctx.stroke();
+
+    let legOffset = isJumping ? 0 : Math.sin(distance * 0.2) * 10;
+    ctx.beginPath();
+    ctx.moveTo(80, playerY + 35);
+    ctx.lineTo(80 - legOffset, playerY + 50);
+    ctx.moveTo(80, playerY + 35);
+    ctx.lineTo(80 + legOffset, playerY + 50);
+    ctx.stroke();
+
+    obstacles.forEach(obs => {
+        ctx.fillStyle = obs.type === "high" ? "#ef4444" : "#f43f5e";
+        ctx.fillRect(obs.x, obs.y, 20, 30);
+    });
+
+    coins.forEach(c => {
+        ctx.fillStyle = "#fbbf24";
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = "bold 10px Arial";
+        ctx.fillStyle = "black";
+        ctx.fillText("?", c.x - 3, c.y + 3);
+    });
+
+    ctx.font = "bold 14px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Distance: " + distance + "m / 500m", 20, 25);
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+{% endblock %}

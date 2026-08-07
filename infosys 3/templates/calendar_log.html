@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="calendar-log-section py-5">
+    <div class="container">
+        <!-- Calendar Hero Header -->
+        <div class="dashboard-header rounded-4 text-white shadow-lg p-5 mb-5" style="background: linear-gradient(135deg, #4338ca, #4f46e5);">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="badge bg-dark bg-opacity-40 text-white border border-white border-opacity-30 mb-3 px-3 py-2 fs-6 fw-semibold shadow-sm">
+                        <i class="bi bi-calendar3 me-2"></i>{{ translations.study_tracker if translations and translations.study_tracker else "Study Tracker" }}
+                    </span>
+                    <h1 class="display-5 fw-bold mb-2">{{ translations.my_study_log if translations and translations.my_study_log else "My Study Log & Calendar" }}</h1>
+                    <p class="lead mb-0 text-white-50">{{ translations.study_log_desc }}</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <div class="d-inline-block text-center rounded-4 p-4 border border-white border-opacity-10 shadow-sm" style="background: rgba(255, 255, 255, 0.1) !important;">
+                        <span class="fs-1 fw-bold text-warning d-block">{{ total_time }} {{ translations.mins }}</span>
+                        <span class="small text-white-50 fw-bold">{{ translations.total_learning_time }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row gy-4">
+            <!-- Calendar Card -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-4 p-5 bg-white">
+                    <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                        <h3 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-calendar-event text-primary me-2"></i>{{ month_name }}
+                        </h3>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">{{ translations.current_month or "Current Month" }}</span>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div class="calendar-grid-wrapper">
+                        <!-- Weekdays Header -->
+                        <div class="row g-2 text-center fw-bold text-secondary mb-3" style="font-size: 14px;">
+                            <div class="col">{{ translations.sun or 'Sun' }}</div>
+                            <div class="col">{{ translations.mon or 'Mon' }}</div>
+                            <div class="col">{{ translations.tue or 'Tue' }}</div>
+                            <div class="col">{{ translations.wed or 'Wed' }}</div>
+                            <div class="col">{{ translations.thu or 'Thu' }}</div>
+                            <div class="col">{{ translations.fri or 'Fri' }}</div>
+                            <div class="col">{{ translations.sat or 'Sat' }}</div>
+                        </div>
+
+                        <!-- Days Rows -->
+                        {% for week in month_days %}
+                            <div class="row g-2 text-center mb-2">
+                                {% for day in week %}
+                                    <div class="col position-relative">
+                                        {% if day == 0 %}
+                                            <div class="calendar-day-cell empty-cell"></div>
+                                        {% else %}
+                                            {% set day_str = "%02d"|format(day) %}
+                                            {% set date_key = today_str[:8] ~ day_str %}
+                                            {% set duration = sessions_dict.get(date_key, 0) %}
+                                            {% set is_today = (date_key == today_str) %}
+                                            
+                                            <div class="calendar-day-cell {% if is_today %}border border-3 border-warning bg-warning bg-opacity-10 shadow-sm{% elif duration > 0 %}has-study bg-success bg-opacity-10 border border-success{% endif %} rounded-3 p-3 d-flex flex-column align-items-center justify-content-center" style="min-height: 80px; transition: all 0.25s;">
+                                                <span class="fw-bold text-dark fs-6">{{ day }}</span>
+                                                {% if is_today %}
+                                                    <span class="badge bg-warning text-dark mt-1 px-2 py-0.5 fs-8 rounded-pill fw-bold">⭐ Today</span>
+                                                {% endif %}
+                                                {% if duration > 0 %}
+                                                    <span class="badge bg-success text-white mt-1 px-2 py-0.5 fs-8 rounded-pill" title="Studied for {{ duration }} mins">
+                                                        ✓ {{ duration }}m
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats & History Column -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 rounded-4 p-5 bg-white h-100">
+                    <h4 class="fw-bold mb-4 text-dark"><i class="bi bi-clock-history text-primary me-2"></i>{{ translations.recent_sessions }}</h4>
+                    
+                    {% if sessions %}
+                        <div class="list-group list-group-flush" style="max-height: 450px; overflow-y: auto;">
+                            {% for session in sessions %}
+                                <div class="list-group-item bg-transparent px-0 py-3 border-light-subtle d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-dark">{{ session.date }}</h6>
+                                        <span class="text-secondary small">{{ translations.session_completed }}</span>
+                                    </div>
+                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold">
+                                        +{{ session.duration }} {{ translations.mins }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted small">
+                            <i class="bi bi-info-circle me-1"></i>{{ translations.no_sessions_yet }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.calendar-day-cell {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+.calendar-day-cell.has-study {
+    background-color: rgba(79, 70, 229, 0.08) !important;
+    border-color: rgba(79, 70, 229, 0.4) !important;
+}
+.calendar-day-cell.has-study span.text-dark {
+    color: #4338ca !important;
+}
+.calendar-day-cell.has-study .badge {
+    background-color: #4f46e5 !important;
+}
+.calendar-day-cell:hover:not(.empty-cell) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+</style>
+{% endblock %}

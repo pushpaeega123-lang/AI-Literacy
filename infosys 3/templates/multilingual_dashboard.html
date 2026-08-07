@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Top Header -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold text-dark mb-1">My Multilingual Progress</h1>
+            <p class="text-secondary mb-0">Learning <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 px-2.5 py-1 rounded-pill">{{ target_lang }}</span> using your known language <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 px-2.5 py-1 rounded-pill">{{ known_lang }}</span></p>
+        </div>
+        <button onclick="resetLanguagePair()" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 fw-semibold">
+            <i class="bi bi-arrow-repeat me-1"></i>Change Language Pair
+        </button>
+    </div>
+
+    <!-- Stats & Progression Overview -->
+    <div class="row g-4 mb-4">
+        <!-- Progress Circular / Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 bg-white text-center d-flex flex-column align-items-center justify-content-center">
+                <h5 class="fw-bold text-secondary mb-3 small text-uppercase">Overall Completion</h5>
+                <div class="position-relative d-inline-flex mb-3">
+                    <!-- Simple Circular Progress Simulation -->
+                    <div class="rounded-circle d-flex align-items-center justify-content-center border border-primary border-5" style="width: 130px; height: 130px; border-width: 8px !important;">
+                        <span class="fs-2 fw-bold text-primary">{{ stats.completion_percentage }}%</span>
+                    </div>
+                </div>
+                <p class="text-secondary small mb-0 fw-medium">Keep learning every day to level up!</p>
+            </div>
+        </div>
+
+        <!-- Metric Details -->
+        <div class="col-lg-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 bg-white">
+                <h5 class="fw-bold text-secondary mb-3 small text-uppercase">Learning Statistics</h5>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                        <span class="text-secondary"><i class="bi bi-check-circle-fill text-success me-2"></i>Lessons Completed</span>
+                        <span class="fw-bold text-dark">{{ stats.completed_lessons }} / {{ stats.total_lessons }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                        <span class="text-secondary"><i class="bi bi-book-half text-primary me-2"></i>Vocabulary Learned</span>
+                        <span class="fw-bold text-dark">{{ stats.vocabulary_learned }} words</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                        <span class="text-secondary"><i class="bi bi-mic-fill text-warning me-2"></i>Pronunciation Score</span>
+                        <span class="fw-bold text-dark">{{ stats.pronunciation_score }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Suggested Lesson Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                <span class="badge text-white px-2.5 py-1 align-self-start rounded-pill fs-8 mb-2" style="background: rgba(255, 255, 255, 0.2) !important;">Next Lesson</span>
+                {% if next_lesson %}
+                    <h3 class="fw-bold mb-2">{{ next_lesson.title }}</h3>
+                    <p class="text-white text-opacity-80 small mb-4">Learn basic words and practice voice speaking pronunciation.</p>
+                    <a href="/multilingual-learning/lesson/{{ next_lesson.id }}" class="btn btn-white text-primary fw-bold w-100 py-2.5 rounded-3 shadow-xs mt-auto">
+                        Start Lesson <i class="bi bi-arrow-right-short ms-1"></i>
+                    </a>
+                {% else %}
+                    <h3 class="fw-bold mb-2">All Lessons Completed!</h3>
+                    <p class="text-white text-opacity-80 small mb-4">Excellent job! You have mastered all learning steps.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Curriculum Steps Timeline -->
+    <h3 class="fw-bold text-dark mb-3">Your Learning Journey</h3>
+    <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+        <div class="row g-3">
+            {% for step in learning_path %}
+            <div class="col-md-6 col-lg-4">
+                <div class="p-3 rounded-4 border h-100 d-flex align-items-center justify-content-between {% if step.status == 'completed' %}bg-success bg-opacity-5 border-success border-opacity-25{% elif step.status == 'unlocked' %}bg-primary bg-opacity-5 border-primary border-opacity-25{% else %}bg-light border-light-subtle opacity-75{% endif %}">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold {% if step.status == 'completed' %}bg-success text-white{% elif step.status == 'unlocked' %}bg-primary text-white{% else %}bg-secondary text-white bg-opacity-50{% endif %}" style="width: 40px; height: 40px; min-width: 40px;">
+                            {% if step.status == 'completed' %}
+                                <i class="bi bi-check-lg"></i>
+                            {% elif step.status == 'locked' %}
+                                <i class="bi bi-lock-fill text-white fs-7"></i>
+                            {% else %}
+                                {{ step.sequence_order }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong class="text-dark d-block" style="font-size: 15px;">{{ step.title }}</strong>
+                            <span class="text-secondary small d-block">{{ step.category }}</span>
+                        </div>
+                    </div>
+                    {% if step.status != 'locked' %}
+                        <a href="/multilingual-learning/lesson/{{ step.id }}" class="btn {% if step.status == 'completed' %}btn-outline-success{% else %}btn-primary{% endif %} btn-sm rounded-pill px-3 py-1.5 fw-bold">
+                            {% if step.status == 'completed' %}Review{% else %}Start{% endif %}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+function resetLanguagePair() {
+    if (confirm("Are you sure you want to change your language learning setup? This will redirect you to selection.")) {
+        fetch("/api/multilingual/set-languages", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "known_lang": "{{ known_lang }}",
+                "target_lang": ""
+            })
+        })
+        .then(() => {
+            window.location.reload();
+        });
+    }
+}
+</script>
+{% endblock %}

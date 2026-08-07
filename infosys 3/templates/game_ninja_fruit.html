@@ -1,0 +1,514 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+    /* Styling overrides for retro arcade feel */
+    .game-card {
+        border-radius: 28px;
+        border: 4px solid #38bdf8 !important;
+        box-shadow: 0 20px 40px rgba(56, 189, 248, 0.15) !important;
+    }
+    .spelling-box {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        padding: 12px 24px;
+        font-family: 'Outfit', sans-serif;
+    }
+    .letter-slot {
+        width: 45px;
+        height: 50px;
+        border-bottom: 4px solid #e2e8f0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 6px;
+        color: #ffffff;
+    }
+    .letter-slot.filled {
+        border-bottom: 4px solid #10b981;
+        color: #10b981;
+        animation: popLetter 0.25s ease-out;
+    }
+    @keyframes popLetter {
+        0% { transform: scale(0.6); }
+        100% { transform: scale(1); }
+    }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <a href="/learning-games" class="btn btn-outline-light rounded-pill px-4 fw-bold backdrop-blur" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">
+            <i class="bi bi-arrow-left me-1"></i> Games Hub
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fs-6 fw-bold">⭐ <span id="gameXpDisplay">{{ profile.xp }}</span> XP</span>
+            <span class="badge bg-success text-white px-3 py-2 rounded-pill fs-6 fw-bold">🪙 <span id="gameCoinDisplay">{{ profile.coins }}</span> Coins</span>
+        </div>
+    </div>
+
+    <div class="card game-card border-0 rounded-4 shadow-lg p-4 bg-dark text-white position-relative overflow-hidden" style="min-height: 600px; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%) !important;">
+        <div class="d-flex align-items-center justify-content-between border-bottom border-secondary pb-3 mb-4 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <div class="fs-1">🎈</div>
+                <div>
+                    <h4 class="fw-bold mb-0 text-info">Word Balloon Pop Master</h4>
+                    <p class="text-light text-opacity-75 small mb-0">Pop letters in the correct order to spell the word! Avoid 💣 bombs!</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-danger px-3 py-2 rounded-pill fw-bold" style="font-size: 0.95rem;" id="livesDisplay">Lives: ❤️ ❤️ ❤️</span>
+                <span class="badge bg-primary px-3 py-2 rounded-pill fw-bold" style="font-size: 0.95rem;" id="wordsDisplay">Words: 0 / 3</span>
+            </div>
+        </div>
+
+        <!-- Target Spelling display box -->
+        <div class="text-center mb-4">
+            <h5 class="text-white-50 small text-uppercase fw-bold mb-2">TARGET WORD</h5>
+            <div class="d-inline-flex spelling-box align-items-center justify-content-center" id="slotsContainer">
+                <!-- Javascript builds empty spelling slot lines here -->
+            </div>
+        </div>
+
+        <div class="w-100 text-center position-relative">
+            <canvas id="gameCanvas" width="600" height="380" class="border border-secondary rounded-4 bg-black w-100" style="max-width: 600px; cursor: pointer;"></canvas>
+            <div id="gameMascotBubble" class="position-absolute d-none bg-white text-dark p-3 rounded-4 shadow" style="bottom: 20px; left: 20px; max-width: 250px; z-index: 10;">
+                <div class="small fw-bold" id="mascotBubbleText">"You are doing great! Let's pop some balloons!"</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="victoryModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4 bg-dark text-white">
+            <div class="display-1 mb-2">🎉</div>
+            <h2 class="fw-bold text-success mb-2">Balloon Pop Winner!</h2>
+            <p class="text-white-50 mb-4">Exceptional! You successfully popped and spelled all vocabulary words!</p>
+            <div class="d-flex justify-content-center gap-4 mb-4">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-4 border border-warning">
+                    <div class="fs-4">⭐</div>
+                    <div class="fw-bold text-warning" id="earnedXpText">+50 XP</div>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded-4 border border-success">
+                    <div class="fs-4">🪙</div>
+                    <div class="fw-bold text-success" id="earnedCoinsText">+30 Coins</div>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="button" class="btn btn-outline-light rounded-pill w-100 fw-bold py-2.5" onclick="location.reload()">Play Again</button>
+                <a href="/learning-games" class="btn btn-info text-dark rounded-pill w-100 fw-bold py-2.5">Games Hub</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Web Audio API Synthesizer to pop/explosion sounds natively without server files
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playAudioPop() {
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    } catch(e) {}
+}
+
+function playAudioExplosion() {
+    try {
+        // Noise buffer explosion
+        const bufferSize = audioCtx.sampleRate * 0.4;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.4);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        noise.start();
+        noise.stop(audioCtx.currentTime + 0.4);
+    } catch(e) {}
+}
+
+function playAudioSuccess() {
+    try {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.08));
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime + (idx * 0.08));
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (idx * 0.08) + 0.15);
+            
+            osc.start(audioCtx.currentTime + (idx * 0.08));
+            osc.stop(audioCtx.currentTime + (idx * 0.08) + 0.15);
+        });
+    } catch(e) {}
+}
+
+function playAudioError() {
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.25);
+        
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+    } catch(e) {}
+}
+
+// Vocabulary lists per language
+const VOCABULARY_LISTS = {
+    "English": ["SUN", "BOOK", "LUMI", "WORD", "PLAY", "STAR", "HELP", "STUDY", "FRUITS", "HAPPY"],
+    "Telugu": ["అమ్మ", "ఆట", "ఇల్లు", "ఈక", "ఉడుత", "ఊయల", "ఎలుక", "ఏనుగు", "ఐదు"],
+    "Hindi": ["घर", "फल", "जल", "नयन", "सड़क", "बटन", "मगर", "कलम", "शहद"],
+    "Tamil": ["அம்மா", "ஆடு", "இலை", "ஈட்டி", "உரல்", "ஏணி", "ஐந்து", "ஒட்டகம்"],
+    "Kannada": ["ಅಮ್ಮ", "ಆಟ", "ಇಲಿ", "ಈಜು", "ಉಡುಪು", "ಊಟ", "ಎಲೆ", "ಏಣಿ", "ಐದು"],
+    "Marathi": ["कमळ", "घर", "बदक", "मगर", "जग", "वर", "धर", "कर", "सर"]
+};
+
+const userLang = "{{ profile.language }}" || "English";
+const wordList = VOCABULARY_LISTS[userLang] || VOCABULARY_LISTS["English"];
+
+let targetWord = "";
+let currentLetterIdx = 0;
+let poppedLetters = [];
+let lives = 3;
+let wordsSpelledCount = 0;
+let balloons = [];
+let isGameOver = false;
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+function selectNextWord() {
+    const next = wordList[Math.floor(Math.random() * wordList.length)];
+    targetWord = next;
+    currentLetterIdx = 0;
+    poppedLetters = [];
+    buildSlots();
+    
+    // Show Mascot suggestion bubble
+    const bubble = document.getElementById("gameMascotBubble");
+    const text = document.getElementById("mascotBubbleText");
+    if(bubble && text) {
+        bubble.classList.remove("d-none");
+        text.innerText = `Lumi says: "Let's spell ${targetWord}! Pop the balloons!"`;
+        setTimeout(() => bubble.classList.add("d-none"), 3500);
+    }
+}
+
+function buildSlots() {
+    const container = document.getElementById("slotsContainer");
+    container.innerHTML = "";
+    
+    // Split target word safely to letters supporting unicode/regional characters
+    const chars = Array.from(targetWord);
+    chars.forEach((char, idx) => {
+        const slot = document.createElement("span");
+        slot.className = "letter-slot";
+        slot.id = "slot_" + idx;
+        slot.innerText = "_";
+        container.appendChild(slot);
+    });
+}
+
+function updateSlots() {
+    const chars = Array.from(targetWord);
+    chars.forEach((char, idx) => {
+        const slot = document.getElementById("slot_" + idx);
+        if(slot) {
+            if(idx < currentLetterIdx) {
+                slot.innerText = char;
+                slot.className = "letter-slot filled";
+            } else {
+                slot.innerText = "_";
+                slot.className = "letter-slot";
+            }
+        }
+    });
+}
+
+// Spawns a floating balloon
+function spawnBalloon() {
+    if (isGameOver) return;
+    
+    // Decide if bomb or letter
+    const isBomb = Math.random() < 0.22;
+    let letter = "";
+    
+    if(!isBomb) {
+        // 50% chance to spawn next required letter, otherwise a random letter from the target word or pool
+        if(Math.random() < 0.5) {
+            const chars = Array.from(targetWord);
+            letter = chars[currentLetterIdx] || chars[0];
+        } else {
+            const chars = Array.from(targetWord);
+            letter = chars[Math.floor(Math.random() * chars.length)];
+        }
+    }
+    
+    const colors = ["#ef4444", "#3b82f6", "#10b981", "#eab308", "#a855f7", "#ec4899", "#06b6d4"];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    
+    balloons.push({
+        x: Math.random() * 500 + 50,
+        y: 410,
+        radius: 32,
+        speed: Math.random() * 1.5 + 1.2,
+        color: color,
+        letter: letter,
+        isBomb: isBomb,
+        swayRange: Math.random() * 15 + 10,
+        swaySpeed: Math.random() * 0.02 + 0.01,
+        swayAngle: Math.random() * 360,
+        popped: false,
+        popAnimScale: 1
+    });
+    
+    // Adjust spawn rate
+    setTimeout(spawnBalloon, 1200 + Math.random() * 800);
+}
+
+// Register click / tap event on canvas
+canvas.addEventListener("click", function(e) {
+    if(isGameOver) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    // Check if clicked inside any balloon
+    balloons.forEach((b) => {
+        if(!b.popped) {
+            const dist = Math.hypot(clickX - b.x, clickY - b.y);
+            if(dist <= b.radius) {
+                b.popped = true;
+                
+                if(b.isBomb) {
+                    playAudioExplosion();
+                    lives--;
+                    updateLivesHUD();
+                    shakeCanvas();
+                } else {
+                    playAudioPop();
+                    // Check if popped letter matches next required letter in word
+                    const chars = Array.from(targetWord);
+                    const expected = chars[currentLetterIdx];
+                    if(b.letter === expected) {
+                        currentLetterIdx++;
+                        updateSlots();
+                        confetti({ particleCount: 20, spread: 35, origin: { x: clickX / canvas.width, y: clickY / canvas.height } });
+                        
+                        // Check if word completed
+                        if(currentLetterIdx >= chars.length) {
+                            playAudioSuccess();
+                            wordsSpelledCount++;
+                            document.getElementById("wordsDisplay").innerText = `Words: ${wordsSpelledCount} / 3`;
+                            
+                            if(wordsSpelledCount >= 3) {
+                                isGameOver = true;
+                                finishGame(100, 50, 30);
+                            } else {
+                                confetti({ particleCount: 60, spread: 60 });
+                                setTimeout(selectNextWord, 800);
+                            }
+                        }
+                    } else {
+                        playAudioError();
+                        lives--;
+                        updateLivesHUD();
+                        shakeCanvas();
+                    }
+                }
+            }
+        }
+    });
+});
+
+function shakeCanvas() {
+    canvas.style.transform = "translate(4px, 4px)";
+    setTimeout(() => canvas.style.transform = "translate(-4px, -4px)", 50);
+    setTimeout(() => canvas.style.transform = "translate(2px, -2px)", 100);
+    setTimeout(() => canvas.style.transform = "translate(0, 0)", 150);
+}
+
+function updateLivesHUD() {
+    let hearts = "";
+    for(let i=0; i<lives; i++) hearts += "❤️ ";
+    document.getElementById("livesDisplay").innerText = `Lives: ${hearts}`;
+    if (lives <= 0) {
+        isGameOver = true;
+        alert("Game Over! Pop correct balloons to spell the word.");
+        location.reload();
+    }
+}
+
+function update() {
+    if(isGameOver) return;
+    
+    balloons = balloons.filter(b => {
+        b.y -= b.speed;
+        b.swayAngle += b.swaySpeed;
+        b.x += Math.sin(b.swayAngle) * 0.4;
+        
+        // Remove offscreen
+        if(b.y < -50) {
+            return false;
+        }
+        return true;
+    });
+}
+
+function draw() {
+    // Clear canvas
+    ctx.fillStyle = "#0c1126";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw background grid bubbles
+    ctx.fillStyle = "rgba(255, 255, 255, 0.02)";
+    for(let i=25; i<canvas.width; i+=60) {
+        for(let j=25; j<canvas.height; j+=60) {
+            ctx.beginPath();
+            ctx.arc(i, j, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    // Draw balloons
+    balloons.forEach((b) => {
+        if(!b.popped) {
+            ctx.save();
+            
+            // Draw balloon string
+            ctx.strokeStyle = "rgba(255,255,255,0.25)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(b.x, b.y + b.radius);
+            ctx.bezierCurveTo(b.x - 5, b.y + b.radius + 15, b.x + 5, b.y + b.radius + 25, b.x, b.y + b.radius + 35);
+            ctx.stroke();
+            
+            // Draw balloon body
+            const gradient = ctx.createRadialGradient(b.x - 8, b.y - 8, 2, b.x, b.y, b.radius);
+            if(b.isBomb) {
+                gradient.addColorStop(0, "#4b5563");
+                gradient.addColorStop(1, "#111827");
+            } else {
+                gradient.addColorStop(0, "#ffffff");
+                gradient.addColorStop(0.2, b.color);
+                gradient.addColorStop(1, "#000000");
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw balloon tie triangle
+            ctx.fillStyle = b.isBomb ? "#1f2937" : b.color;
+            ctx.beginPath();
+            ctx.moveTo(b.x, b.y + b.radius - 2);
+            ctx.lineTo(b.x - 6, b.y + b.radius + 6);
+            ctx.lineTo(b.x + 6, b.y + b.radius + 6);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw Letter or Bomb icon inside
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            if(b.isBomb) {
+                ctx.font = "26px Arial";
+                ctx.fillText("💣", b.x, b.y);
+            } else {
+                ctx.font = "bold 28px Arial";
+                ctx.fillText(b.letter, b.x, b.y);
+            }
+            
+            ctx.restore();
+        } else {
+            // Balloon pop splash animation
+            if(b.popAnimScale < 2.5) {
+                b.popAnimScale += 0.25;
+                ctx.strokeStyle = b.isBomb ? "#ef4444" : b.color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius * b.popAnimScale * 0.6, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+    });
+}
+
+function finishGame(finalScore = 100, xpEarned = 50, coinsEarned = 30) {
+    confetti({ particleCount: 180, spread: 100, origin: { y: 0.65 } });
+    document.getElementById("earnedXpText").innerText = `+${xpEarned} XP`;
+    document.getElementById("earnedCoinsText").innerText = `+${coinsEarned} Coins`;
+
+    fetch("/api/save_game_progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game_id: "ninja_fruit", game_name: "Word Balloon Pop Master", score: finalScore, xp_earned: xpEarned, coins_earned: coinsEarned })
+    }).then(res => res.json()).then(data => {
+        if(data.success) {
+            document.getElementById("gameXpDisplay").innerText = data.xp;
+            document.getElementById("gameCoinDisplay").innerText = data.coins;
+        }
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('victoryModal'));
+    modal.show();
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+// Start Game
+selectNextWord();
+spawnBalloon();
+gameLoop();
+</script>
+{% endblock %}

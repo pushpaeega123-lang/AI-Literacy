@@ -1,0 +1,1056 @@
+Match found at position 52174:
+val <= 6:
+        return "young"
+    if age_val <= 10:
+        return "middle"
+    return "older"
+
+
+def _get_assessment_profile(level, age_band):
+    level_name = _normalize_learning_level(level)
+    profiles = {
+        "Advanced": {
+            "level": "Advanced",
+            "question_count": 12,
+            # Advanced: paragraph reading, grammar, writing, communication, reading comprehension
+            "activities": [
+                "reading", "comprehension", "writing", "comprehension",
+                "writing", "reading", "comprehension", "writing",
+                "speaking", "listening", "reading", "comprehension"
+            ],
+            "age_band": age_band,
+        },
+        "Intermediate": {
+            "level": "Intermediate",
+            "question_count": 10,
+            # Intermediate: sentence reading, sentence writing, listening, speaking, simple comprehension
+            "activities": [
+                "reading", "writing", "listening", "speaking",
+                "comprehension", "reading", "writing", "listening",
+                "speaking", "comprehension"
+            ],
+            "age_band": age_band,
+        },
+        "Basic": {
+            "level": "Basic",
+            "question_count": 8,
+            # Basic: alphabets, simple words, picture-word matching, pronunciation
+            "activities": [
+                "reading", "listening", "comprehension", "speaking",
+                "reading", "listening", "comprehension", "speaking"
+            ],
+            "age_band": age_band,
+        },
+        "Beginner": {
+            "level": "Beginner",
+            "question_count": 8,
+            # Beginner: picture identification, object recognition, color/shape, listening, simple voice responses
+            # No explicit reading or writing questions for Beginner
+            "activities": [
+                "comprehension", "listening", "speaking",
+                "comprehension", "listening", "speaking",
+                "listening", "speaking"
+            ],
+            "age_band": age_band,
+        },
+    }
+    return profiles.get(level_name, profiles["Beginner"])
+--------------------------------------------------
+Match found at position 65733:
+      question["name"] = f"q{index + 1}"
+        questions.append(question)
+
+    return questions
+
+
+def _legacy_get_assessment_questions(language, age=None, learning_level=None, mode=None):
+    try:
+        age_val = int(age) if age is not None else session.get("age", 8)
+    except (ValueError, TypeError):
+        age_val = 8
+
+    if age_val <= 5:
+        # Pre-school play-based assessment questions (Moo sound, red fruit strawberry, round circle shape, king of jungle lion, speak hello)
+        multilingual_questions = {
+            "English": [
+                {
+                    "name": "q_sound",
+                    "type": "listening",
+                    "skill": "listening",
+                    "prompt": "What animal makes this sound: 'Moo Moo'? 🐮",
+                    "options": ["Cow 🐮", "Dog 🐶", "Lion 🦁", "Cat 🐱"],
+                    "answer": "Cow 🐮",
+                    "explanation": "Cows make the moo sound!"
+                },
+                {
+                    "name": "q_color",
+                    "type": "comprehension",
+                    "skill": "comprehension",
+                    "prompt": "Which of these is a red fruit? 🍓 (point or choose the picture)",
+                    "options": ["Strawberry 🍓", "Banana 🍌", "Grape 🍇", "Pear 🍐"],
+                    "answer": "Strawberry 🍓",
+                    "explanation": "Strawberries are bright red and easy to recognize by color."
+                },
+                {
+                    "name": "q_shape",
+                    "type": "comprehension",
+                    "skill": "comprehension",
+                    "prompt": "Point to the round shape or choose the round picture. ⭕",
+                    "options": ["Circle ⭕", "Square ⬛", "Triangle 🔺", "Star ⭐"],
+                    "answer": "Circle ⭕",
+                    "explanation": "A circle is round and has no corners."
+                },
+                {
+                    "name": "q_animal",
+                    "type": "comprehension",
+                    "skill": "comprehension",
+                    "prompt": "Which animal is often called the 'King of the Jungle'? 🦁",
+--------------------------------------------------
+Match found at position 97299:
+)
+    except Exception as e:
+        print(f"[ASSESSMENT MERGE ERROR] {e}")
+
+    return questions
+
+
+def get_assessment_questions(language, age=None, learning_level=None, mode=None):
+    return _legacy_get_assessment_questions(language, age, learning_level, mode)
+
+
+WEEK_MODULE_CONTENT = {
+    "English": {
+        "module_title": "Week 1–2: Learning Content Management & Assessment Framework",
+        "description": "Complete the literacy curriculum structure with reading, writing, and comprehension activities designed for multilingual learners.",
+        "curriculum": [
+            {
+                "heading": "Reading Foundations",
+                "details": "Build reading fluency with short passages, sight words, and comprehension questions that prepare learners for everyday literacy."
+            },
+            {
+                "heading": "Writing Practice",
+                "details": "Develop writing confidence through sentence construction, spelling exercises, and typing-based responses."
+            },
+            {
+                "heading": "Comprehension Support",
+                "details": "Strengthen understanding with story sequencing, question answering, and vocabulary matching activities."
+            }
+        ],
+        "repositories": [
+            {
+                "language": "English",
+                "items": [
+                    "Beginner story passages",
+                    "Sentence building worksheets",
+                    "Reading comprehension cards"
+                ]
+            },
+            {
+                "language": "Telugu",
+                "items": [
+                    "సాధారణ కథా భాగాలు",
+                    "వాక్యాన్ని నిర్మించే పనులు",
+                    "అర్థం తెలుసుకునే ప్రశ్నలు"
+                ]
+            },
+            {
+                "language": "Hindi",
+                "items": [
+                    "आरंभिक कहानी अनुच्छेद",
+                    "वाक्य निर्माण अभ्यास",
+                    "समझ परीक्षण प्रश्न"
+                ]
+            }
+        ],
+        "assessments": [
+            {
+                "title": "Reading Task",
+            
+--------------------------------------------------
+Match found at position 112778:
+ sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@app.before_request
+def force_initial_assessment():
+    user_id = session.get("user_id")
+    if user_id:
+        allowed_endpoints = [
+            "assessment", "submit_assessment", "logout", "static", "login", "register", "forgot_password", "api_set_language", "register_user", "login_user", "admin_login", "admin_logout"
+        ]
+        if request.endpoint and not any(e in request.endpoint for e in allowed_endpoints) and not request.path.startswith("/api/"):
+            init_complete = session.get("initial_assessment_completed", 0)
+            if not init_complete:
+                try:
+                    conn = get_db_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT initial_assessment_completed, age, role FROM users WHERE id = ?", (user_id,))
+                    row = cursor.fetchone()
+                    conn.close()
+                    if row:
+                        if row["role"] in ["admin", "parent"]:
+                            session["initial_assessment_completed"] = 1
+                            return
+                            
+                        age = row["age"]
+                        try:
+                            age_int = int(age) if age is not None else 8
+                        except (ValueError, TypeError):
+                            age_int = 8
+                            
+                        session["initial_assessment_completed"] = row["initial_assessment_completed"] or 0
+                        if not session["initial_assessment_completed"]:
+                            flash("Please complete the initial assessment first.", "warning")
+                            return redirect(url_for("assessment"))
+                except Exception as e:
+                    print(f"[FORCE ASSESSMENT ERROR] {e}")
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Please log in to continue.", "warning")
+            return redirect(url_for("login"))
+       
+--------------------------------------------------
+Match found at position 141138:
+avg_score >= 65:
+            return labels[min(index, 2)]
+        return labels[min(index, 1)]
+
+    def _build_mini_assessment(skill_name, age_val, difficulty):
+        prompts = []
+        base = str(skill_name).strip().title()
+        if base == "Reading":
+            prompts = [
+                "Read the short sentence and choose the correct picture.",
+                "Find the main idea in the story.",
+                "Pick the word that matches the sentence."
+            ]
+        elif base == "Writing":
+            prompts = [
+                "Write one simple sentence using the target word.",
+                "Fill in the missing word to complete the sentence.",
+                "Trace the sentence and write it again."
+            ]
+        elif base == "Listening":
+            prompts = [
+                "Listen to the sentence and choose the right picture.",
+                "Hear the word and match it to the picture.",
+                "Listen again and answer the question."
+            ]
+        elif base == "Speaking":
+            prompts = [
+                "Say the sentence aloud and count the words.",
+                "Repeat the phrase clearly and say what it means.",
+                "Use the target words in a short spoken answer."
+            ]
+        else:
+            prompts = [
+                "Read the passage and answer the questions.",
+                "Choose the right answer for the story details.",
+                "Explain the idea in one short sentence."
+            ]
+        if difficulty == "Easy":
+            prompts = prompts[:2]
+        elif difficulty == "Hard":
+            prompts = prompts
+        else:
+            prompts = prompts[:3]
+        return [
+            {"question": p, "type": "short_answer" if "write" in p.lower() or "say" in p.lower() else "multiple_choice"}
+            for p in prompts
+        ]
+
+    def _build_lesson(skill_name, lesson_index, age_val, level, skill_score, avg_score, source_lesson=None):
+        objective_phrase, activity_phrase, practice_phrase = _skill_focus(skill_name)
+        difficulty = _difficulty_label(lesson_index, avg_sc
+--------------------------------------------------
+Match found at position 144229:
+           "source_url": f"/lesson/{source_lesson['id']}" if source_lesson else None
+        }
+
+    def _simulate_skill_reassessment(skill_score, difficulty):
+        if skill_score < 40:
+            gain = 18
+        elif skill_score < 55:
+            gain = 14
+        elif skill_score < 70:
+            gain = 10
+        else:
+            gain = 6
+        if difficulty == "Hard":
+            gain = max(4, gain - 4)
+        if difficulty == "Easy":
+            gain = min(gain + 2, 20)
+        return min(100, skill_score + gain)
+
+    def _compute_proficiency(avg_score):
+        if avg_score >= 85:
+            return "Advanced"
+        if avg_score >= 60:
+            return "Intermediate"
+        if avg_score >= 35:
+            return "Basic"
+        return "Beginner"
+
+    age_val = get_user_score("age", 8)
+    avg_score = sum(scores.values()) / len(scores)
+    learning_level = get_user_field("learning_level") or get_user_field("current_proficiency") or "Beginner"
+    used_source_ids = set()
+    used_titles = set()
+    recommended_lessons = []
+
+    for weak_skill in weak_skills:
+        skill_name = weak_skill.title()
+        current_skill_score = scores.get(skill_name, 65)
+        step = 0
+        while current_skill_score < 75 and step < 4:
+            source = next(
+                (lesson for lesson in available_lessons if lesson["id"] not in used_source_ids and _lesson_matches_skill(lesson, skill_name)),
+                None
+            )
+            lesson = _build_lesson(
+                skill_name,
+                step,
+                age_val,
+                learning_level,
+                current_skill_score,
+                avg_score,
+                source_lesson=source
+            )
+            if lesson["title"] in used_titles:
+                lesson["title"] = f"{lesson['title']} Step {step + 1}"
+            used_titles.add(lesson["title"])
+            if source:
+                used_source_ids.add(source["id"])
+            lesson["post_assessment"] = {
+                "skill": skill_name,
+                "previous_score": current_skill_score,
+                "status": "practice"
+  
+--------------------------------------------------
+Match found at position 193997:
+_skills": strong})
+
+@app.route("/api/assessment/update-analysis", methods=["POST"])
+@login_required
+def api_assessment_update_analysis():
+    user_id = session.get("user_id")
+    profile = generate_cognitive_profile(user_id)
+    return jsonify({"status": "success", "message": "Assessment analysis updated", "profile": profile})
+
+@app.route("/api/profile/refresh-predictions", methods=["POST"])
+@login_required
+def api_profile_refresh_predictions():
+    user_id = session.get("user_id")
+    profile = generate_cognitive_profile(user_id)
+    return jsonify({"status": "success", "message": "Predictions refreshed", "profile": profile})
+
+@app.route("/api/recommendations/history", methods=["GET"])
+@login_required
+def api_recommendations_history():
+    user_id = session.get("user_id")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, recommendation_type, item_id, title, category, difficulty, reason, timestamp, status
+        FROM recommendation_history
+        WHERE user_id = ?
+        ORDER BY timestamp DESC
+    """, (user_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    history_list = [dict(row) for row in rows]
+    return jsonify({"status": "success", "recommendation_history": history_list})
+
+
+@app.route("/api/admin/overview", methods=["GET"])
+@login_required
+def api_admin_overview():
+    # Admin-only: basic metrics for dashboard overview
+    user_id = session.get("user_id")
+    # NOTE: frontend handles auth; we assume caller is admin via existing decorators
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM users")
+    total_learners = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(DISTINCT user_id) FROM lesson_progress WHERE timestamp >= DATE('now','-30 day')")
+    active_learners = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM lessons")
+    total_lessons = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM assessment_history")
+    total_assessments = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM users WHERE learning_path IS NOT NULL AND learni
+--------------------------------------------------
+Match found at position 202713:
+'success','id':nid})
+
+
+@app.route('/api/admin/assessments', methods=['GET','POST'])
+@login_required
+def api_admin_assessments():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if request.method == 'GET':
+        cursor.execute('SELECT id, question, category, difficulty FROM assessment_questions LIMIT 200')
+        rows = cursor.fetchall()
+        conn.close()
+        return jsonify({'status':'success','questions':[dict(r) for r in rows]})
+    data = request.get_json() or {}
+    cursor.execute('INSERT INTO assessment_questions (question, category, difficulty, language) VALUES (?,?,?,?)', (
+        data.get('question'), data.get('category'), data.get('difficulty'), data.get('language')
+    ))
+    conn.commit()
+    nid = cursor.lastrowid
+    conn.close()
+    return jsonify({'status':'success','id':nid})
+
+
+@app.route('/api/admin/assessment/<int:qid>', methods=['GET','PUT','DELETE'])
+@login_required
+def api_admin_assessment_detail(qid):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if request.method == 'GET':
+        cursor.execute('SELECT * FROM assessment_questions WHERE id = ?', (qid,))
+        row = cursor.fetchone()
+        conn.close()
+        return jsonify({'status':'success','question':dict(row) if row else None})
+    if request.method == 'PUT':
+        data = request.get_json() or {}
+        cursor.execute('UPDATE assessment_questions SET question = ?, category = ?, difficulty = ?, language = ? WHERE id = ?', (
+            data.get('question'), data.get('category'), data.get('difficulty'), data.get('language'), qid
+        ))
+        conn.commit()
+        conn.close()
+        return jsonify({'status':'success'})
+    cursor.execute('DELETE FROM assessment_questions WHERE id = ?', (qid,))
+    conn.commit()
+    conn.close()
+    return jsonify({'status':'success'})
+
+
+@app.route('/api/admin/recommendations/<int:learner_id>', methods=['GET'])
+@login_required
+def api_admin_recommendations_monitor(learner_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, score, timestamp FROM assessment_history WHERE user_id = ? ORDER 
+--------------------------------------------------
+Match found at position 203536:
+d})
+
+
+@app.route('/api/admin/assessment/<int:qid>', methods=['GET','PUT','DELETE'])
+@login_required
+def api_admin_assessment_detail(qid):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if request.method == 'GET':
+        cursor.execute('SELECT * FROM assessment_questions WHERE id = ?', (qid,))
+        row = cursor.fetchone()
+        conn.close()
+        return jsonify({'status':'success','question':dict(row) if row else None})
+    if request.method == 'PUT':
+        data = request.get_json() or {}
+        cursor.execute('UPDATE assessment_questions SET question = ?, category = ?, difficulty = ?, language = ? WHERE id = ?', (
+            data.get('question'), data.get('category'), data.get('difficulty'), data.get('language'), qid
+        ))
+        conn.commit()
+        conn.close()
+        return jsonify({'status':'success'})
+    cursor.execute('DELETE FROM assessment_questions WHERE id = ?', (qid,))
+    conn.commit()
+    conn.close()
+    return jsonify({'status':'success'})
+
+
+@app.route('/api/admin/recommendations/<int:learner_id>', methods=['GET'])
+@login_required
+def api_admin_recommendations_monitor(learner_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, score, timestamp FROM assessment_history WHERE user_id = ? ORDER BY timestamp DESC LIMIT 1', (learner_id,))
+    last = cursor.fetchone()
+    cursor.execute('SELECT weak_skills, strong_skills, recommended_activities, learning_path FROM users WHERE id = ?', (learner_id,))
+    row = cursor.fetchone()
+    conn.close()
+    user = dict(row) if row else {}
+    try:
+        recs = json.loads(user.get('recommended_activities')) if user.get('recommended_activities') else None
+    except Exception:
+        recs = None
+    try:
+        path = json.loads(user.get('learning_path')) if user.get('learning_path') else None
+    except Exception:
+        path = None
+    return jsonify({'status':'success','last_assessment':dict(last) if last else None,'weak_skills':user.get('weak_skills'),'strong_skills':user.get('strong_skills'),'recommendations':recs,'learning_path':path})
+
+
+@app.route('/api/admin/r
+--------------------------------------------------
+Match found at position 205622:
+arning_path':path})
+
+
+@app.route('/api/admin/reports/assessments', methods=['GET'])
+@login_required
+def api_admin_reports_assessments():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT user_id, score, timestamp FROM assessment_history ORDER BY timestamp DESC LIMIT 500')
+    rows = cursor.fetchall()
+    conn.close()
+    return jsonify({'status':'success','assessment_history':[dict(r) for r in rows]})
+
+
+@app.route('/api/admin/reports/skill-progress', methods=['GET'])
+@login_required
+def api_admin_reports_skill_progress():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT AVG(reading_score) as reading_avg, AVG(writing_score) as writing_avg, AVG(listening_score) as listening_avg, AVG(speaking_score) as speaking_avg, AVG(comprehension_score) as comprehension_avg FROM users')
+    row = cursor.fetchone()
+    conn.close()
+    return jsonify({'status':'success','skill_averages':dict(row) if row else {}})
+
+
+@app.route('/api/admin/reports/progress-stats', methods=['GET'])
+@login_required
+def api_admin_reports_progress_stats():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*) as total, SUM(CASE WHEN progress_percentage >= 80 THEN 1 ELSE 0 END) as completed_80 FROM users')
+    row = cursor.fetchone()
+    conn.close()
+    return jsonify({'status':'success','total_users':row[0],'completed_80_percent':row[1]})
+
+@app.route("/api/recommendations/activities", methods=["GET"])
+@login_required
+def api_recommendations_activities():
+    user_id = session.get("user_id")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT recommended_activities FROM users WHERE id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    activities = []
+    if row and row["recommended_activities"]:
+        try:
+            activities = json.loads(row["recommended_activities"])
+        except Exception:
+            pass
+            
+    return jsonify({"status": "success", "recommended_activities": activities})
+
+@app.route("/api/learning-path/complete-lesson", methods=["POST"])
+
+--------------------------------------------------
+Match found at position 264581:
+"login.html",
+        translations=translations
+    )
+
+
+@app.route("/assessment")
+@learner_required
+def assessment():
+    language = session.get("language", "English")
+    translations = get_translations(language)
+    
+    user_id = session.get("user_id")
+    age_int = 8
+    education_level = "School"
+    learning_status = "Student"
+    db_learning_level = "Beginner"
+    prev_score = None
+    prev_weak = None
+    
+    if user_id:
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT age, education_level, learning_status, learning_level, assessment_score, weak_skills FROM users WHERE id = ?", (user_id,))
+            user_row = cursor.fetchone()
+            conn.close()
+            if user_row:
+                age_int = int(user_row["age"]) if user_row["age"] else 8
+                education_level = user_row["education_level"] or "School"
+                learning_status = user_row["learning_status"] or "Student"
+                db_learning_level = user_row["learning_level"] or "Beginner"
+                prev_score = user_row["assessment_score"]
+                prev_weak = user_row["weak_skills"]
+        except Exception as e:
+            print(f"Error querying user profile for adaptive assessment: {e}")
+            
+    # Calculate appropriate starting level based on Age and Qualification (Education Level & Status)
+    if education_level in ["Intermediate", "Diploma"] or learning_status in ["Employee", "Job Seeker"] or age_int >= 15:
+        default_starting_level = "Advanced"
+    elif age_int >= 11 or education_level == "Intermediate":
+        default_starting_level = "Intermediate"
+    elif age_int >= 7 or education_level == "School":
+        default_starting_level = "Basic"
+    else:
+        default_starting_level = "Beginner"
+
+    # Set or adjust learning level in session if not set or set to default Beginner
+    learning_level = session.get("learning_level")
+    if not learning_level or learning_level == "Beginner":
+        learning_level = db_learning_level if db_learning_level and db_learning_level != "Begi
+--------------------------------------------------
+Match found at position 351403:
+       ai_recs=ai_recs
+    )
+
+
+@app.route("/submit_assessment", methods=["POST"])
+@learner_required
+def submit_assessment():
+    language = session.get("language", "English")
+    translations = get_translations(language)
+    questions = session.get("assessment_questions")
+
+    if not questions:
+        flash("Your assessment session has expired. Please retake the assessment.", "warning")
+        return redirect(url_for("assessment"))
+
+    # Calculate time taken
+    start_time = session.get("assessment_start_time", time.time())
+    time_taken = int(time.time() - start_time)
+
+    correct = 0
+    total = len(questions)
+    review_items = []
+
+    def normalize_skill_name(skill_name):
+        skill = (skill_name or "").strip().lower()
+        if skill in {"grammar", "vocabulary", "comprehension"}:
+            return "comprehension"
+        return skill
+
+    # Category counters
+    cat_corrects = {
+        "reading": 0, "writing": 0, "comprehension": 0,
+        "listening": 0, "speaking": 0, "vocabulary": 0,
+        "grammar": 0
+    }
+    cat_totals = {
+        "reading": 0, "writing": 0, "comprehension": 0,
+        "listening": 0, "speaking": 0, "vocabulary": 0,
+        "grammar": 0
+    }
+
+    for question in questions:
+        q_type = question.get("type", "reading").lower()
+        skill_key = question.get("skill_score_key") or question.get("skill") or q_type
+        skill_name = normalize_skill_name(skill_key)
+        if skill_name not in cat_corrects:
+            skill_name = "comprehension"
+
+        user_answer = request.form.get(question["name"], "")
+        expected_answer = str(question["answer"]).strip()
+
+        is_correct = False
+        if q_type == "speaking":
+            is_correct = get_similarity_score(user_answer, expected_answer) >= 0.75
+        else:
+            is_correct = normalize_text(user_answer) == normalize_text(expected_answer)
+
+        cat_totals[skill_name] += 1
+        if is_correct:
+            correct += 1
+            cat_corrects[skill_name] += 1
+
+        review_items.append({
+            "prompt": question.get("hint") if q_type == "speaking" else (question
+--------------------------------------------------
+Match found at position 361524:
+eak_skills=weak_skills_str
+    )
+
+@app.route("/assessment/review/<int:attempt_id>")
+@login_required
+def review_assessment(attempt_id):
+    user_id = session.get("user_id")
+    language = session.get("language", "English")
+    translations = get_translations(language)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM assessment_history WHERE id = ?", (attempt_id,))
+    attempt_row = cursor.fetchone()
+    
+    if not attempt_row:
+        conn.close()
+        flash("Assessment record not found.", "danger")
+        return redirect(url_for("week_module"))
+        
+    attempt = dict(attempt_row)
+    role = session.get("role", "student")
+    
+    # Check that this belongs to the logged-in student, or if user is a parent/admin
+    if role == "student" and attempt["user_id"] != user_id:
+        conn.close()
+        flash("You are not authorized to view this assessment.", "danger")
+        return redirect(url_for("week_module"))
+        
+    conn.close()
+    
+    # Parse review items
+    import json
+    review_items = []
+    if attempt.get("review_json"):
+        try:
+            review_items = json.loads(attempt["review_json"])
+        except Exception as e:
+            print(f"Error parsing saved review_json: {e}")
+            
+    if not review_items and attempt.get("questions"):
+        try:
+            saved_qs = json.loads(attempt["questions"])
+            for q in saved_qs:
+                review_items.append({
+                    "prompt": q.get("prompt", "Question"),
+                    "user_answer": "Not Available (Legacy)",
+                    "correct_answer": q.get("answer", ""),
+                    "is_correct": False,
+                    "explanation": q.get("explanation", "")
+                })
+        except Exception:
+            pass
+            
+    # Calculate incorrect count
+    incorrect = attempt["total"] - attempt["correct"]
+    
+    # Reconstruct category scores dict
+    cat_scores = {
+        "reading": attempt.get("reading_score") or 0.0,
+        "writing": attempt.get("writing_score") or 0.0,
+        "comprehension": a
+--------------------------------------------------
+Match found at position 391302:
+n_dashboard") + "#content")
+
+
+@app.route("/admin/assessment/add", methods=["POST"])
+@admin_required
+def admin_add_assessment():
+    category = request.form.get("category")
+    language = request.form.get("language")
+    difficulty = request.form.get("difficulty")
+    prompt = request.form.get("prompt")
+    options = request.form.get("options")
+    correct_index = int(request.form.get("correct_index", 0))
+    explanation = request.form.get("explanation", "")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO assessment_questions (category, language, difficulty, prompt, options, correct_index, explanation)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (category, language, difficulty, prompt, options, correct_index, explanation))
+    cursor.execute("INSERT INTO activity_logs (user_id, action, details) VALUES (?, 'ADD_QUESTION', ?)",
+                   (session["user_id"], f"Added custom assessment question: {prompt[:30]}..."))
+    conn.commit()
+    conn.close()
+
+    flash("Custom assessment question created successfully.", "success")
+    return redirect(url_for("admin_dashboard") + "#assessments")
+
+
+@app.route("/admin/assessment/edit", methods=["POST"])
+@admin_required
+def admin_edit_assessment():
+    q_id = request.form.get("question_id")
+    category = request.form.get("category")
+    language = request.form.get("language")
+    difficulty = request.form.get("difficulty")
+    prompt = request.form.get("prompt")
+    options = request.form.get("options")
+    correct_index = int(request.form.get("correct_index", 0))
+    explanation = request.form.get("explanation", "")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE assessment_questions 
+        SET category = ?, language = ?, difficulty = ?, prompt = ?, options = ?, correct_index = ?, explanation = ?
+        WHERE id = ?
+    """, (category, language, difficulty, prompt, options, correct_index, explanation, q_id))
+    cursor.execute("INSERT INTO activity_logs (user_id, action, details) VALUES (?, 'EDIT_QUESTION', ?)",
+                   (session
+--------------------------------------------------
+Match found at position 392438:
+hboard") + "#assessments")
+
+
+@app.route("/admin/assessment/edit", methods=["POST"])
+@admin_required
+def admin_edit_assessment():
+    q_id = request.form.get("question_id")
+    category = request.form.get("category")
+    language = request.form.get("language")
+    difficulty = request.form.get("difficulty")
+    prompt = request.form.get("prompt")
+    options = request.form.get("options")
+    correct_index = int(request.form.get("correct_index", 0))
+    explanation = request.form.get("explanation", "")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE assessment_questions 
+        SET category = ?, language = ?, difficulty = ?, prompt = ?, options = ?, correct_index = ?, explanation = ?
+        WHERE id = ?
+    """, (category, language, difficulty, prompt, options, correct_index, explanation, q_id))
+    cursor.execute("INSERT INTO activity_logs (user_id, action, details) VALUES (?, 'EDIT_QUESTION', ?)",
+                   (session["user_id"], f"Edited custom question ID {q_id}"))
+    conn.commit()
+    conn.close()
+
+    flash("Custom assessment question updated successfully.", "success")
+    return redirect(url_for("admin_dashboard") + "#assessments")
+
+
+@app.route("/admin/assessment/<int:question_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_assessment(question_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM assessment_questions WHERE id = ?", (question_id,))
+    cursor.execute("INSERT INTO activity_logs (user_id, action, details) VALUES (?, 'DELETE_QUESTION', ?)",
+                   (session["user_id"], f"Deleted custom question ID {question_id}"))
+    conn.commit()
+    conn.close()
+
+    flash("Custom assessment question deleted.", "success")
+    return redirect(url_for("admin_dashboard") + "#assessments")
+
+
+@app.route("/admin/notifications/send", methods=["POST"])
+@admin_required
+def admin_send_notification():
+    target = request.form.get("target")
+    title = request.form.get("title")
+    message = request.form.get("message")
+
+    conn = get_db_connection()
+    cursor = conn.cur
+--------------------------------------------------
+Match found at position 393645:
+ents")
+
+
+@app.route("/admin/assessment/<int:question_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_assessment(question_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM assessment_questions WHERE id = ?", (question_id,))
+    cursor.execute("INSERT INTO activity_logs (user_id, action, details) VALUES (?, 'DELETE_QUESTION', ?)",
+                   (session["user_id"], f"Deleted custom question ID {question_id}"))
+    conn.commit()
+    conn.close()
+
+    flash("Custom assessment question deleted.", "success")
+    return redirect(url_for("admin_dashboard") + "#assessments")
+
+
+@app.route("/admin/notifications/send", methods=["POST"])
+@admin_required
+def admin_send_notification():
+    target = request.form.get("target")
+    title = request.form.get("title")
+    message = request.form.get("message")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if target == "all":
+        cursor.execute("SELECT id FROM users WHERE role = 'student'")
+        student_ids = [row["id"] for row in cursor.fetchall()]
+        for s_id in student_ids:
+            cursor.execute("INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)", (s_id, title, message))
+    else:
+        cursor.execute("INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)", (int(target), title, message))
+
+    cursor.execute("INSERT INTO activity_logs (user_id, action, details) VALUES (?, 'SEND_NOTIFICATION', ?)",
+                   (session["user_id"], f"Sent alert '{title}' to target: {target}"))
+    conn.commit()
+    conn.close()
+
+    flash("Notification sent successfully!", "success")
+    return redirect(url_for("admin_dashboard") + "#settings")
+
+
+@app.route("/admin/settings/update", methods=["POST"])
+@admin_required
+def admin_settings_update():
+    site_name = request.form.get("site_name")
+    tutor_voice = request.form.get("tutor_voice")
+    allow_registration = request.form.get("allow_registration")
+    maintenance_mode = request.form.get("maintenance_mode")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("IN
+--------------------------------------------------
+Match found at position 429882:
+ recs[0] if recs else None
+    })
+
+
+@app.route("/api/assessment", methods=["POST"])
+@login_required
+def api_assessment():
+    user_id = session.get("user_id")
+    data = request.get_json(silent=True) or request.form or {}
+    
+    score = data.get("score")
+    if score is None:
+        correct = int(data.get("correct", 0))
+        total = int(data.get("total", 1))
+        score = int((correct / total) * 100) if total else 0
+    else:
+        score = int(score)
+        correct = int(data.get("correct", score // 10))
+        total = int(data.get("total", 10))
+        
+    language = data.get("language") or session.get("language", "English")
+    age = session.get("age", 8)
+    age_group = get_age_group(age)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO assessment_history (user_id, score, correct, total, language, age_group)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (user_id, score, correct, total, language, age_group))
+    conn.commit()
+    
+    # Calculate average score & total assessments
+    cursor.execute("SELECT AVG(score), COUNT(*) FROM assessment_history WHERE user_id = ?", (user_id,))
+    avg_row = cursor.fetchone()
+    avg_score = round(avg_row[0], 1) if avg_row and avg_row[0] is not None else float(score)
+    assessment_count = avg_row[1] if avg_row else 1
+    
+    # Predict proficiency & update DB
+    pred_prof = predict_user_proficiency(user_id, language=language, update_db=False)
+    new_proficiency = pred_prof["current_proficiency"]
+    session["last_score"] = score
+    
+    # Generate updated recommendations & path using centralized state refresh
+    recalculate_and_refresh_learner_state(user_id)
+    recs = get_content_recommendations(user_id, last_score=score)
+    path = generate_personalized_learning_path(user_id)
+    
+    cursor.execute("""
+        UPDATE users 
+        SET assessment_count = ?, average_score = ?
+        WHERE id = ?
+    """, (assessment_count, avg_score, user_id))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({
+        "status": "success",
+        "message": "Assessment results
+--------------------------------------------------
+Match questions= at position 54262:
+es.get(level_name, profiles["Beginner"])
+
+
+def _build_level_questions(language, profile, pool):
+    questions = []
+    age_band = profile["age_band"]
+    level = profile["level"]
+
+    def get_pool(key, fallback=None):
+        if key in pool:
+            return pool[key]
+        if fallback and fallback in pool:
+            return pool[fallback]
+        return []
+
+    def make_options(correct, base_opts):
+        opts = [correct] + [opt for opt in base_opts if opt != correct]
+        opts = list(dict.fromkeys(opts))
+        while len(opts) < 4:
+            opts.append(f"Option {len(opts) + 1}")
+        return opts[:4]
+
+    def build_reading_question(position):
+        if level in ["Beginner", "Basic"]:
+            pool_data = get_pool("simple_words", "spelling")
+            item = pool_data[position % len(pool_data)] if pool_data else ("apple", "Apple", ["Apple", "Banana", "Chair", "Tree"], "Apple is the correct word for the fruit.")
+            return {
+                "type": "reading",
+                "skill": "reading",
+                "prompt": f"Read the word and choose the matching picture: {item[0]}",
+                "options": make_options(item[1], item[2]),
+                "answer": item[1],
+                "explanation": item[3],
+                "age_band": age_band,
+                "level": level,
+                "language": language,
+                "skill_score_key": "reading",
+            }
+        if level == "Intermediate":
+            pool_data = get_pool("sentences", "comps")
+            item = pool_data[position % len(pool_data)] if pool_data else ("The cat is on the 
+--------------------------------------------------
+Match questions= at position 376652:
+tchall()]
+    
+    cursor.execute("SELECT * FROM assessment_questions ORDER BY id DESC")
+    custom_questions = [dict(r) for r in cursor.fetchall()]
+    
+    cursor.execute("""
+        SELECT v.*, u.fullname, u.email 
+        FROM voice_practice_history v 
+        LEFT JOIN users u ON v.user_id = u.id 
+        ORDER BY v.id DESC LIMIT 30
+    """)
+    voice_logs = [dict(r) for r in cursor.fetchall()]
+    
+    cursor.execute("""
+        SELECT r.*, u.fullname, u.email 
+        FROM recommendation_history r 
+        LEFT JOIN users u ON r.user_id = u.id 
+        ORDER BY r.timestamp DESC LIMIT 30
+    """)
+    recommendations_logs = [dict(r) for r in cursor.fetchall()]
+    
+    cursor.execute("""
+        SELECT a.*, u.fullname 
+        FROM activity_logs a 
+        LEFT JOIN users u ON a.user_id = u.id 
+        ORDER BY a.timestamp DESC LIMIT 15
+    """)
+    recent_activities = [dict(r) for r in cursor.fetchall()]
+    
+    # Language statistics
+    try:
+        cursor.execute("SELECT name FROM languages WHERE is_active = 1")
+        langs = [r["name"] for r in cursor.fetchall()]
+    except Exception:
+        langs = ["English", "Telugu", "Tamil", "Hindi", "Kannada", "Marathi"]
+        
+    lang_stats = []
+    for l in langs:
+        cursor.execute("SELECT COUNT(*) FROM users WHERE language = ? AND role = 'student'", (l,))
+        u_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM lessons WHERE language = ?", (l,))
+        les_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM assessment_history WHERE language = ?", (l,))
+        ass_count = cu
+--------------------------------------------------

@@ -1,0 +1,3 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/infosys 3/.venv/Scripts/python.exe"
+}

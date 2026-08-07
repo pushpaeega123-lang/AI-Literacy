@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <a href="/learning-games" class="btn btn-outline-light rounded-pill px-4 fw-bold backdrop-blur" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">
+            <i class="bi bi-arrow-left me-1"></i> Hub
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fs-6 fw-bold">⭐ <span id="gameXpDisplay">{{ profile.xp }}</span> XP</span>
+            <span class="badge bg-success text-white px-3 py-2 rounded-pill fs-6 fw-bold">🪙 <span id="gameCoinDisplay">{{ profile.coins }}</span> Coins</span>
+        </div>
+    </div>
+
+    <div class="card border-0 rounded-4 shadow-lg p-4 bg-dark text-white position-relative overflow-hidden" style="min-height: 600px; background: linear-gradient(135deg, #3b0764 0%, #581c87 100%) !important;">
+        <div class="d-flex align-items-center gap-3 border-bottom border-secondary pb-3 mb-4">
+            <div class="fs-1">🤖</div>
+            <div>
+                <h4 class="fw-bold mb-0 text-warning" id="gameTitle">Robot Factory</h4>
+                <p class="text-light text-opacity-75 small mb-0">Build Lumi's robot companion parts by solving component assembly equations!</p>
+            </div>
+            <div class="ms-auto text-end">
+                <span class="badge bg-secondary border border-secondary px-3 py-2 rounded-pill fw-bold" id="gameScoreDisplay">Parts Built: <span id="partsCount">0</span>/5</span>
+            </div>
+        </div>
+
+        <div class="row g-4 align-items-center">
+            <!-- Left Panel: Assembly Stage -->
+            <div class="col-md-6 text-center">
+                <div class="border border-secondary rounded-4 p-4 bg-black bg-opacity-40" style="min-height: 320px;">
+                    <div id="robotOutline" class="position-relative" style="height: 250px; font-size: 80px;">
+                        <span id="robotHead" style="display:none; position:absolute; top:10px; left:40%;">🤖</span>
+                        <span id="robotEyes" style="display:none; position:absolute; top:35px; left:46%; font-size: 30px;">👀</span>
+                        <span id="robotArms" style="display:none; position:absolute; top:80px; left:30%; font-size: 60px;">🦾</span>
+                        <span id="robotLegs" style="display:none; position:absolute; top:160px; left:42%; font-size: 60px;">🦿</span>
+                        <span id="robotChest" style="display:none; position:absolute; top:80px; left:42%; font-size: 60px;">🛡️</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Part unlock challenges -->
+            <div class="col-md-6 text-center">
+                <div class="p-4 border border-secondary rounded-4 bg-black bg-opacity-40" style="min-height: 320px;">
+                    <h5 class="fw-bold text-warning mb-3">Assemble Part: <span id="partName" class="text-white">Head</span></h5>
+                    <p class="lead mb-4" id="prefixEquation">un- + clear = ?</p>
+                    <div class="d-flex flex-column gap-2" id="ansList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="victoryModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4 bg-dark text-white">
+            <div class="display-1 mb-2">🎉</div>
+            <h2 class="fw-bold text-success mb-2">Robot Completed!</h2>
+            <p class="text-white-50 mb-4">Fantastic job! You assembled the helper robot!</p>
+            <div class="d-flex justify-content-center gap-4 mb-4">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-4 border border-warning">
+                    <div class="fs-4">⭐</div>
+                    <div class="fw-bold text-warning" id="earnedXpText">+50 XP</div>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded-4 border border-success">
+                    <div class="fs-4">🪙</div>
+                    <div class="fw-bold text-success" id="earnedCoinsText">+30 Coins</div>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="button" class="btn btn-outline-light rounded-pill w-100 fw-bold py-2.5" onclick="location.reload()">Play Again</button>
+                <a href="/learning-games" class="btn btn-warning text-dark rounded-pill w-100 fw-bold py-2.5">Hub</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let score = 0;
+let unlockedCount = 0;
+
+const stages = [
+    { part: "Head", id: "robotHead", q: "un- + happy = ?", opt: ["unhappy", "happyun", "un-happy"], ans: "unhappy" },
+    { part: "Eyes", id: "robotEyes", q: "dis- + respect = ?", opt: ["respectdis", "disrespect", "misrespect"], ans: "disrespect" },
+    { part: "Chest", id: "robotChest", q: "play + -ing = ?", opt: ["playing", "playeing", "playying"], ans: "playing" },
+    { part: "Arms", id: "robotArms", q: "beauty + -ful = ?", opt: ["beautyful", "beautiful", "beautful"], ans: "beautiful" },
+    { part: "Legs", id: "robotLegs", q: "re- + write = ?", opt: ["rewrite", "writere", "re-write"], ans: "rewrite" }
+];
+
+function loadStage() {
+    if (unlockedCount >= stages.length) {
+        finishGame(100, 50, 30);
+        return;
+    }
+    const stg = stages[unlockedCount];
+    document.getElementById("partName").innerText = stg.part;
+    document.getElementById("prefixEquation").innerText = stg.q;
+
+    const div = document.getElementById("ansList");
+    div.innerHTML = "";
+    stg.opt.forEach(o => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-outline-warning text-white py-2 rounded-pill fw-bold";
+        btn.innerText = o;
+        btn.onclick = () => checkPartAnswer(o, stg.ans, stg.id);
+        div.appendChild(btn);
+    });
+}
+
+function checkPartAnswer(chosen, correct, partId) {
+    if (chosen === correct) {
+        document.getElementById(partId).style.display = "block";
+        unlockedCount++;
+        document.getElementById("partsCount").innerText = unlockedCount;
+        confetti({ particleCount: 30, spread: 45 });
+        loadStage();
+    } else {
+        alert("Oops! Think about how prefix/suffix combine.");
+    }
+}
+
+function finishGame(finalScore = 100, xpEarned = 50, coinsEarned = 30) {
+    confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+    document.getElementById("earnedXpText").innerText = `+${xpEarned} XP`;
+    document.getElementById("earnedCoinsText").innerText = `+${coinsEarned} Coins`;
+
+    fetch("/api/save_game_progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game_id: "robot_factory", game_name: "Robot Factory", score: finalScore, xp_earned: xpEarned, coins_earned: coinsEarned })
+    }).then(res => res.json()).then(data => {
+        if(data.success) {
+            document.getElementById("gameXpDisplay").innerText = data.xp;
+            document.getElementById("gameCoinDisplay").innerText = data.coins;
+        }
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('victoryModal'));
+    modal.show();
+}
+
+loadStage();
+</script>
+{% endblock %}

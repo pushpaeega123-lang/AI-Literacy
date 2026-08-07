@@ -1,0 +1,2070 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .journey-card h2,
+  .journey-card h6,
+  .journey-card p,
+  .journey-card span,
+  .journey-card li,
+  .journey-card .fs-5,
+  .journey-card .fs-8 {
+    color: #ffffff !important;
+  }
+
+  .journey-card .text-white-50 {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  .journey-card .text-warning {
+    color: #fbbf24 !important;
+  }
+</style>
+
+<section class="week-module-section py-5">
+  <div class="container">
+    {% if profile.age|int <= 5 %} <!-- Toddler Fun Interactive Hub -->
+      <style>
+        .toddler-workspace {
+          background: linear-gradient(135deg, #fffbeb 0%, #fae8ff 100%);
+          border-radius: 36px;
+          padding: 40px 20px;
+          text-align: center;
+          box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .toddler-hero {
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(12px);
+          border: 4px solid #f472b6;
+          border-radius: 32px;
+          padding: 30px;
+          box-shadow: 0 15px 35px rgba(244, 114, 182, 0.12);
+          margin-bottom: 40px;
+          animation: bounceIn 0.8s ease;
+        }
+
+        .toddler-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 25px;
+          margin-top: 30px;
+        }
+
+        .toddler-btn {
+          background: white;
+          border: 4px solid #e2e8f0;
+          border-radius: 28px;
+          padding: 30px 15px;
+          box-shadow: 0 8px 0 #cbd5e1;
+          transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          cursor: pointer;
+          text-align: center;
+        }
+
+        .toddler-btn:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 14px 0 #cbd5e1;
+          background: #faf5ff;
+        }
+
+        .toddler-btn:active {
+          transform: translateY(6px);
+          box-shadow: 0 2px 0 #cbd5e1;
+        }
+
+        /* Themes */
+        .theme-pink {
+          border-color: #f472b6;
+          box-shadow: 0 8px 0 #f472b6;
+        }
+
+        .theme-pink:hover {
+          box-shadow: 0 14px 0 #f472b6;
+        }
+
+        .theme-pink:active {
+          box-shadow: 0 2px 0 #f472b6;
+        }
+
+        .theme-blue {
+          border-color: #60a5fa;
+          box-shadow: 0 8px 0 #60a5fa;
+        }
+
+        .theme-blue:hover {
+          box-shadow: 0 14px 0 #60a5fa;
+        }
+
+        .theme-blue:active {
+          box-shadow: 0 2px 0 #60a5fa;
+        }
+
+        .theme-green {
+          border-color: #34d399;
+          box-shadow: 0 8px 0 #34d399;
+        }
+
+        .theme-green:hover {
+          box-shadow: 0 14px 0 #34d399;
+        }
+
+        .theme-green:active {
+          box-shadow: 0 2px 0 #34d399;
+        }
+
+        .theme-yellow {
+          border-color: #fbbf24;
+          box-shadow: 0 8px 0 #fbbf24;
+        }
+
+        .theme-yellow:hover {
+          box-shadow: 0 14px 0 #fbbf24;
+        }
+
+        .theme-yellow:active {
+          box-shadow: 0 2px 0 #fbbf24;
+        }
+
+        .theme-purple {
+          border-color: #a78bfa;
+          box-shadow: 0 8px 0 #a78bfa;
+        }
+
+        .theme-purple:hover {
+          box-shadow: 0 14px 0 #a78bfa;
+        }
+
+        .theme-purple:active {
+          box-shadow: 0 2px 0 #a78bfa;
+        }
+
+        .toddler-icon {
+          font-size: 4rem;
+          margin-bottom: 12px;
+          display: block;
+          animation: pulseMascot 2.5s ease-in-out infinite alternate;
+        }
+
+        .toddler-label {
+          font-size: 1.35rem;
+          font-weight: 800;
+          color: #1e293b;
+          display: block;
+        }
+
+        /* Overlay */
+        .toddler-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle, #fefefe 0%, #e0f2fe 100%);
+          z-index: 1050;
+          overflow-y: auto;
+          padding: 40px 15px;
+        }
+
+        .overlay-card {
+          background: white;
+          border: 6px solid #818cf8;
+          border-radius: 36px;
+          box-shadow: 0 20px 50px rgba(99, 102, 241, 0.15);
+          max-width: 850px;
+          margin: 0 auto;
+          padding: 35px;
+          position: relative;
+        }
+
+        .close-overlay-btn {
+          position: absolute;
+          top: -20px;
+          right: -10px;
+          background: #ef4444;
+          color: white;
+          border: 4px solid white;
+          border-radius: 50%;
+          width: 55px;
+          height: 55px;
+          font-size: 1.8rem;
+          font-weight: bold;
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+          cursor: pointer;
+          transition: transform 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .close-overlay-btn:hover {
+          transform: scale(1.15) rotate(90deg);
+        }
+
+        .toddler-canvas {
+          border: 4px dashed #94a3b8;
+          border-radius: 24px;
+          background: #f8fafc;
+          cursor: crosshair;
+          touch-action: none;
+        }
+
+        .toddler-bubble-letter {
+          font-size: 10rem;
+          font-weight: 900;
+          background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          display: block;
+          animation: pulseMascot 2s infinite alternate;
+        }
+
+        .toddler-bubble-image {
+          max-height: 250px;
+          object-fit: contain;
+          border-radius: 24px;
+          margin: 20px 0;
+          animation: floatUp 3s infinite alternate ease-in-out;
+        }
+
+        .bubble-balloon {
+          width: 70px;
+          height: 85px;
+          border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+          position: absolute;
+          cursor: pointer;
+          animation: floatUpBalloon 5s linear infinite;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 900;
+          color: white;
+          font-size: 2rem;
+          box-shadow: inset -5px -5px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .bubble-balloon::after {
+          content: "";
+          position: absolute;
+          bottom: -8px;
+          left: 33px;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 10px solid currentColor;
+        }
+
+        @keyframes floatUpBalloon {
+          0% {
+            transform: translateY(500px) rotate(0deg);
+            opacity: 1;
+          }
+
+          90% {
+            opacity: 1;
+          }
+
+          100% {
+            transform: translateY(-100px) rotate(20deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes pulseMascot {
+          0% {
+            transform: scale(1);
+          }
+
+          100% {
+            transform: scale(1.08);
+          }
+        }
+      </style>
+
+      <div class="toddler-workspace">
+        <div class="toddler-hero">
+          <div class="row align-items-center">
+            <div class="col-md-3">
+              <div id="toddlerMascotContainer" style="height: 140px;"></div>
+            </div>
+            <div class="col-md-9 text-md-start">
+              <h1 class="fw-black text-primary display-5 mb-2" id="playlandTitle"></h1>
+              <p class="lead text-secondary fw-bold" id="playlandSub"></p>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="fw-bold mb-4" id="playlandModulesTitle" style="color: #6d28d9;"></h3>
+
+        <div id="toddlerVideoListGrid" class="toddler-grid">
+          <div class="col-12 text-center py-4">
+            <div class="spinner-border text-pink" role="status"></div>
+            <p class="mt-2 text-secondary fw-semibold">Loading fun videos for you...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toddler Game Modal Overlay -->
+      <div id="toddlerGameOverlay" class="toddler-overlay d-none">
+        <div class="overlay-card">
+          <button type="button" class="close-overlay-btn" onclick="closeToddlerModule()">×</button>
+          <div id="toddlerGameContent" class="text-center py-3"></div>
+        </div>
+      </div>
+      {% else %}
+      <!-- Duolingo Top Header Bar -->
+      <div class="card p-3 mb-4 border-0 shadow-sm rounded-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-2 rounded-pill fw-bold">
+              <i class="bi bi-flag-fill me-1"></i> {{ profile.language }} Path
+            </span>
+            <span class="badge bg-warning bg-opacity-15 text-dark fs-6 px-3 py-2 rounded-pill fw-bold border border-warning border-opacity-25">
+              <i class="bi bi-star-fill text-warning me-1"></i> {{ current_level }} Level
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-4">
+            <div class="d-flex align-items-center gap-1.5 fw-black text-danger fs-5" title="Daily Streak">
+              <span>🔥</span> <span class="fw-bold">{{ profile.streak or 0 }}</span> <span class="text-secondary small font-normal ms-1" style="font-size: 0.75rem;">Days</span>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 fw-black text-warning fs-5" title="Total XP">
+              <span>⚡</span> <span class="fw-bold">{{ profile.xp or 0 }}</span> <span class="text-secondary small font-normal ms-1" style="font-size: 0.75rem;">XP</span>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 fw-black text-danger fs-5" title="Hearts / Lives">
+              <span>❤️</span> <span class="fw-bold">5/5</span>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 fw-black text-info fs-5" title="Gems / Coins">
+              <span>💎</span> <span class="fw-bold">{{ profile.coins or 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Header -->
+      <div class="week-module-hero text-white mb-4 shadow-lg">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <span class="badge bg-primary-soft text-white mb-3 px-3 py-2 fs-6 fw-semibold">
+              <i class="bi bi-mortarboard-fill me-2"></i>{{ translations.nav_learning_modules }}
+            </span>
+            <h1 class="display-5 fw-bold mb-3">{{ content.module_title }}</h1>
+            <p class="lead mb-0 text-white-50" style="max-width: 750px; line-height: 1.6;">
+              {{ content.description }}
+            </p>
+          </div>
+          <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+            <div class="d-inline-block text-center rounded-4 p-3 border border-white border-opacity-10"
+              style="background: rgba(255, 255, 255, 0.1) !important;">
+              <span class="fs-1 fw-bold text-warning d-block">{{ profile.progress_percent }}%</span>
+              <span class="small text-white-50">{{ translations.lessons_completed }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar Card -->
+      <div class="card week-module-card p-4 mb-4 border-0 shadow-sm">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="fw-bold mb-0 text-dark">{{ translations.course_progress }}</h5>
+          <span class="text-secondary small fw-semibold">{{ profile.completed_count }} {{ translations.of_text }} {{
+            lessons|length }} {{ translations.lessons_finished }}</span>
+        </div>
+        <div class="progress rounded-pill" style="height: 12px;">
+          <div class="progress-bar bg-success rounded-pill" {{
+            ('style="width: ' ~ profile.progress_percent ~ '%;"') | safe }}></div>
+            </div>
+        </div>
+
+        <div class="row gy-4">
+            <!-- Curriculum Lessons -->
+            <div class="col-lg-8">
+                <!-- Personalized Learning Path Dashboard Card -->
+        <div class="card journey-card p-4 mb-4 border-0 shadow-sm text-white" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important; border-radius: 24px; border: none !important; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15) !important;">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge px-3 py-1.5 rounded-pill fs-7 fw-semibold" style="background-color: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.15) !important;">
+                            <i class="bi bi-star-fill me-1 text-warning"></i>{{ translations.personal_learning_path if translations and translations.personal_learning_path else '
+            Personal Learning Path' }} </span>
+            <span class="badge bg-success text-white px-3 py-1.5 rounded-pill fs-7 fw-semibold">
+              {{ current_level }} {{ translations.level_label if translations and translations.level_label else 'Level'
+              }}
+            </span>
+          </div>
+          <h2 class="fw-bold mb-2">{{ translations.week_module_title if translations and translations.week_module_title
+            else 'Your AI Literacy Journey' }}</h2>
+          <p class="text-white-50 small mb-3">{{ translations.week_module_subtitle_score if translations and
+            translations.week_module_subtitle_score else 'Tailored recommendations based on your placement score of' }}
+            <strong>{{ assessment_score }}%</strong>.</p>
+
+          <div class="mb-4">
+            <h6 class="text-white-50 text-uppercase fw-bold fs-7 mb-2">{{ translations.week_module_weak_areas if
+              translations and translations.week_module_weak_areas else 'My Weak Areas & Learning Goals' }}</h6>
+            <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+              {% for goal in learning_goals %}
+              <li class="d-flex align-items-start gap-2 small">
+                <i class="bi bi-check-circle-fill text-warning mt-0.5"></i>
+                <span>{{ goal }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-5 border-start border-white border-opacity-10 ps-md-4 mt-3 mt-md-0">
+          <div class="mb-3">
+            <h6 class="text-white-50 text-uppercase fw-bold fs-7 mb-2">{{ translations.week_module_next_recommended if
+              translations and translations.week_module_next_recommended else 'Next Recommended Lesson' }}</h6>
+            {% if recommended_lessons %}
+            {% set next_lesson = recommended_lessons[0] %}
+            <div class="p-3 rounded-4"
+              style="background-color: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important;">
+              <span class="badge text-white text-uppercase fs-8-5 mb-1"
+                style="background-color: #3b82f6 !important; border: none !important;">{{ next_lesson.category }}</span>
+              <h6 class="fw-bold text-white mb-1">{{ next_lesson.title }}</h6>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="small text-white-50"><i class="bi bi-clock me-1"></i>10 mins</span>
+                <a href="/lesson/{{ next_lesson.id }}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">
+                  <i class="bi bi-play-fill"></i> Start
+                </a>
+              </div>
+            </div>
+            {% else %}
+            <p class="small text-white-50">{{ translations.week_module_all_caught_up if translations and
+              translations.week_module_all_caught_up else 'All caught up!' }}</p>
+            {% endif %}
+          </div>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="p-2.5 rounded-3 text-center"
+                style="background-color: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important;">
+                <span class="d-block fs-5 fw-bold" style="color: #ffffff !important;">{{ estimated_time }}</span>
+                <span class="fs-8" style="color: rgba(255, 255, 255, 0.85) !important;">{{
+                  translations.week_module_remaining_time if translations and translations.week_module_remaining_time
+                  else 'Remaining Time' }}</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-2.5 rounded-3 text-center"
+                style="background-color: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important;">
+                <span class="d-block fs-5 fw-bold" style="color: #ffffff !important;">{{ progress_bar }}%</span>
+                <span class="fs-8" style="color: rgba(255, 255, 255, 0.85) !important;">{{
+                  translations.week_module_percent_completed if translations and
+                  translations.week_module_percent_completed else 'Completed' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="card week-module-card p-4 shadow-sm border-0 h-100">
+    <div class="d-flex align-items-center mb-4">
+      <div class="icon-box bg-purple-soft me-3 mb-0">
+        <i class="bi bi-compass-fill"></i>
+      </div>
+      <h4 class="fw-bold mb-0">{{ translations.curriculum_center }}</h4>
+    </div>
+
+    <div class="mt-3">
+      {% if lessons %}
+      <style>
+        .duo-path-wrapper {
+          position: relative;
+          max-width: 520px;
+          margin: 0 auto;
+          padding: 20px 10px;
+        }
+
+        .duo-unit-card {
+          background: linear-gradient(135deg, #58cc02 0%, #46a302 100%);
+          border-radius: 24px;
+          padding: 24px;
+          color: #ffffff;
+          box-shadow: 0 8px 0 #3b8700, 0 15px 30px rgba(88, 204, 2, 0.25);
+          margin-bottom: 45px;
+          position: relative;
+          z-index: 2;
+        }
+
+        .duo-unit-card-purple {
+          background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+          box-shadow: 0 8px 0 #6b21a8, 0 15px 30px rgba(168, 85, 247, 0.25);
+        }
+
+        .duo-unit-card-blue {
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          box-shadow: 0 8px 0 #1e40af, 0 15px 30px rgba(59, 130, 246, 0.25);
+        }
+
+        .duo-node-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+          z-index: 2;
+        }
+
+        .duo-node-item {
+          position: relative;
+          margin-bottom: 45px;
+          transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .duo-node-btn {
+          width: 78px;
+          height: 78px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: none;
+          cursor: pointer;
+          position: relative;
+          font-size: 1.8rem;
+          transition: all 0.2s ease;
+          box-shadow: 0 8px 0 rgba(0,0,0,0.15);
+        }
+
+        .duo-node-completed {
+          background: #58cc02;
+          color: #ffffff;
+          box-shadow: 0 8px 0 #46a302, 0 10px 20px rgba(88, 204, 2, 0.3);
+        }
+
+        .duo-node-completed:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 0 #46a302, 0 15px 25px rgba(88, 204, 2, 0.4);
+        }
+
+        .duo-node-active {
+          background: #58cc02;
+          color: #ffffff;
+          box-shadow: 0 8px 0 #46a302, 0 0 0 10px rgba(88, 204, 2, 0.2), 0 12px 25px rgba(88, 204, 2, 0.4);
+          animation: duoPulse 1.8s infinite;
+        }
+
+        @keyframes duoPulse {
+          0% { box-shadow: 0 8px 0 #46a302, 0 0 0 0px rgba(88, 204, 2, 0.6); }
+          70% { box-shadow: 0 8px 0 #46a302, 0 0 0 18px rgba(88, 204, 2, 0); }
+          100% { box-shadow: 0 8px 0 #46a302, 0 0 0 0px rgba(88, 204, 2, 0); }
+        }
+
+        .duo-node-locked {
+          background: #e2e8f0;
+          color: #94a3b8;
+          box-shadow: 0 8px 0 #cbd5e1;
+          cursor: not-allowed;
+        }
+
+        .duo-mascot-badge {
+          position: absolute;
+          top: -46px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #ffffff;
+          border: 3px solid #58cc02;
+          border-radius: 99px;
+          padding: 4px 14px;
+          font-weight: 800;
+          font-size: 0.8rem;
+          color: #58cc02;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+          white-space: nowrap;
+          animation: duoFloat 2s ease-in-out infinite alternate;
+          z-index: 10;
+        }
+
+        @keyframes duoFloat {
+          from { transform: translateX(-50%) translateY(0); }
+          to { transform: translateX(-50%) translateY(-6px); }
+        }
+
+        .duo-chest-node {
+          background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+          color: #ffffff;
+          box-shadow: 0 8px 0 #b45309, 0 10px 20px rgba(251, 191, 36, 0.35);
+        }
+      </style>
+
+      <div class="duo-path-wrapper">
+        {% set current_unit = 0 %}
+        {% for lesson in lessons %}
+          {% if lesson.unit_number != current_unit %}
+            {% set current_unit = lesson.unit_number %}
+            <!-- Duolingo Unit Header Banner -->
+            <div class="duo-unit-card {% if current_unit % 3 == 2 %}duo-unit-card-purple{% elif current_unit % 3 == 0 %}duo-unit-card-blue{% endif %} d-flex align-items-center justify-content-between">
+              <div>
+                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 fw-bold fs-7 mb-2 d-inline-block">
+                  UNIT {{ current_unit }}
+                </span>
+                <h4 class="fw-bold text-white mb-1">
+                  {% if current_unit == 1 %}Foundations & Phonics
+                  {% elif current_unit == 2 %}Words & Simple Sentences
+                  {% elif current_unit == 3 %}Reading & Comprehension
+                  {% else %}Advanced Fluency & Mastery{% endif %}
+                </h4>
+                <p class="small text-white-50 mb-0">Master essential literacy skills step-by-step</p>
+              </div>
+              <div class="fs-1 text-warning me-2">
+                {% if current_unit == 1 %}🔤{% elif current_unit == 2 %}📖{% elif current_unit == 3 %}💬{% else %}🏆{% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="duo-node-container">
+            <div class="duo-node-item" style="transform: translateX({{ lesson.offset_x }}px);">
+              
+              {% if lesson.is_current %}
+                <!-- Lumi Mascot Active Indicator Badge -->
+                <div class="duo-mascot-badge">
+                  <span>🤖 START (+10 XP)</span>
+                </div>
+              {% endif %}
+
+              <button type="button" 
+                      class="duo-node-btn {% if lesson.completed %}duo-node-completed{% elif lesson.is_current %}duo-node-active{% else %}duo-node-locked{% endif %}"
+                      onclick="openDuoLessonModal('{{ lesson.id }}', '{{ lesson.title|escape }}', '{{ lesson.category|escape }}', '{{ lesson.difficulty|escape }}', '{{ lesson.description|escape }}', {{ 'true' if lesson.completed else 'false' }}, {{ 'true' if lesson.locked else 'false' }})">
+                {% if lesson.completed %}
+                  <i class="bi bi-check-lg fw-bold"></i>
+                {% elif lesson.locked %}
+                  <i class="bi bi-lock-fill fs-4"></i>
+                {% else %}
+                  <i class="bi {{ lesson.icon or 'bi-star-fill' }} fs-3"></i>
+                {% endif %}
+              </button>
+
+              <!-- Checkpoint Treasure Chest Node every 4th item -->
+              {% if loop.index % 4 == 0 %}
+                <div class="mt-3 text-center">
+                  <button type="button" class="duo-node-btn duo-chest-node rounded-4" style="width: 60px; height: 60px; font-size: 1.4rem;" onclick="claimChestReward('{{ loop.index }}')">
+                    🎁
+                  </button>
+                  <span class="d-block small text-muted fw-bold mt-1" style="font-size: 0.7rem;">Bonus Chest</span>
+                </div>
+              {% endif %}
+
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Duolingo Interactive Lesson Popover Modal -->
+      <div class="modal fade" id="duoLessonModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content rounded-4 border-0 shadow-lg p-4 bg-white text-center">
+            <div class="modal-header border-0 pb-0 justify-content-end">
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0">
+              <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                <i id="duoModalIcon" class="bi bi-journal-bookmark-fill display-5"></i>
+              </div>
+              <h4 class="fw-bold text-dark mb-1" id="duoModalTitle">Lesson Title</h4>
+              <div class="d-flex justify-content-center gap-2 mb-3">
+                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 fw-bold" id="duoModalCategory">Category</span>
+                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-1 fw-bold" id="duoModalDifficulty">Beginner</span>
+                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 fw-bold">+10 XP ⭐</span>
+              </div>
+              <p class="text-secondary small mb-4" id="duoModalDesc">Lesson description details will go here.</p>
+
+              <a id="duoModalStartBtn" href="#" class="btn btn-success btn-lg w-100 py-3 rounded-pill fw-bold shadow-sm text-uppercase tracking-wider">
+                <i class="bi bi-play-circle-fill me-2"></i>START (+10 XP)
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+      function openDuoLessonModal(id, title, category, difficulty, desc, isCompleted, isLocked) {
+        if (isLocked) {
+          alert("🔒 This lesson is locked! Complete the previous lessons on your path to unlock it.");
+          return;
+        }
+        document.getElementById("duoModalTitle").textContent = title;
+        document.getElementById("duoModalCategory").textContent = category;
+        document.getElementById("duoModalDifficulty").textContent = difficulty;
+        document.getElementById("duoModalDesc").textContent = desc;
+
+        const startBtn = document.getElementById("duoModalStartBtn");
+        startBtn.href = "/lesson/" + id;
+        if (isCompleted) {
+          startBtn.className = "btn btn-outline-success btn-lg w-100 py-3 rounded-pill fw-bold shadow-sm text-uppercase tracking-wider";
+          startBtn.innerHTML = '<i class="bi bi-arrow-repeat me-2"></i>REVIEW LESSON';
+        } else {
+          startBtn.className = "btn btn-success btn-lg w-100 py-3 rounded-pill fw-bold shadow-sm text-uppercase tracking-wider";
+          startBtn.innerHTML = '<i class="bi bi-play-circle-fill me-2"></i>START (+10 XP)';
+        }
+
+        const duoModal = new bootstrap.Modal(document.getElementById('duoLessonModal'));
+        duoModal.show();
+      }
+
+      function claimChestReward(chestId) {
+        alert("🎉 Bonus Treasure Chest Opened! You received +20 Bonus Coins! 💎");
+      }
+      </script>
+
+      {% else %}
+        <div class="text-center py-5">
+          <i class="bi bi-journal-x text-muted display-4 d-block mb-3"></i>
+          <h5 class="fw-bold text-secondary">{{ translations.no_lessons_available or 'No lessons available' }}</h5>
+        </div>
+      {% endif %}
+    </div>
+      </div>
+    </div>
+
+    <!-- Side Cards -->
+    <div class="col-lg-4">
+      <div class="d-flex flex-column gap-4 h-100">
+        <!-- Assessment Tasks -->
+        <div class="card week-module-card p-4 shadow-sm border-0">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+              <div class="icon-box bg-pink-soft me-3 mb-0">
+                <i class="bi bi-journal-check"></i>
+              </div>
+              <h4 class="fw-bold mb-0">{{ translations.nav_assessment }}</h4>
+            </div>
+          </div>
+          <p class="text-secondary small mb-3">{{ translations.dashboard_take_assessment_text }}</p>
+          <div class="d-flex flex-column gap-2">
+            <a href="/assessment" class="btn btn-primary w-100 py-2.5 rounded-pill pulse-btn fw-bold">
+              <i class="bi bi-lightning-fill me-1"></i>{{ translations.dashboard_take_assessment }}
+            </a>
+            <a href="/retake_assessment" class="btn btn-outline-danger w-100 py-2 rounded-pill fw-bold small">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Retake / Reset Assessment
+            </a>
+          </div>
+        </div>
+
+        <!-- Proficiency Benchmarks -->
+        <div class="card week-module-card p-4 shadow-sm border-0">
+          <div class="d-flex align-items-center mb-4">
+            <div class="icon-box bg-blue-soft me-3 mb-0">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h4 class="fw-bold mb-0">{{ translations.benchmarks }}</h4>
+          </div>
+          <!-- Benchmark Gauge Track -->
+          <div class="benchmark-scale">
+            <div class="benchmark-segment bg-danger" style="width: 33%" title="Beginner (0-49%)"></div>
+            <div class="benchmark-segment bg-warning" style="width: 33%" title="Developing (50-79%)"></div>
+            <div class="benchmark-segment bg-success" style="width: 34%" title="Proficient (80-100%)"></div>
+          </div>
+          <div class="benchmark-legend mb-4">
+            <span class="legend-item"><span class="dot dot-beginner"></span>{{
+              translations.dashboard_proficiency_needs_improvement }}</span>
+            <span class="legend-item"><span class="dot dot-developing"></span>{{
+              translations.dashboard_proficiency_average }}</span>
+            <span class="legend-item"><span class="dot dot-proficient"></span>{{ translations.dashboard_proficiency_good
+              }}</span>
+          </div>
+
+          {% for benchmark in content.benchmarks %}
+          <div class="mb-3 p-2.5 rounded-4 border d-flex align-items-center justify-content-between 
+                            {% if 'proficient' in benchmark.level|lower or 'ప్రావీణ్యం' in benchmark.level|lower or 'कुशल' in benchmark.level|lower %}
+                                border-success-subtle bg-success bg-opacity-10
+                            {% elif 'developing' in benchmark.level|lower or 'వికాసం' in benchmark.level|lower or 'विकसित' in benchmark.level|lower %}
+                                border-warning-subtle bg-warning bg-opacity-10
+                            {% else %}
+                                border-danger-subtle bg-danger bg-opacity-10
+                            {% endif %}">
+            <div class="d-flex align-items-center">
+              <div class="small">
+                <h6 class="fw-bold mb-0 text-dark fs-7">
+                  {{ benchmark.level }} <span class="badge rounded-pill 
+                                            {% if 'proficient' in benchmark.level|lower or 'ప్రావీణ్యం' in benchmark.level|lower or 'कुशल' in benchmark.level|lower %}
+                                                bg-success
+                                            {% elif 'developing' in benchmark.level|lower or 'వికాసం' in benchmark.level|lower or 'विकसित' in benchmark.level|lower %}
+                                                bg-warning text-dark
+                                            {% else %}
+                                                bg-danger
+                                            {% endif %} ms-1 fs-8">{{ benchmark.range }}</span>
+                </h6>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assessment History -->
+  <div class="row gy-4 mt-2">
+    <div class="col-lg-12">
+      <div class="card week-module-card p-4 shadow-sm border-0">
+        <h4 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>{{ translations.attempt_history }}
+        </h4>
+        {% if history %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>{{ translations.date_time }}</th>
+                <th>{{ translations.score }}</th>
+                <th>{{ translations.language }}</th>
+                <th>{{ translations.level_group }}</th>
+                <th>{{ translations.assess_result_status }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for attempt in history %}
+              <tr>
+                <td class="text-secondary small">
+                  <a href="/assessment/review/{{ attempt.id }}" class="text-primary fw-semibold"><i
+                      class="bi bi-eye me-1"></i>{{ attempt.timestamp }}</a>
+                </td>
+                <td class="fw-bold">{{ attempt.score }}% ({{ attempt.correct }}/{{ attempt.total }})</td>
+                <td>{{ attempt.language }}</td>
+                <td><span class="badge bg-secondary text-capitalize">{{ attempt.age_group }}</span></td>
+                <td>
+                  {% if attempt.score >= 80 %}
+                  <span class="badge bg-success">{{ translations.dashboard_proficiency_good }}</span>
+                  {% elif attempt.score >= 50 %}
+                  <span class="badge bg-warning text-dark">{{ translations.dashboard_proficiency_average }}</span>
+                  {% else %}
+                  <span class="badge bg-danger">{{ translations.dashboard_proficiency_needs_improvement }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 bg-light rounded-4 text-muted small">
+          <i class="bi bi-info-circle me-1"></i>{{ translations.no_assessments_yet }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Learner Profile Passport -->
+  <div class="row gy-4 mt-2">
+    <div class="col-lg-12">
+      <div class="card passport-card p-5 border-0">
+        <div class="row align-items-center">
+          <div class="col-md-3 text-center mb-4 mb-md-0 border-end border-white border-opacity-10 pe-md-4">
+            <div class="passport-avatar-wrap">
+              <i class="bi bi-person-badge-fill text-white"></i>
+            </div>
+            <h5 class="fw-bold text-white mb-1">{{ profile.fullname }}</h5>
+            <span class="badge bg-primary text-white px-3 py-1.5 rounded-pill fs-7">
+              <i class="bi bi-check-circle-fill me-1 text-white"></i>{{ translations.dashboard_profile_title }}
+            </span>
+          </div>
+          <div class="col-md-9 ps-md-5">
+            <h4 class="fw-bold text-white mb-4 d-flex align-items-center">
+              <i class="bi bi-passport text-warning me-2"></i>{{ translations.learner_id_passport }}
+            </h4>
+            <div class="row g-4">
+              <div class="col-md-4">
+                <span class="text-white-50 small d-block mb-1">{{ translations.learner_name }}</span>
+                <span class="text-white fw-medium fs-5">{{ profile.fullname }}</span>
+              </div>
+              <div class="col-md-4">
+                <span class="text-white-50 small d-block mb-1">{{ translations.email_address_caps }}</span>
+                <span class="text-white fw-medium fs-5 text-break">{{ profile.email }}</span>
+              </div>
+              <div class="col-md-4">
+                <span class="text-white-50 small d-block mb-1">{{ translations.active_language_caps }}</span>
+                <span class="text-warning fw-bold fs-5">
+                  {% if profile.language == 'English' %}
+                  🇬🇧 English
+                  {% elif profile.language == 'Telugu' %}
+                  🇮🇳 తెలుగు (Telugu)
+                  {% elif profile.language == 'Hindi' %}
+                  🇮🇳 हिन्दी (Hindi)
+                  {% else %}
+                  🌍 {{ profile.language }}
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+            <div class="passport-divider"></div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+              <span class="text-white-50 small">
+                <i class="bi bi-info-circle me-1"></i>{{ translations.passport_footer_text }}
+              </span>
+              <a href="/dashboard" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2">
+                <i class="bi bi-speedometer2 me-1"></i>{{ translations.go_to_dashboard }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  </div>
+</section>
+
+{% endblock %}
+
+{% block js %}
+<script>
+  const activeLang = "{{ profile.language }}";
+
+  const TODDLER_STRINGS = {
+    "English": {
+      "playland_title": "Lumi's Playland! 🎈",
+      "playland_sub": "No tests, no stress! Let's play and learn together with Lumi!",
+      "modules_title": "Select a Game to Start Playing:",
+      "replay_btn": "🔊 Replay Sound",
+      "repeat_btn": "🎙️ Repeat Word",
+      "trace_tab": "✍️ Trace Letter",
+      "game_tab": "🎈 Balloon Pop",
+      "quiz_tab": "🔎 Find Letter",
+      "matching_tab": "🧩 Match Colors",
+      "play_song": "▶️ Play Cartoon Video",
+      "excellent": "Excellent! ⭐⭐⭐⭐⭐",
+      "welldone": "Well Done! ⭐⭐⭐",
+      "back_to_hub": "⬅️ Back to Playland"
+    },
+    "Telugu": {
+      "playland_title": "లూమి ఆటస్థలం! 🎈",
+      "playland_sub": "పరీక్షలు లేవు, ఒత్తిడి లేదు! లూమితో కలిసి ఆడుకుందాం మరియు నేర్చుకుందాం!",
+      "modules_title": "ఆడటం ప్రారంభించడానికి ఒక ఆటను ఎంచుకోండి:",
+      "replay_btn": "🔊 మళ్లీ వినండి",
+      "repeat_btn": "🎙️ పదం చెప్పండి",
+      "trace_tab": "✍️ అక్షరం రాయండి",
+      "game_tab": "🎈 బెలూన్ పాప్",
+      "quiz_tab": "🔎 అక్షరాన్ని గుర్తించండి",
+      "matching_tab": "🧩 రంగుల జత",
+      "play_song": "▶️ కార్టూన్ వీడియో",
+      "excellent": "అద్భుతం! ⭐⭐⭐⭐⭐",
+      "welldone": "చాలా బాగుంది! ⭐⭐⭐",
+      "back_to_hub": "⬅️ ఆటస్థలానికి తిరిగి వెళ్ళండి"
+    },
+    "Hindi": {
+      "playland_title": "लूमी का खेल का मैदान! 🎈",
+      "playland_sub": "कोई परीक्षा नहीं, कोई तनाव नहीं! आइए लूमी के साथ मिलकर खेलें और सीखें!",
+      "modules_title": "खेलने के लिए कोई गेम चुनें:",
+      "replay_btn": "🔊 पुनः सुनें",
+      "repeat_btn": "🎙️ शब्द दोहराएं",
+      "trace_tab": "✍️ अक्षर ट्रेस करें",
+      "game_tab": "🎈 बैलून पॉप",
+      "quiz_tab": "🔎 अक्षर खोजें",
+      "matching_tab": "🧩 रंग मिलाएं",
+      "play_song": "▶️ कार्टून वीडियो",
+      "excellent": "अद्भुत! ⭐⭐⭐⭐⭐",
+      "welldone": "बहुत बढ़िया! ⭐⭐⭐",
+      "back_to_hub": "⬅️ खेल के मैदान में वापस जाएं"
+    },
+    "Tamil": {
+      "playland_title": "லூமியின் விளையாட்டு உலகம்! 🎈",
+      "playland_sub": "தேர்வுகள் இல்லை, பயம் இல்லை! லூமியுடன் சேர்ந்து விளையாடி கற்போம்!",
+      "modules_title": "விளையாட ஒரு விளையாட்டைத் தேர்ந்தெடுக்கவும்:",
+      "replay_btn": "🔊 மீண்டும் கேள்",
+      "repeat_btn": "🎙️ வார்த்தையைச் சொல்",
+      "trace_tab": "✍️ எழுத்து வரைதல்",
+      "game_tab": "🎈 பலூன் உடைத்தல்",
+      "quiz_tab": "🔎 எழுத்தைக் கண்டுபிடி",
+      "matching_tab": "🧩 நிறங்களைப் பொருத்து",
+      "play_song": "▶️ கார்ட்டூன் வீடியோ",
+      "excellent": "அருமை! ⭐⭐⭐⭐⭐",
+      "welldone": "மிக நன்று! ⭐⭐⭐",
+      "back_to_hub": "⬅️ விளையாட்டு உலகிற்குத் திரும்பு"
+    },
+    "Kannada": {
+      "playland_title": "ಲೂಮಿ ಆಟದ ಲೋಕ! 🎈",
+      "playland_sub": "ಪ್ರಶ್ನೆಗಳಿಲ್ಲ, ಆತಂಕವಿಲ್ಲ! ಲೂಮಿ ಜೊತೆ ಆಡುತ್ತಾ ಕಲಿಯೋಣ!",
+      "modules_title": "ಆಡಲು ಆಟವನ್ನು ಆರಿಸಿ:",
+      "replay_btn": "🔊 ಮರುಪ್ಲೇ ಮಾಡಿ",
+      "repeat_btn": "🎙️ ಪದವನ್ನು ಪುನರಾವರ್ತಿಸಿ",
+      "trace_tab": "✍️ ಅಕ್ಷರ ಬರೆಯಿರಿ",
+      "game_tab": "🎈 ಬಲೂನ್ ಪಾಪ್",
+      "quiz_tab": "🔎 ಅಕ್ಷರ ಹುಡುಕಿ",
+      "matching_tab": "🧩 ಬಣ್ಣ ಹೊಂದಿಸಿ",
+      "play_song": "▶️ ಕಾರ್ಟೂನ್ ವಿಡಿಯೋ",
+      "excellent": "ಅದ್ಭುತ! ⭐⭐⭐⭐⭐",
+      "welldone": "ಉತ್ತಮ ಕೆಲಸ! ⭐⭐⭐",
+      "back_to_hub": "⬅️ ಆಟದ ಲೋಕಕ್ಕೆ ಮರಳಿ"
+    },
+    "Marathi": {
+      "playland_title": "लूमीचे खेळघर! 🎈",
+      "playland_sub": "परीक्षा नाही, ताण नाही! लूमीसोबत खेळत खेळत शिकूया!",
+      "modules_title": "खेळण्यासाठी एक खेळ निवडा:",
+      "replay_btn": "🔊 पुन्हा ऐका",
+      "repeat_btn": "🎙️ शब्द बोला",
+      "trace_tab": "✍️ अक्षर गिरवा",
+      "game_tab": "🎈 बलून पॉप",
+      "quiz_tab": "🔎 अक्षर शोधा",
+      "matching_tab": "🧩 रंग जुळवा",
+      "play_song": "▶️ कार्टून व्हिडिओ",
+      "excellent": "उत्कृष्ट! ⭐⭐⭐⭐⭐",
+      "welldone": "खूप छान! ⭐⭐⭐",
+      "back_to_hub": "⬅️ खेळघरात परत जा"
+    }
+  };
+
+  const str = TODDLER_STRINGS[activeLang] || TODDLER_STRINGS["English"];
+
+  // Set localized content for toddler hub on load
+  document.addEventListener("DOMContentLoaded", function () {
+    if (document.getElementById("playlandTitle")) {
+      document.getElementById("playlandTitle").innerText = str.playland_title;
+      document.getElementById("playlandSub").innerText = str.playland_sub;
+      document.getElementById("playlandModulesTitle").innerText = str.modules_title;
+
+      // Render welcoming robot Lumi
+      renderMascot("toddlerMascotContainer", "wave", str.playland_sub, activeLang);
+
+      // Fetch and populate toddler videos directly
+      loadToddlerVideosDirectly();
+    }
+  });
+
+  // NATIVE WEB AUDIO SYNTHESIZERS (Zero asset dependency)
+  function playPopSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.09);
+    } catch (e) { console.warn(e); }
+  }
+
+  function playStarChime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, index) => {
+        setTimeout(() => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.8);
+        }, index * 100);
+      });
+    } catch (e) { console.warn(e); }
+  }
+
+  function playClapSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const bufferSize = ctx.sampleRate * 0.08;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      for (let c = 0; c < 5; c++) {
+        setTimeout(() => {
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.value = 1000;
+          filter.Q.value = 2.5;
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0.25, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          noise.start();
+        }, c * 80);
+      }
+    } catch (e) { console.warn(e); }
+  }
+
+  // ANIMAL SOUND EFFECTS GENERATORS
+  function playAnimalNoise(animal) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (animal === "lion") {
+        // Roar: modulated low frequency noise
+        const bufferSize = ctx.sampleRate * 1.5;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(150, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 1.2);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start();
+      } else if (animal === "dog") {
+        // Bark: quick pitch slide on triangle wave
+        for (let b = 0; b < 2; b++) {
+          setTimeout(() => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(250, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.16);
+          }, b * 200);
+        }
+      } else if (animal === "cat") {
+        // Meow: frequency envelope slide
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
+        osc.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.01, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } else if (animal === "elephant") {
+        // Trumpet: quick high frequency modulation
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(450, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(600, ctx.currentTime + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(350, ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      }
+    } catch (e) { console.warn(e); }
+  }
+
+  const WORD_TRANSLATIONS = {
+    "Telugu": {
+      "1": "ఒకటి", "2": "రెండు", "3": "మూడు", "4": "నాలుగు", "5": "ఐదు", "6": "ఆరు", "7": "ఏడు", "8": "ఎниమిది", "9": "తొమ్మిది", "10": "పది",
+      "11": "పదకొండు", "12": "పన్నెండు", "13": "పదమూడు", "14": "పద్నాలుగు", "15": "పదిహేను", "16": "పదహారు", "17": "పదిహేడు", "18": "పద్దెనిమిది", "19": "పంతొమ్మిది", "20": "ఇరవై",
+      "Red": "ఎరుపు", "Blue": "నీలం", "Green": "ఆకుపచ్చ", "Yellow": "పసుపు",
+      "Circle": "వృత్తం", "Square": "చతురస్రం", "Triangle": "త్రిభుజం", "Rectangle": "దీర్ఘచతురస్రం",
+      "Lion": "సింహం", "Dog": "కుక్క", "Cat": "పిల్లి", "Elephant": "ఏనుగు",
+      "Apple": "ఆపిల్", "Mango": "మామిడి", "Banana": "అరటి", "Orange": "నారింజ",
+      "Potato": "బంగాళదుంప", "Tomato": "టమోటా", "Carrot": "క్యారెట్", "Onion": "ఉల్లిపాయ",
+      "Parrot": "చిలుక", "Peacock": "నెమలి", "Sparrow": "పిచ్చుక", "Crow": "కాకి"
+    },
+    "Hindi": {
+      "1": "एक", "2": "दो", "3": "तीन", "4": "चार", "5": "पाँच", "6": "छह", "7": "सात", "8": "आठ", "9": "नौ", "10": "दस",
+      "11": "ग्यारह", "12": "बारह", "13": "तेरह", "14": "चौदह", "15": "पन्द्रह", "16": "सोलह", "17": "सत्रह", "18": "अठारह", "19": "उन्नीस", "20": "बीस",
+      "Red": "लाल", "Blue": "नीला", "Green": "हरा", "Yellow": "पीला",
+      "Circle": "गोल", "Square": "चौकोर", "Triangle": "त्रिकोण", "Rectangle": "आयत",
+      "Lion": "शेर", "Dog": "कुत्ता", "Cat": "बिल्ली", "Elephant": "हाथी",
+      "Apple": "सेब", "Mango": "आम", "Banana": "केला", "Orange": "संतरा",
+      "Potato": "आलू", "Tomato": "टमाटर", "Carrot": "गाजर", "Onion": "प्याज़",
+      "Parrot": "तोता", "Peacock": "मोर", "Sparrow": "चिड़िया", "Crow": "कौआ"
+    },
+    "Tamil": {
+      "1": "ஒன்று", "2": "இரண்டு", "3": "மூன்று", "4": "நான்கு", "5": "ஐந்து", "6": "ஆறு", "7": "ஏழு", "8": "எட்டு", "9": "ஒன்பது", "10": "பத்து",
+      "11": "பதினொன்று", "12": "பன்னிரண்டு", "13": "பதின்மூன்று", "14": "பதினான்கு", "15": "பதினைந்து", "16": "பதினாறு", "17": "பதினேழு", "18": "பதினெட்டு", "19": "பத்தொன்பது", "20": "இருபது",
+      "Red": "சிகப்பு", "Blue": "நீலம்", "Green": "பச்சை", "Yellow": "மஞ்சள்",
+      "Circle": "வட்டம்", "Square": "சதுரம்", "Triangle": "முக்கோணம்", "Rectangle": "செவ்வகம்",
+      "Lion": "சிங்கம்", "Dog": "நாய்", "Cat": "பூனை", "Elephant": "யானை",
+      "Apple": "ஆப்பிள்", "Mango": "மாம்பழம்", "Banana": "வாழைப்பழம்", "Orange": "ஆரஞ்சு",
+      "Potato": "உருளைக்கிழங்கு", "Tomato": "தக்காளி", "Carrot": "கேரட்", "Onion": "வெங்காயம்",
+      "Parrot": "கிளி", "Peacock": "மயில்", "Sparrow": "சிட்டுக்குருவி", "Crow": "காகம்"
+    },
+    "Kannada": {
+      "1": "ಒಂದು", "2": "ಎರಡು", "3": "ಮೂರು", "4": "ನಾಲ್ಕು", "5": "ಆದು", "6": "ಆರು", "7": "ಏಳು", "8": "ಎಂಟು", "9": "ಒಂಬತ್ತು", "10": "ಹತ್ತು",
+      "11": "ಹನ್ನೊಂದು", "12": "ಹನ್ನೆರಡು", "13": "ಹದಿಮೂರು", "14": "ಹದಿನಾಲ್ಕು", "15": "ಹದಿನೈದು", "16": "ಹದಿನಾರು", "17": "ಹದಿನೇಳು", "18": "ಹದಿನೆಂಟು", "19": "ಹತ್ತೊಂಬತ್ತು", "20": "ಇಪ್ಪತ್ತು",
+      "Red": "ಕೆಂಪು", "Blue": "ನೀಲಿ", "Green": "ಹಸಿರು", "Yellow": "ಹಳದಿ",
+      "Circle": "ವೃತ್ತ", "Square": "ಚೌಕ", "Triangle": "ತ್ರಿಕೋನ", "Rectangle": "ಆಯತ",
+      "Lion": "ಸಿಂಹ", "Dog": "ನಾಯಿ", "Cat": "ಬೆಕ್ಕು", "Elephant": "ಆನೆ",
+      "Apple": "ಸೇಬು", "Mango": "ಮಾವು", "Banana": "ಬಾಳೆಹಣ್ಣು", "Orange": "ಕಿತ್ತಳೆ",
+      "Potato": "ಆಲೂಗಡ್ಡೆ", "Tomato": "ಟೊಮೆಟೊ", "Carrot": "ಕ್ಯಾರೆಟ್", "Onion": "ಈರುಳ್ಳಿ",
+      "Parrot": "ಗಿಣಿ", "Peacock": "ನವಿಲು", "Sparrow": "ಗುಬ್ಬಚ್ಚಿ", "Crow": "ಕಾಗೆ"
+    },
+    "Marathi": {
+      "1": "एक", "2": "दोन", "3": "तीन", "4": "चार", "5": "पाच", "6": "सहा", "7": "सात", "8": "आठ", "9": "नऊ", "10": "दहा",
+      "11": "अकरा", "12": "बारा", "13": "तेरा", "14": "चौदा", "15": "पंधरा", "16": "सोळा", "17": "सतरा", "18": "अठरा", "19": "एकूण", "20": "वीस",
+      "Red": "लाल", "Blue": "निळा", "Green": "हिरवा", "Yellow": "पिवळा",
+      "Circle": "गोल", "Square": "चौकोन", "Triangle": "त्रिकोण", "Rectangle": "आयात",
+      "Lion": "सिंह", "Dog": "कुत्रा", "Cat": "मांजर", "Elephant": "हत्ती",
+      "Apple": "सफरचंद", "Mango": "आंबा", "Banana": "केळे", "Orange": "संत्रे",
+      "Potato": "बटाटा", "Tomato": "टोमॅटो", "Carrot": "गाजर", "Onion": "कांदा",
+      "Parrot": "पोपट", "Peacock": "मोर", "Sparrow": "चिमणी", "Crow": "कावळा"
+    }
+  };
+
+  // SPEAK UTTERANCE
+  function speakToddlerPhrase(text, lang = activeLang) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+
+    let spokenText = text;
+    if (lang !== "English" && WORD_TRANSLATIONS[lang]) {
+      spokenText = WORD_TRANSLATIONS[lang][text] || text;
+    }
+
+    const u = new SpeechSynthesisUtterance(spokenText);
+    const langCodes = {
+      "English": "en-US",
+      "Telugu": "te-IN",
+      "Hindi": "hi-IN",
+      "Tamil": "ta-IN",
+      "Kannada": "kn-IN",
+      "Marathi": "mr-IN"
+    };
+    u.lang = langCodes[lang] || "en-US";
+
+    const voices = window.speechSynthesis.getVoices();
+    const voice = voices.find(v => v.lang.startsWith(u.lang.substring(0, 2)));
+    if (voice) u.voice = voice;
+    window.speechSynthesis.speak(u);
+  }
+
+  // Speech recognition verification for toddlers
+  function verifyToddlerSpeech(targetWord, starsElementId, btnElem) {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      alert("Speech recognition not supported in this browser.");
+      return;
+    }
+    const rec = new SpeechRec();
+
+    const langCodes = {
+      "English": "en-US",
+      "Telugu": "te-IN",
+      "Hindi": "hi-IN",
+      "Tamil": "ta-IN",
+      "Kannada": "kn-IN",
+      "Marathi": "mr-IN"
+    };
+    rec.lang = langCodes[activeLang] || "en-US";
+
+    const btn = btnElem || document.getElementById("repeatBtn");
+    if (btn) btn.innerText = "🎙️ Listening...";
+
+    rec.onresult = function (e) {
+      const spoken = e.results[0][0].transcript.toLowerCase();
+      const cleanTarget = targetWord.toLowerCase();
+
+      let translatedTarget = cleanTarget;
+      if (activeLang !== "English" && WORD_TRANSLATIONS[activeLang]) {
+        translatedTarget = (WORD_TRANSLATIONS[activeLang][targetWord] || targetWord).toLowerCase();
+      }
+
+      const starsDiv = document.getElementById(starsElementId);
+
+      if (spoken.includes(cleanTarget) || cleanTarget.includes(spoken) ||
+        spoken.includes(translatedTarget) || translatedTarget.includes(spoken)) {
+        starsDiv.innerHTML = `<span class="fs-4 text-warning">${str.excellent}</span>`;
+        playStarChime();
+        playClapSound();
+      } else {
+        starsDiv.innerHTML = `<span class="fs-4 text-info">${str.welldone}</span>`;
+        playStarChime();
+      }
+      if (btn) btn.innerText = str.repeat_btn;
+    };
+
+    rec.onerror = function () {
+      if (btn) btn.innerText = str.repeat_btn;
+    };
+
+    rec.start();
+  }
+
+  // DYNAMIC OVERLAY HUB FOR MODULES
+  function launchToddlerModule(moduleNum) {
+    const overlay = document.getElementById("toddlerGameOverlay");
+    const content = document.getElementById("toddlerGameContent");
+    overlay.classList.remove("d-none");
+
+    if (moduleNum === 1) {
+      // ALPHABETS MODULE
+      content.innerHTML = `
+      <h2 class="fw-bold text-pink">🔤 Module 1: Alphabets</h2>
+      <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+        <button class="btn btn-outline-pink active" onclick="loadAlphabetSub('book')">📖 Phonics Book</button>
+        <button class="btn btn-outline-pink" onclick="loadAlphabetSub('trace')">${str.trace_tab}</button>
+        <button class="btn btn-outline-pink" onclick="loadAlphabetSub('pop')">${str.game_tab}</button>
+        <button class="btn btn-outline-pink" onclick="loadAlphabetSub('find')">${str.quiz_tab}</button>
+      </div>
+      <div id="alphabetSubContent"></div>
+    `;
+      loadAlphabetSub('book');
+    }
+    else if (moduleNum === 2) {
+      // NUMBERS MODULE
+      content.innerHTML = `
+      <h2 class="fw-bold text-primary">🔢 Module 2: Numbers (1-20)</h2>
+      <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+        <button class="btn btn-outline-primary active" onclick="loadNumberSub('book')">📖 Counting Book</button>
+        <button class="btn btn-outline-primary" onclick="loadNumberSub('trace')">${str.trace_tab}</button>
+        <button class="btn btn-outline-primary" onclick="loadNumberSub('count')">🎈 Count objects</button>
+      </div>
+      <div id="numberSubContent"></div>
+    `;
+      loadNumberSub('book');
+    }
+    else if (moduleNum === 3) {
+      // COLORS MODULE
+      content.innerHTML = `
+      <h2 class="fw-bold text-success">🎨 Module 3: Colors</h2>
+      <div class="d-flex justify-content-center gap-2 mb-4">
+        <button class="btn btn-outline-success active" onclick="loadColorsSub('explore')">📖 Explore Colors</button>
+        <button class="btn btn-outline-success" onclick="loadColorsSub('match')">${str.matching_tab}</button>
+      </div>
+      <div id="colorsSubContent"></div>
+    `;
+      loadColorsSub('explore');
+    }
+    else if (moduleNum === 4) {
+      // SHAPES MODULE
+      content.innerHTML = `
+      <h2 class="fw-bold text-warning">📐 Module 4: Shapes</h2>
+      <div class="row g-4 mt-3 justify-content-center">
+        <div class="col-md-3">
+          <div class="card p-3 border-4 border-warning text-center" onclick="tapShape('Circle')" style="cursor:pointer;">
+            <svg viewBox="0 0 100 100" width="80" height="80" class="mx-auto my-2">
+              <circle cx="50" cy="50" r="40" fill="#f43f5e" />
+            </svg>
+            <strong class="d-block text-dark">Circle</strong>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3 border-4 border-warning text-center" onclick="tapShape('Square')" style="cursor:pointer;">
+            <svg viewBox="0 0 100 100" width="80" height="80" class="mx-auto my-2">
+              <rect x="10" y="10" width="80" height="80" fill="#3b82f6" />
+            </svg>
+            <strong class="d-block text-dark">Square</strong>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3 border-4 border-warning text-center" onclick="tapShape('Triangle')" style="cursor:pointer;">
+            <svg viewBox="0 0 100 100" width="80" height="80" class="mx-auto my-2">
+              <polygon points="50,10 90,90 10,90" fill="#10b981" />
+            </svg>
+            <strong class="d-block text-dark">Triangle</strong>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3 border-4 border-warning text-center" onclick="tapShape('Rectangle')" style="cursor:pointer;">
+            <svg viewBox="0 0 100 100" width="80" height="80" class="mx-auto my-2">
+              <rect x="10" y="25" width="80" height="50" fill="#8b5cf6" />
+            </svg>
+            <strong class="d-block text-dark">Rectangle</strong>
+          </div>
+        </div>
+      </div>
+      <div id="shapeStars" class="mt-4"></div>
+    `;
+    }
+    else if (moduleNum === 5) {
+      // ANIMALS MODULE
+      content.innerHTML = `
+      <h2 class="fw-bold text-purple">🦁 Module 5: Animals</h2>
+      <p class="text-muted mb-4">Tap on any animal to hear its sound!</p>
+      <div class="row g-4 justify-content-center">
+        <div class="col-6 col-md-3">
+          <div class="card border-4 border-purple p-3 text-center" onclick="tapAnimal('Lion', 'lion')" style="cursor:pointer;">
+            <span class="fs-1">🦁</span>
+            <strong class="d-block text-dark">Lion</strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-4 border-purple p-3 text-center" onclick="tapAnimal('Dog', 'dog')" style="cursor:pointer;">
+            <span class="fs-1">🐶</span>
+            <strong class="d-block text-dark">Dog</strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-4 border-purple p-3 text-center" onclick="tapAnimal('Cat', 'cat')" style="cursor:pointer;">
+            <span class="fs-1">🐱</span>
+            <strong class="d-block text-dark">Cat</strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-4 border-purple p-3 text-center" onclick="tapAnimal('Elephant', 'elephant')" style="cursor:pointer;">
+            <span class="fs-1">🐘</span>
+            <strong class="d-block text-dark">Elephant</strong>
+          </div>
+        </div>
+      </div>
+      <div id="animalStars" class="mt-4"></div>
+    `;
+    }
+    else if (moduleNum === 6) {
+      // FRUITS
+      renderFoodGrid("Fruits 🍎", ["Apple", "Mango", "Banana", "Orange"], ["🍎", "🥭", "🍌", "🍊"]);
+    }
+    else if (moduleNum === 7) {
+      // VEGETABLES
+      renderFoodGrid("Vegetables 🥦", ["Potato", "Tomato", "Carrot", "Onion"], ["🥔", "🍅", "🥕", "🧅"]);
+    }
+    else if (moduleNum === 8) {
+      // BIRDS
+      renderFoodGrid("Birds 🦜", ["Parrot", "Peacock", "Sparrow", "Crow"], ["🦜", "🦚", "🐦", "🐦"]);
+    }
+    else if (moduleNum === 9 || moduleNum === 10) {
+      // RHYMES & SONGS (Local MP4 Player)
+      fetch("/api/toddler/videos")
+        .then(res => res.json())
+        .then(vids => {
+          if (!vids || vids.length === 0) {
+            content.innerHTML = `<h2 class="fw-bold text-pink">🎶 Module ${moduleNum}: Cartoon Sing-Along</h2><div class="p-5 text-center text-white bg-dark rounded-4 mt-4"><h5>Video not available.</h5></div>`;
+            return;
+          }
+          const links = vids.map(v => ({ name: v.title, url: v.video_url }));
+          content.innerHTML = `
+          <h2 class="fw-bold text-pink">🎶 Module ${moduleNum}: Cartoon Sing-Along</h2>
+          <div class="row mt-4">
+            <div class="col-md-5">
+              <div class="list-group">
+                ${links.map((lnk, idx) => `
+                  <button class="list-group-item list-group-item-action ${idx === 0 ? 'active' : ''}" onclick="playVideoSrc('${lnk.url.replace(/'/g, "\\'")}', this)">
+                    📺 ${lnk.name}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="col-md-7">
+              <div class="ratio ratio-16x9 border-4 border-pink rounded-4 overflow-hidden bg-dark shadow-sm" id="moduleVideoContainer">
+                <video controls autoplay preload="metadata" width="100%" id="moduleVideoPlayer" style="width:100%; height:100%; object-fit: contain;">
+                  <source src="${links[0].url}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          </div>
+        `;
+        })
+        .catch(err => {
+          console.error("[VIDEO ERROR] Failed to load sing-along videos:", err);
+          content.innerHTML = `<h2 class="fw-bold text-pink">🎶 Module ${moduleNum}: Cartoon Sing-Along</h2><div class="p-5 text-center text-white bg-dark rounded-4 mt-4"><h5>Video not available.</h5></div>`;
+        });
+    }
+  }
+
+  function playVideoSrc(url, btn) {
+    const player = document.getElementById("moduleVideoPlayer");
+    if (player) {
+      player.src = url;
+      player.play().catch(e => console.warn(e));
+    }
+    document.querySelectorAll(".list-group-item").forEach(b => b.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+  }
+
+  function loadToddlerVideosDirectly() {
+    const container = document.getElementById("toddlerVideoListGrid");
+    if (!container) return;
+
+    fetch("/api/toddler/videos")
+      .then(res => res.json())
+      .then(videos => {
+        if (!videos || videos.length === 0) {
+          container.innerHTML = `
+          <div class="col-12 text-center py-5">
+              <span style="font-size: 4rem;">📺</span>
+              <p class="lead text-secondary mt-3 fw-bold">No videos found for your age group and language in the library.</p>
+          </div>
+        `;
+          return;
+        }
+
+        // Map categories to emojis and style themes
+        const categoryConfig = {
+          "rhymes": { emoji: "👶", theme: "theme-pink" },
+          "songs": { emoji: "🎵", theme: "theme-purple" },
+          "alphabet": { emoji: "🔤", theme: "theme-blue" },
+          "numbers": { emoji: "🔢", theme: "theme-green" },
+          "colors": { emoji: "🌈", theme: "theme-yellow" },
+          "shapes": { emoji: "📐", theme: "theme-pink" },
+          "writing": { emoji: "✍️", theme: "theme-blue" }
+        };
+
+        container.innerHTML = videos.map(v => {
+          const catLower = (v.category || "Rhymes").toLowerCase();
+          const conf = categoryConfig[catLower] || { emoji: "📺", theme: "theme-purple" };
+          const safeTitle = (v.title || "Educational Video").replace(/'/g, "\\'");
+          const safeUrl = (v.video_url || "").replace(/'/g, "\\'");
+          const safeYid = (v.youtube_video_id || "").replace(/'/g, "\\'");
+
+          const isLocked = v.locked ? 'disabled-card' : '';
+          const clickAction = v.locked ? `alert('Please complete the previous videos first! 🔒')` : `playToddlerVideoDirectly('${safeYid}', '${safeTitle}', '${safeUrl}', ${v.id})`;
+          const completedBadge = v.completed ? ' <span class="badge bg-success ms-1" style="font-size:0.65rem;">✓ Done</span>' : '';
+
+          return `
+          <div class="toddler-btn ${conf.theme} ${isLocked}" onclick="${clickAction}" style="${v.locked ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+              <span class="toddler-icon">${conf.emoji}</span>
+              <span class="toddler-label">${v.title}${completedBadge}</span>
+              <span class="badge bg-opacity-10 mt-3 px-3 py-1.5 rounded-pill text-uppercase fw-black" 
+                    style="font-size: 0.75rem; border: 1px solid currentColor; letter-spacing: 0.5px;">
+                  ${v.category}
+              </span>
+          </div>
+        `;
+        }).join('');
+      })
+      .catch(err => {
+        console.error("[VIDEO DEBUG] Error loading toddler videos:", err);
+        container.innerHTML = `
+        <div class="col-12 text-center py-5">
+            <span style="font-size: 4rem; color: #ef4444;">⚠️</span>
+            <p class="lead text-danger mt-3 fw-bold">Failed to load video library. Please try reloading the page.</p>
+        </div>
+      `;
+      });
+  }
+
+  function playToddlerVideoDirectly(videoId, title, videoUrl, vId) {
+    console.log(`[VIDEO FLOW DEBUG] Title: "${title}" | Lang: "${activeLang}" | URL: "${videoUrl}" | vId: ${vId}`);
+
+    const overlay = document.getElementById("toddlerGameOverlay");
+    const content = document.getElementById("toddlerGameContent");
+    if (!overlay || !content) {
+      console.error("[VIDEO FLOW DEBUG] ERROR: Overlay or Content container missing in DOM!");
+      return;
+    }
+
+    overlay.classList.remove("d-none");
+
+    let playerHtml = '';
+    if (videoUrl) {
+      playerHtml = `
+      <video controls autoplay preload="metadata" width="100%" 
+             style="width:100%; height:400px; border-radius: 20px; object-fit: contain; background: #000;"
+             onended="markToddlerVideoCompleted(${vId})"
+             onerror="console.warn('[VIDEO ERROR] Video not available:', '${videoUrl}'); this.outerHTML='<div class=\\'p-5 text-center text-white bg-dark rounded-4\\'><h5>Video not available.</h5></div>';">
+          <source src="${videoUrl}" type="video/mp4">
+          Your browser does not support the video tag.
+      </video>
+    `;
+    } else {
+      playerHtml = `<div class="p-5 text-center text-white bg-dark rounded-4"><h5>Video not available.</h5></div>`;
+    }
+
+    content.innerHTML = `
+      <div class="text-center p-2">
+          <h2 class="fw-bold mb-4" style="color: #ec4899;">📺 Playing: ${title}</h2>
+          <div id="toddlerVideoTheater" class="mb-4 text-center">
+               <div class="ratio ratio-16x9 mx-auto border-4 rounded-4 shadow-lg overflow-hidden" 
+                    style="max-width: 720px; border: 6px solid #ec4899; background: #000; height: 400px; border-radius: 28px;">
+                    ${playerHtml}
+               </div>
+          </div>
+          <p class="text-muted small mt-2">Finish watching the video to unlock the next activity! 🌟</p>
+      </div>
+  `;
+  }
+
+  function markToddlerVideoCompleted(vId) {
+    if (!vId) return;
+    console.log("[MARK VIDEO COMPLETE] Sending to API for vId:", vId);
+    fetch("/api/complete_lesson", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ lesson_id: vId })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("[MARK VIDEO COMPLETE] Success:", data);
+        loadToddlerVideosDirectly();
+      })
+      .catch(err => {
+        console.error("[MARK VIDEO COMPLETE] Error:", err);
+      });
+  }
+
+  let balloonPopInterval = null;
+
+  function closeToddlerModule() {
+    const overlay = document.getElementById("toddlerGameOverlay");
+    if (overlay) {
+      overlay.classList.add("d-none");
+    }
+    const content = document.getElementById("toddlerGameContent");
+    if (content) {
+      content.innerHTML = "";
+    }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    if (balloonPopInterval) {
+      clearInterval(balloonPopInterval);
+      balloonPopInterval = null;
+    }
+  }
+
+  function playBalloonPopGameOnly() {
+    const overlay = document.getElementById("toddlerGameOverlay");
+    const content = document.getElementById("toddlerGameContent");
+    overlay.classList.remove("d-none");
+
+    balloonPopScore = 0;
+
+    content.innerHTML = `
+      <div class="text-center p-3">
+          <h2 class="fw-bold text-primary mb-2">🎈 Balloon Pop Playland 🎈</h2>
+          <p class="lead text-secondary mb-3">Score: <strong id="balloonScoreDisplay" class="text-pink">0</strong></p>
+          <div id="balloonPopContainer" class="position-relative border bg-dark rounded-4 shadow-inner" style="height: 480px; overflow:hidden; background: radial-gradient(circle, #0f172a 0%, #1e1b4b 100%);">
+               <!-- Balloons will float up here -->
+          </div>
+          <p class="small text-muted mt-3">Tip: Tap/click on the balloons to pop them and score points!</p>
+      </div>
+  `;
+
+    if (balloonPopInterval) clearInterval(balloonPopInterval);
+
+    startBalloonPopContinuous();
+  }
+
+  function startBalloonPopContinuous() {
+    const container = document.getElementById("balloonPopContainer");
+    if (!container) return;
+
+    const colors = ["#f43f5e", "#3b82f6", "#10b981", "#fbbf24", "#8b5cf6", "#ec4899", "#f97316"];
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('');
+
+    function spawnSingleBalloon() {
+      const c = document.getElementById("balloonPopContainer");
+      if (!c) {
+        clearInterval(balloonPopInterval);
+        return;
+      }
+
+      const b = document.createElement("div");
+      b.className = "bubble-balloon";
+      b.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      b.style.left = `${Math.random() * 80 + 10}%`;
+      b.style.animation = `floatUpBalloon ${Math.random() * 3 + 3.5}s linear forwards`;
+      b.innerText = characters[Math.floor(Math.random() * characters.length)];
+
+      b.addEventListener("animationend", () => {
+        b.remove();
+      });
+
+      b.onclick = function () {
+        playPopSound();
+        speakToddlerPhrase(b.innerText);
+
+        b.style.transform = "scale(1.4)";
+        b.style.opacity = "0";
+        b.style.transition = "transform 0.1s, opacity 0.1s";
+
+        setTimeout(() => {
+          b.remove();
+        }, 100);
+
+        balloonPopScore++;
+        const scoreDisplay = document.getElementById("balloonScoreDisplay");
+        if (scoreDisplay) scoreDisplay.innerText = balloonPopScore;
+      };
+
+      c.appendChild(b);
+    }
+
+    spawnSingleBalloon();
+    spawnSingleBalloon();
+    balloonPopInterval = setInterval(spawnSingleBalloon, 1000);
+  }
+
+  // ALPHABETS SUB-MODULES
+  function loadAlphabetSub(tab) {
+    const container = document.getElementById("alphabetSubContent");
+
+    if (tab === "book") {
+      container.innerHTML = `
+      <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+        ${"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map(ltr => `
+          <button class="btn btn-lg btn-light border fw-bold" onclick="showLetterCard('${ltr}')">${ltr}</button>
+        `).join('')}
+      </div>
+      <div id="letterCardDisplay" class="p-4 border rounded-4 mt-3 bg-light bg-opacity-50"></div>
+    `;
+      showLetterCard('A');
+    }
+    else if (tab === "trace") {
+      container.innerHTML = `
+      <h4 class="fw-bold text-secondary mb-3">Trace the Letter "A"</h4>
+      <div class="d-flex justify-content-center gap-2 mb-3">
+        <button class="btn btn-sm btn-outline-secondary" onclick="initTraceCanvas('A')">Letter A</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="initTraceCanvas('B')">Letter B</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="initTraceCanvas('C')">Letter C</button>
+      </div>
+      <canvas id="toddlerCanvas" width="300" height="300" class="toddler-canvas mx-auto d-block"></canvas>
+      <div class="mt-3">
+        <button class="btn btn-sm btn-danger rounded-pill px-4" onclick="clearToddlerCanvas()">Clear Canvas</button>
+        <button class="btn btn-sm btn-success rounded-pill px-4" onclick="doneTracing()">Check Stroke ⭐</button>
+      </div>
+      <div id="traceStars" class="mt-3"></div>
+    `;
+      initTraceCanvas('A');
+    }
+    else if (tab === "pop") {
+      container.innerHTML = `
+      <h4 class="fw-bold text-secondary mb-2">Pop the Balloons! 🎈</h4>
+      <div id="balloonPopContainer" class="position-relative border bg-dark rounded-4" style="height: 380px; overflow:hidden;"></div>
+    `;
+      startBalloonPop();
+    }
+    else if (tab === "find") {
+      const letters = ["A", "B", "C", "D", "E"];
+      const target = letters[Math.floor(Math.random() * letters.length)];
+      let options = [target];
+      while (options.length < 3) {
+        const randomLtr = letters[Math.floor(Math.random() * letters.length)];
+        if (!options.includes(randomLtr)) options.push(randomLtr);
+      }
+      options.sort(() => Math.random() - 0.5);
+
+      container.innerHTML = `
+      <h4 class="fw-bold text-secondary mb-4">Can you find the letter "${target}"?</h4>
+      <div class="d-flex justify-content-center gap-4 py-3">
+        ${options.map(o => `
+          <button class="btn btn-lg btn-purple rounded-circle" style="width:80px; height:80px; font-size:2rem;" onclick="tapFindLetter('${o}', '${target}')">${o}</button>
+        `).join('')}
+      </div>
+      <div id="findStars" class="mt-3"></div>
+    `;
+      speakToddlerPhrase(`Can you tap the letter ${target}?`);
+    }
+  }
+
+  function showLetterCard(ltr) {
+    const displays = {
+      "A": { word: "Apple", pic: "🍎" },
+      "B": { word: "Ball", pic: "⚽" },
+      "C": { word: "Cat", pic: "🐱" },
+      "D": { word: "Dog", pic: "🐶" },
+      "E": { word: "Elephant", pic: "🐘" },
+      "F": { word: "Fish", pic: "🐟" },
+      "G": { word: "Grapes", pic: "🍇" },
+      "H": { word: "Hat", pic: "🎩" },
+      "I": { word: "Icecream", pic: "🍦" },
+      "J": { word: "Jug", pic: "🥛" },
+      "K": { word: "Kite", pic: "🪁" },
+      "L": { word: "Lion", pic: "🦁" },
+      "M": { word: "Monkey", pic: "🐒" },
+      "N": { word: "Nest", pic: "🪺" },
+      "O": { word: "Orange", pic: "🍊" },
+      "P": { word: "Pen", pic: "🖊️" },
+      "Q": { word: "Queen", pic: "👑" },
+      "R": { word: "Rose", pic: "🌹" },
+      "S": { word: "Sun", pic: "☀️" },
+      "T": { word: "Tiger", pic: "🐯" },
+      "U": { word: "Umbrella", pic: "☂️" },
+      "V": { word: "Van", pic: "🚐" },
+      "W": { word: "Watch", pic: "⌚" },
+      "X": { word: "Xylophone", pic: "🎹" },
+      "Y": { word: "Yacht", pic: "⛵" },
+      "Z": { word: "Zebra", pic: "🦓" }
+    };
+
+    const d = displays[ltr] || { word: "Letter", pic: "⭐" };
+    const cardDiv = document.getElementById("letterCardDisplay");
+
+    cardDiv.innerHTML = `
+    <div class="row align-items-center">
+      <div class="col-md-5">
+        <span class="toddler-bubble-letter">${ltr}</span>
+      </div>
+      <div class="col-md-7">
+        <span class="fs-1 d-block mb-3" style="font-size: 8rem !important;">${d.pic}</span>
+        <h3 class="fw-bold mb-3">${d.word}</h3>
+        <div class="d-flex justify-content-center gap-2">
+          <button class="btn btn-info rounded-pill px-4" onclick="speakToddlerPhrase('${d.word}')">${str.replay_btn}</button>
+          <button class="btn btn-primary rounded-pill px-4" id="repeatBtn" onclick="verifyToddlerSpeech('${d.word}', 'alphabetStars', this)">${str.repeat_btn}</button>
+        </div>
+        <div id="alphabetStars" class="mt-3"></div>
+      </div>
+    </div>
+  `;
+    speakToddlerPhrase(`This is ${d.word}`);
+  }
+
+  function tapFindLetter(chosen, target) {
+    const div = document.getElementById("findStars");
+    if (chosen === target) {
+      div.innerHTML = `<span class="fs-4 text-warning">${str.excellent}</span>`;
+      playStarChime();
+      playClapSound();
+      speakToddlerPhrase("Excellent! You found it!");
+    } else {
+      div.innerHTML = `<span class="fs-5 text-secondary">Try another one!</span>`;
+      speakToddlerPhrase("Try again!");
+    }
+  }
+
+  // CANVAS TRACING CODE
+  let drawing = false;
+  let canvasCtx;
+  let targetLetter = "A";
+
+  function initTraceCanvas(letter) {
+    targetLetter = letter;
+    const canvas = document.getElementById("toddlerCanvas");
+    if (!canvas) return;
+    canvasCtx = canvas.getContext("2d");
+
+    // Clear and draw faint outline of letter
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    canvasCtx.font = "bold 200px Nunito, Comic Sans MS, Arial";
+    canvasCtx.fillStyle = "rgba(226, 232, 240, 0.75)";
+    canvasCtx.textAlign = "center";
+    canvasCtx.textBaseline = "middle";
+    canvasCtx.fillText(letter, canvas.width / 2, canvas.height / 2);
+
+    // Drawing handlers
+    canvas.onmousedown = () => drawing = true;
+    canvas.onmouseup = () => { drawing = false; canvasCtx.beginPath(); };
+    canvas.onmousemove = drawOnCanvas;
+
+    canvas.ontouchstart = (e) => { drawing = true; e.preventDefault(); };
+    canvas.ontouchend = () => { drawing = false; canvasCtx.beginPath(); };
+    canvas.ontouchmove = (e) => {
+      const t = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = t.clientX - rect.left;
+      const y = t.clientY - rect.top;
+      canvasCtx.lineWidth = 14;
+      canvasCtx.lineCap = "round";
+      canvasCtx.strokeStyle = "#818cf8";
+      canvasCtx.lineTo(x, y);
+      canvasCtx.stroke();
+      canvasCtx.beginPath();
+      canvasCtx.moveTo(x, y);
+      e.preventDefault();
+    };
+  }
+
+  function drawOnCanvas(e) {
+    if (!drawing) return;
+    const rect = e.target.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    canvasCtx.lineWidth = 14;
+    canvasCtx.lineCap = "round";
+    canvasCtx.strokeStyle = "#818cf8";
+    canvasCtx.lineTo(x, y);
+    canvasCtx.stroke();
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(x, y);
+  }
+
+  function clearToddlerCanvas() {
+    initTraceCanvas(targetLetter);
+    document.getElementById("traceStars").innerHTML = "";
+  }
+
+  function doneTracing() {
+    document.getElementById("traceStars").innerHTML = `<span class="fs-4 text-warning">${str.excellent}</span>`;
+    playStarChime();
+    playClapSound();
+  }
+
+  // BALLOON POP GAMEPLAY IS HANDLED ABOVE CONTINUOUSLY
+
+  // NUMBERS SUB-MODULE
+  function loadNumberSub(tab) {
+    const container = document.getElementById("numberSubContent");
+    if (tab === "book") {
+      container.innerHTML = `
+      <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+        ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(num => `
+          <button class="btn btn-lg btn-light border fw-bold" onclick="showNumberCard(${num})">${num}</button>
+        `).join('')}
+      </div>
+      <div id="numberCardDisplay" class="p-4 border rounded-4 mt-3 bg-light bg-opacity-50"></div>
+    `;
+      showNumberCard(1);
+    }
+    else if (tab === "trace") {
+      container.innerHTML = `
+      <h4 class="fw-bold text-secondary mb-3">Trace the Number "1"</h4>
+      <div class="d-flex justify-content-center gap-2 mb-3">
+        <button class="btn btn-sm btn-outline-secondary" onclick="initTraceCanvas('1')">Number 1</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="initTraceCanvas('2')">Number 2</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="initTraceCanvas('3')">Number 3</button>
+      </div>
+      <canvas id="toddlerCanvas" width="300" height="300" class="toddler-canvas mx-auto d-block"></canvas>
+      <div class="mt-3">
+        <button class="btn btn-sm btn-danger rounded-pill px-4" onclick="clearToddlerCanvas()">Clear Canvas</button>
+        <button class="btn btn-sm btn-success rounded-pill px-4" onclick="doneTracing()">Check Stroke ⭐</button>
+      </div>
+      <div id="traceStars" class="mt-3"></div>
+    `;
+      initTraceCanvas('1');
+    }
+    else if (tab === "count") {
+      container.innerHTML = `
+      <h4 class="fw-bold text-secondary mb-4">Tap on each star to count them!</h4>
+      <div class="d-flex justify-content-center gap-3 py-3">
+        ${[1, 2, 3, 4, 5].map(n => `
+          <div class="fs-1 btn btn-outline-warning p-3 rounded-circle text-warning shadow-xs" onclick="tapCountStar(this, ${n})">⭐</div>
+        `).join('')}
+      </div>
+      <div id="countStars" class="mt-3 fs-3 fw-bold text-primary"></div>
+    `;
+    }
+  }
+
+  function showNumberCard(num) {
+    const cardDiv = document.getElementById("numberCardDisplay");
+    let fruitEmoji = "🎈";
+    let countHTML = "";
+    for (let i = 0; i < num; i++) {
+      countHTML += `<span class="fs-3 mx-1">${fruitEmoji}</span>`;
+    }
+
+    cardDiv.innerHTML = `
+    <h1 class="display-3 fw-black text-primary">${num}</h1>
+    <div class="my-3">${countHTML}</div>
+    <div class="d-flex justify-content-center gap-2">
+      <button class="btn btn-info rounded-pill px-4" onclick="speakToddlerPhrase('${num}')">${str.replay_btn}</button>
+      <button class="btn btn-primary rounded-pill px-4" id="repeatBtn" onclick="verifyToddlerSpeech('${num}', 'numberStars', this)">${str.repeat_btn}</button>
+    </div>
+    <div id="numberStars" class="mt-3"></div>
+  `;
+    speakToddlerPhrase(String(num));
+  }
+
+  // COLORS SUB-MODULE
+  function loadColorsSub(tab) {
+    const container = document.getElementById("colorsSubContent");
+
+    if (tab === "explore") {
+      container.innerHTML = `
+      <div class="row g-3 justify-content-center mt-3">
+        <div class="col-md-3">
+          <div class="card p-4 bg-danger text-white text-center rounded-4 border-0" onclick="tapColor('Red')" style="cursor:pointer;">
+            <strong class="fs-4">Red</strong>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-4 bg-primary text-white text-center rounded-4 border-0" onclick="tapColor('Blue')" style="cursor:pointer;">
+            <strong class="fs-4">Blue</strong>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-4 bg-success text-white text-center rounded-4 border-0" onclick="tapColor('Green')" style="cursor:pointer;">
+            <strong class="fs-4">Green</strong>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-4 bg-warning text-dark text-center rounded-4 border-0" onclick="tapColor('Yellow')" style="cursor:pointer;">
+            <strong class="fs-4">Yellow</strong>
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    else if (tab === "match") {
+      const targets = [
+        { color: "Red", item: "Red Apple", pic: "🍎" },
+        { color: "Blue", item: "Blue Ball", pic: "🔵" },
+        { color: "Green", item: "Green Leaf", pic: "🍃" }
+      ];
+      const t = targets[Math.floor(Math.random() * targets.length)];
+
+      container.innerHTML = `
+      <h4 class="fw-bold text-secondary mb-4">Tap the item matching color "${t.color}"</h4>
+      <div class="d-flex justify-content-center gap-4 py-3">
+        ${targets.map(item => `
+          <button class="btn btn-lg btn-light border p-4 rounded-4" onclick="tapMatchColor('${item.color}', '${t.color}')">
+            <span style="font-size:4rem; display:block;">${item.pic}</span>
+            <strong>${item.item}</strong>
+          </button>
+        `).join('')}
+      </div>
+      <div id="matchStars" class="mt-3"></div>
+    `;
+      speakToddlerPhrase(`Tap the item matching color ${t.color}`);
+    }
+  }
+
+  function tapColor(colorName) {
+    speakToddlerPhrase(colorName);
+    playPopSound();
+  }
+
+  function tapMatchColor(chosen, target) {
+    const div = document.getElementById("matchStars");
+    if (chosen === target) {
+      div.innerHTML = `<span class="fs-4 text-warning">${str.excellent}</span>`;
+      playStarChime();
+      playClapSound();
+      speakToddlerPhrase("Excellent!");
+    } else {
+      div.innerHTML = `<span class="fs-5 text-secondary">Try again!</span>`;
+      speakToddlerPhrase("Try again!");
+    }
+  }
+
+  // SHAPES SUB-MODULE
+  function tapShape(shapeName) {
+    speakToddlerPhrase(shapeName);
+    document.getElementById("shapeStars").innerHTML = `<span class="fs-4 text-warning">${str.excellent}</span>`;
+    playStarChime();
+  }
+
+  // ANIMALS SUB-MODULE
+  function tapAnimal(name, key) {
+    speakToddlerPhrase(name);
+    playAnimalNoise(key);
+    document.getElementById("animalStars").innerHTML = `<span class="fs-4 text-warning">${str.excellent}</span>`;
+    playStarChime();
+  }
+
+  // FOODS / BIRDS GENERICS BUILDER
+  function renderFoodGrid(title, words, pics) {
+    const content = document.getElementById("toddlerGameContent");
+    content.innerHTML = `
+    <h2 class="fw-bold text-primary">${title}</h2>
+    <div class="row g-4 mt-3 justify-content-center">
+      ${words.map((w, idx) => `
+        <div class="col-6 col-md-3">
+          <div class="card p-3 border-4 border-primary text-center" onclick="tapFoodItem('${w}')" style="cursor:pointer;">
+            <span class="fs-1 d-block mb-2" style="font-size:4rem !important;">${pics[idx]}</span>
+            <strong class="d-block text-dark">${w}</strong>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div id="foodStars" class="mt-4"></div>
+  `;
+  }
+
+  function tapFoodItem(word) {
+    speakToddlerPhrase(word);
+    document.getElementById("foodStars").innerHTML = `<span class="fs-4 text-warning">${str.excellent}</span>`;
+    playStarChime();
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+Folder: english\age1
+  - Baa Baa Black Sheep _ @CoComelon Nursery Rhymes & Kids Songs_1080p.mp4
+  - Bath Song _ @CoComelon Nursery Rhymes & Kids Songs_1080p.mp4
+  - Johny Johny Yes Papa 👶 THE BEST Song for Children _ Kids Songs _ LooLoo Kids_1080p.mp4
+  - Learn Colors - Preschool Chant - Colors Song for Preschool by ELF Learning - ELF Kids Videos_720p.mp4
+  - The Shapes Song _ Nursery Rhymes _ Nursery Rhymes With Lyrics_720p.mp4
+  - Twinkle Twinkle Little Star _ Nursery Rhymes for Kids _ Super Simple Songs_1080p, AI-upscaled.mp4
+  - Wheels on the Bus _ @CoComelon Nursery Rhymes & Kids Songs_1080p.mp4
+
+Folder: english\age3
+  - ABC Song _ Learn ABC Alphabet for Children _ EP85 _ Kids Songs & Nursery Rhymes _ LiaChaCha_1080p.mp4
+  - Animal Sounds Song_ Learn Animal Sounds for Kids by Good Kids Company_720p.mp4
+  - Counting 1-10 Song _ Number Songs for Children _ The Singing Walrus_720p.mp4
+
+Folder: english\age5
+  - Baby Shark Dance _ #babyshark Most Viewed Video _ Animal Songs _ PINKFONG Songs for Children_720p.mp4
+  - Phonics Song with TWO Words - A For Apple - ABC Alphabet Songs with Sounds for Children_720p.mp4
+
+Folder: hindi\age1
+  - Chal Mere Ghode Tik Tik Hindi Rhymes for Children_720p.mp4
+  - Machli Jal Ki Hai Rani - Famous Hindi Rhymes in 3D Animation_720p.mp4
+  - Shapes Song In Hindi _ Hindi Educational Song _ Learn Shapes In Hindi _ Hindi Nursery Rhyme_1080p.mp4
+  - लाल  हरा  पीला  Colours Song - Hindi Rhymes For Children - ChuChu TV_1080p.mp4
+
+Folder: hindi\age3
+  - Animal Sound, जानवरों की अवाज, Nursery Rhymes in Hindi and Children Songs_720p.mp4
+  - Ginti 1-10 _ Hindi Rhymes for Children_720p.mp4
+  - Varnamala Geet Hindi Alphabet Song_720p.mp4
+
+Folder: hindi\age5
+  - Learn Hindi Vowels - Swar _ हिंदी स्वरमाला _ Hindi Alphabets _ A Se Anar _ Hindi Letters _ A Aa E Ee_720p60.mp4
+  - Nani Teri Morni _ नानी तेरी मोरनी _ Hindi Poem For Kids_720p.mp4
+
+Folder: kannada\age1
+  - Aane banthondu Aane - Kannada Rhymes 3D Animated_720p, AI-upscaled.mp4
+  - SHAPES Song In Kannada _ Popular Shapes Songs Rhymes _ Shemaroo Kids Kannada_720p.mp4
+  - Thotake Hogu Timma - Kannada Rhymes 3D Animated_720p, AI-upscaled.mp4
+  - ಬಣ್ಣದ ಹಾಡುಗಳು – ಕಿತ್ತಳೆ ಹಾಡು (Colour Songs - The Orange Song) - ChuChu TV Kannada Rhymes for Kids_720p.mp4
+
+Folder: kannada\age3
+  - Learn Kannada Alphabet Vowels - 3D Animation Learn to write kannada Alphabets_720p.mp4
+  - Ondu Eradu Balale Haradu Kannada Rhyme for Children_720p, AI-upscaled.mp4
+  - ನನ್ನ ಪ್ರಾಣಿ ಸ್ನೇಹಿತರು - Farm Animals Song _ Kannada Kids Song _ Infobells_720p.mp4
+
+Folder: kannada\age5
+  - Nayi Mari Nayi Mari - Kannada Rhymes Chinnu 3D Animated_720p, AI-upscaled.mp4
+  - ಕನ್ನಡ ಅಕ್ಷರಮಾಲೆ _  ಕನ್ನಡ ವರ್ಣಮಾಲೆ _  Kannada Varnamala _ Kannada Aksharamala _ Kannada Alphabets_720p.mp4
+  - ಮಿನು ಮಿನು ಮಿನುಗುವ ಮರಿ ಚುಕ್ಕಿ Twinkle Twinkle Little Star - ChuChu TV Kannada Rhymes & Songs for Kids_720p.mp4
+
+Folder: marathi\age1
+  - Chiv Chiv Chimni in 3D - Marathi 3D Rhymes _ Marathi Balgeet Song मराठी गाणी 2019_1080p.mp4
+  - Twinkle Twinkle Little Star Nursery Rhyme in 4K _ Marathi Rhymes From APPUSERIES_1080p.mp4
+  - आकार - Learn Shapes in Marathi _ Nursery Rhymes _ Preschool Learning For Kids_720p.mp4
+  - रंग शिकूया शिळासोबत 🌈 _ Learn Colors in Marathi & English _ Kids Color Song_720p.mp4
+
+Folder: marathi\age3
+  - Marathi Swar _ Learn Marathi Alphabets _ मराठी स्वर_1080p.mp4
+  - अंक गीत _ Marathi Ank _ Marathi Numbers _ Ankache Gane _ Sankhya _ Balgeet _ Mulanchi Gani _Chiukau_1080p.mp4
+  - 🐾 Pranyanche Aavaj _ प्राणी व त्यांचे आवाज _ Animal Sounds Song in Marathi _ Lahan Mulanchi Gani_720p.mp4
+
+Folder: marathi\age5
+  - ChiuTai ChiuTai _ Marathi Balgeet _ Badbad Geet _ Marathi Top Animated Song _ From Jollytoons_720p.mp4
+  - Marathi Balgeet - Malyachai Malait - Animated Marathi Songs for Children_720p.mp4
+  - मुळाक्षरे आपली मराठी _ Marathi Mulakshare _ अ आ इ gane _ बाराखडी _ Marathi Balgeet _ ChiuKau Marathi_720p.mp4
+
+Folder: tamil\age1
+  - கொழுக்கட்டை கொழுக்கட்டை _ kolukattai kolukattai song _ Tamil Rhymes for Kids _ JuJJu kids_720p.mp4
+  - தோசை அம்மா தோசை (Dosai Amma Dosai Song) - Tamil Rhymes in 4K for Kids and Babies - ChuChu TV_720p.mp4
+  - வடிவங்கள் பாடல் _ Shapes Song in Tamil _ Tamil Nursery Rhymes for Kids _ Chichi Chochi TV_720p.mp4
+  - வண்ணங்கள் பாடல் (Colours Song) - ChuChu TV தமிழ் Tamil Rhymes For Children_1080p.mp4
+
+Folder: tamil\age3
+  - ஒன்று பூமிக்கு நிலவொன்று, எண்கள் பாட்டு _ Tamil Rhymes for Children _ Infobells_720p.mp4
+  - கண்ணே எழுது, முத்தான தமிழின் முதலெழுத்து _ Tamil Rhymes for Children _ Infobells_720p.mp4
+  - மாடு எப்படி அழைத்தது மா மா மா - Animal Sounds _ Tamil Rhymes for Children _ Infobells #tamilrhymes_720p.mp4
+
+Folder: tamil\age5
+  - Aathichoodi _ ஆத்திசூடி_ Tamil Rhymes for Kids _ Tamil Baby Rhymes _ Rhymes Tamil_720p.mp4
+  - அ சொல்லலாம் _ Tamil Rhymes for Children _ Infobells_720p.mp4
+  - குரங்கு மாமா கல்யாணம் _ Kurangu Kalayanam - Tamil Kids Song _ Tamil Rhymes for Children _ பாபா பாடல்_720p.mp4
+
+Folder: telugu\age1
+  - Burru Pitta Burru Pitta Turru mannadi - Birds - 3D Animation Telugu Rhymes for children_720p.mp4
+  - Chandamama Raave - 3D Animation Telugu Rhymes for children with lyrics_720p.mp4
+  - Chitti Chilakamma - Parrots 3D Animation Telugu Rhymes For children with lyrics_720p.mp4
+  - Enugamma Enugu - Elephant 3D Animation Telugu rhymes with Lyrics for children_720p.mp4
+  - Pancharangulu Colours in Telugu _ Telugu Rhymes for Children _ Infobells_720p.mp4
+
+Folder: telugu\age3
+  - Aksharabhyasam _ Telugu Rhymes for Children _ Infobells_720p.mp4
+  - Ma Iṇṭlo Koḍi Cuḍaṇḍi - Numbers Song _ Telugu Rhymes for Children _ Infobells_720p.mp4
+  - ఆవు మా మా మా అని అంటుంది- Animal Sounds Song _ Telugu Rhymes for Children _ Infobells #animalsounds_720p.mp4
+
+Folder: telugu\age5
+  - A aa lu diddudam - 3D Animation Learning Telugu Alphabet rhymes for children_720p.mp4
+  - Chuku chuku railu vastundi - 3D Animation Telugu Rhymes for children with lyrics_720p.mp4
+

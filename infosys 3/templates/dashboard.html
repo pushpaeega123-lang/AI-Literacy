@@ -1,0 +1,1298 @@
+{% extends 'base.html' %}
+
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block content %}
+<style>
+    /* Premium Dashboard Styles */
+    .dashboard-container {
+        font-family: 'Outfit', 'Inter', sans-serif;
+        background-color: #f8fafc;
+        min-height: 100vh;
+    }
+
+    .welcome-header {
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        border-radius: 24px;
+        padding: 32px;
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(30, 27, 75, 0.15);
+    }
+
+    .stat-badge {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 99px;
+        padding: 8px 16px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        backdrop-filter: blur(8px);
+    }
+
+    .dashboard-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.015);
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.035);
+    }
+
+    /* Stat Metric Cards */
+    .stat-metric-card {
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+        transition: all 0.3s ease;
+    }
+
+    .stat-metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+    }
+
+    .stat-metric-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .stat-metric-label {
+        font-size: 0.82rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .stat-metric-value {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    /* Overall Progress Card */
+    .overall-progress-card {
+        background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%) !important;
+        color: #ffffff !important;
+        border-radius: 24px !important;
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15) !important;
+        border: none !important;
+        padding: 24px !important;
+    }
+
+    .overall-progress-card h5 {
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .gauge-circle {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .gauge-circle::before {
+        content: "";
+        position: absolute;
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: #1e1b4b;
+        z-index: 1;
+    }
+
+    .gauge-value {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .gauge-value .percent {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #ffffff;
+        display: block;
+        line-height: 1;
+    }
+
+    .gauge-value .label {
+        font-size: 0.6rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-top: 2px;
+        display: block;
+    }
+
+    .skill-legend-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 0.82rem;
+    }
+
+    .skill-legend-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .skill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    /* Learning Path Steps */
+    .learning-path-steps {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        padding: 20px 10px;
+    }
+
+    .path-step-item {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        flex: 1;
+    }
+
+    .path-step-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 1.25rem;
+        border: 3px solid #ffffff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        background-color: #cbd5e1;
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .path-step-connector {
+        position: absolute;
+        top: 42px;
+        left: 50%;
+        right: -50%;
+        height: 4px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+
+    .path-step-item:last-child .path-step-connector {
+        display: none;
+    }
+
+    .path-step-connector.completed {
+        background: #10b981;
+    }
+
+    /* Today's Goal */
+    .goal-progress-container {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .goal-target-icon {
+        font-size: 3rem;
+    }
+
+    /* Bottom Tips Slogan */
+    .bottom-tips-banner {
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    /* AI mascothead animation */
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-6px);
+        }
+    }
+</style>
+
+<div class="dashboard-container py-5">
+    <div class="container">
+
+        <!-- Premium Header Block -->
+        <div class="welcome-header mb-4">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-7 d-flex align-items-center gap-3">
+                    <div class="avatar-circle rounded-circle border border-white border-2 bg-light d-flex align-items-center justify-content-center shadow-sm"
+                        style="width: 70px; height: 70px; font-size: 2.2rem;">
+                        {% if profile.avatar == 'Cat' %}🐱
+                        {% elif profile.avatar == 'Dog' %}🐶
+                        {% elif profile.avatar == 'Rabbit' %}🐰
+                        {% elif profile.avatar == 'Panda' %}🐼
+                        {% elif profile.avatar == 'Koala' %}🐨
+                        {% elif profile.avatar == 'Lion' %}🦁
+                        {% else %}🐱{% endif %}
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-1">{{ (translations.dashboard_welcome_user if translations and
+                            translations.dashboard_welcome_user else 'Welcome, user! 👋') | replace('user', fullname) }}
+                        </h2>
+                        <p class="mb-0 text-white text-opacity-75">{{ translations.dashboard_continue_journey if
+                            translations and translations.dashboard_continue_journey else 'Let\'s continue your
+                            personalized learning journey.' }}</p>
+                    </div>
+                </div>
+                <div class="col-md-5 d-flex justify-content-md-end gap-2 flex-wrap">
+                    <span class="stat-badge">🔥 {{ streak }} {{ translations.dashboard_streak if translations and
+                        translations.dashboard_streak else 'Streak' }}</span>
+                    <span class="stat-badge">⭐ {{ profile.xp }} XP</span>
+                    <span class="stat-badge">🪙 {{ profile.coins }} {{ translations.coins if translations and
+                        translations.coins else 'Coins' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mascot Welcome Panel -->
+        <div id="lumiMascotContainer" class="mb-4"></div>
+
+        <!-- Conditional Dashboards based on Learner Age -->
+        {% if profile.age and profile.age|int <= 5 %} <!-- TODDLER / PRE-SCHOOL DASHBOARD (AGE 1-5) -->
+            <div class="row g-4 mb-5">
+                <!-- Left Side: Today's Learning Video Card -->
+                <div class="col-lg-8">
+                    <div class="dashboard-card h-100 p-4"
+                        style="background: linear-gradient(135deg, #fef08a 0%, #fef9c3 100%); border: 3px solid #fde047;">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold"
+                                style="font-size: 0.85rem;">🎬 TODAY'S LEARNING</span>
+                            <span class="text-secondary small fw-bold">Pre-school Path</span>
+                        </div>
+
+                        <h3 class="fw-black text-indigo-950 mb-3" style="font-weight: 900; color: #1e1b4b;">
+                            {% if recommended_lessons %}
+                            {{ recommended_lessons[0].title }}
+                            {% else %}
+                            Twinkle Twinkle Little Star
+                            {% endif %}
+                        </h3>
+
+                        <p class="text-slate-700 fw-medium mb-4" style="color: #475569;">
+                            {% if recommended_lessons %}
+                            Let's read and listen to this fun activity with Lumi today!
+                            {% else %}
+                            Sing along with our interactive video rhyme and learn your first words!
+                            {% endif %}
+                        </p>
+
+                        <!-- Fun Mascot Character illustration -->
+                        <div
+                            class="d-flex align-items-center gap-4 bg-white bg-opacity-70 p-3 rounded-4 border border-warning border-opacity-50 mb-4">
+                            <div style="font-size: 3.5rem;">🦁</div>
+                            <div>
+                                <strong class="text-dark d-block">Lumi says:</strong>
+                                <span class="text-secondary small">"You are doing great! Let's start with this activity
+                                    to earn 20 coins!"</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            {% if recommended_lessons %}
+                            <a href="/week-module"
+                                class="btn btn-lg btn-primary rounded-pill px-5 py-3 fw-bold shadow-md"
+                                style="background: #4f46e5; border: none;">
+                                <i class="bi bi-play-circle-fill me-2 text-white"></i>Start Learning Now!
+                            </a>
+                            {% else %}
+                            <a href="/week-module"
+                                class="btn btn-lg btn-primary rounded-pill px-5 py-3 fw-bold shadow-md"
+                                style="background: #4f46e5; border: none;">
+                                <i class="bi bi-play-circle-fill me-2 text-white"></i>Open Rhymes List
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Today's Goal Checklist -->
+                <div class="col-lg-4">
+                    <div class="dashboard-card h-100 p-4 border-2" style="border-color: #cbd5e1;">
+                        <h4 class="fw-bold text-dark mb-3"><i class="bi bi-gift-fill text-warning me-2"></i>{{
+                            translations.dashboard_todays_goal if translations and translations.dashboard_todays_goal
+                            else 'Today\'s Goal' }}</h4>
+                        <p class="text-muted small mb-4">Complete these fun activities to earn a special badge today!
+                        </p>
+
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+                                <input type="checkbox" class="form-check-input ms-2" style="transform: scale(1.35);"
+                                    checked disabled>
+                                <span class="text-secondary fw-semibold">Start the platform</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+                                <input type="checkbox" class="form-check-input ms-2" style="transform: scale(1.35);"
+                                    disabled>
+                                <span class="text-dark fw-semibold">Watch a video rhyme</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+                                <input type="checkbox" class="form-check-input ms-2" style="transform: scale(1.35);"
+                                    disabled>
+                                <span class="text-dark fw-semibold">Learn 5 new words</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+                                <input type="checkbox" class="form-check-input ms-2" style="transform: scale(1.35);"
+                                    disabled>
+                                <span class="text-dark fw-semibold">Play a learning game</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Quick Access Grid for Toddlers -->
+            <h4 class="fw-bold text-dark mb-4">Quick Access</h4>
+            <div class="row g-4">
+                <div class="col-md-3 col-6">
+                    <a href="/week-module" class="text-decoration-none">
+                        <div class="dashboard-card text-center p-4 h-100"
+                            style="background: #e0f2fe; border: 2px solid #7dd3fc; transition: transform 0.2s;">
+                            <div class="display-5 mb-2">🎶</div>
+                            <h5 class="fw-bold mb-1" style="color: #0369a1;">Rhymes & Songs</h5>
+                            <p class="text-secondary small mb-0">Sing along and learn</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="/week-module" class="text-decoration-none">
+                        <div class="dashboard-card text-center p-4 h-100"
+                            style="background: #fae8ff; border: 2px solid #f0abfc; transition: transform 0.2s;">
+                            <div class="display-5 mb-2">🎬</div>
+                            <h5 class="fw-bold mb-1" style="color: #a21caf;">Interactive Videos</h5>
+                            <p class="text-secondary small mb-0">Fun spelling animations</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="/week-module" class="text-decoration-none">
+                        <div class="dashboard-card text-center p-4 h-100"
+                            style="background: #dcfce7; border: 2px solid #86efac; transition: transform 0.2s;">
+                            <div class="display-5 mb-2">🍀</div>
+                            <h5 class="fw-bold mb-1" style="color: #15803d;">Learn & Play</h5>
+                            <p class="text-secondary small mb-0">Learn letters interactively</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="/learning-games" class="text-decoration-none">
+                        <div class="dashboard-card text-center p-4 h-100"
+                            style="background: #ffedd5; border: 2px solid #fdba74; transition: transform 0.2s;">
+                            <div class="display-5 mb-2">🍉</div>
+                            <h5 class="fw-bold mb-1" style="color: #c2410c;">Fun Games</h5>
+                            <p class="text-secondary small mb-0">Play Ninja Fruit and more</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            {% else %}
+
+            <!-- SCHOOL / ADVANCED DASHBOARD (AGE 6+) -->
+
+            <!-- Row 1: Stat Metrics & Overall Progress -->
+            <div class="row g-4 mb-4">
+                <!-- Left: Stats Grid -->
+                <div class="col-xl-8 col-lg-7">
+                    <div class="row g-3 h-100">
+                        <!-- Lessons Completed -->
+                        <div class="col-sm-6">
+                            <div class="card stat-metric-card h-100 d-flex flex-row align-items-center gap-3">
+                                <div class="stat-metric-icon bg-primary bg-opacity-10 text-primary">
+                                    <i class="bi bi-journal-bookmark-fill"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="stat-metric-label">{{ translations.dashboard_lessons_completed if
+                                        translations and translations.dashboard_lessons_completed else 'Lessons
+                                        Completed' }}</div>
+                                    <div class="stat-metric-value">{{ profile.completed_lessons_count }}</div>
+                                    <div class="small text-success fw-bold" style="font-size: 0.75rem;"><i
+                                            class="bi bi-arrow-up-short"></i> 15% this week</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Assessments Taken -->
+                        <div class="col-sm-6">
+                            <div class="card stat-metric-card h-100 d-flex flex-row align-items-center gap-3">
+                                <div class="stat-metric-icon bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-clipboard2-check-fill"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="stat-metric-label">{{ translations.dashboard_assessments_taken if
+                                        translations and translations.dashboard_assessments_taken else 'Assessments
+                                        Taken' }}</div>
+                                    <div class="stat-metric-value">{{ profile.assessment_count }}</div>
+                                    <div class="small text-success fw-bold" style="font-size: 0.75rem;"><i
+                                            class="bi bi-arrow-up-short"></i> 25% this week</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Level -->
+                        <div class="col-sm-6">
+                            <div class="card stat-metric-card h-100 d-flex flex-row align-items-center gap-3">
+                                <div class="stat-metric-icon bg-info bg-opacity-10 text-info">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="stat-metric-label">{{ translations.dashboard_current_level if
+                                        translations and translations.dashboard_current_level else 'Current Level' }}
+                                    </div>
+                                    <div class="stat-metric-value" style="font-size: 1.35rem;">{{
+                                        profile.current_proficiency }}</div>
+                                    <div class="small text-muted" style="font-size: 0.75rem;">{{
+                                        translations.dashboard_placement_benchmark if translations and
+                                        translations.dashboard_placement_benchmark else 'Placement Benchmark' }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Streak Days -->
+                        <div class="col-sm-6">
+                            <div class="card stat-metric-card h-100 d-flex flex-row align-items-center gap-3">
+                                <div class="stat-metric-icon bg-warning bg-opacity-10 text-warning">
+                                    <i class="bi bi-fire"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="stat-metric-label">{{ translations.dashboard_streak if translations and
+                                        translations.dashboard_streak else 'Streak' }}</div>
+                                    <div class="stat-metric-value">{{ streak }} <span
+                                            style="font-size: 0.95rem; font-weight: 600;">{{ translations.dashboard_days
+                                            if translations and translations.dashboard_days else 'Days' }}</span></div>
+                                    <div class="small text-muted" style="font-size: 0.75rem;">{{
+                                        translations.dashboard_days_in_row if translations and
+                                        translations.dashboard_days_in_row else 'Days in a row' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Overall Progress -->
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card overall-progress-card h-100">
+                        <h5 class="fw-bold mb-4 text-white">{{ translations.dashboard_overall_progress if translations
+                            and translations.dashboard_overall_progress else 'Overall Progress' }}</h5>
+                        <div class="row align-items-center g-3">
+                            <div class="col-6">
+                                <div class="gauge-circle" data-progress="{{ profile.progress_percentage }}">
+                                    <div class="gauge-value">
+                                        <span class="percent">{{ profile.progress_percentage }}%</span>
+                                        <span class="label">{{ translations.dashboard_overall if translations and
+                                            translations.dashboard_overall else 'Overall' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex flex-column gap-2 text-white">
+                                    <div class="skill-legend-item">
+                                        <span><span class="skill-dot" style="background-color: #38bdf8;"></span>{{
+                                            translations.dashboard_reading if translations and
+                                            translations.dashboard_reading else 'Reading' }}</span>
+                                        <span class="fw-bold">{{ profile.reading_score or 75 }}%</span>
+                                    </div>
+                                    <div class="skill-legend-item">
+                                        <span><span class="skill-dot" style="background-color: #4ade80;"></span>{{
+                                            translations.dashboard_writing if translations and
+                                            translations.dashboard_writing else 'Writing' }}</span>
+                                        <span class="fw-bold">{{ profile.writing_score or 60 }}%</span>
+                                    </div>
+                                    <div class="skill-legend-item">
+                                        <span><span class="skill-dot" style="background-color: #c084fc;"></span>{{
+                                            translations.dashboard_comprehension if translations and
+                                            translations.dashboard_comprehension else 'Comprehension' }}</span>
+                                        <span class="fw-bold">{{ profile.grammar_score or 65 }}%</span>
+                                    </div>
+                                    <div class="skill-legend-item">
+                                        <span><span class="skill-dot" style="background-color: #facc15;"></span>{{
+                                            translations.dashboard_speaking if translations and
+                                            translations.dashboard_speaking else 'Speaking' }}</span>
+                                        <span class="fw-bold">{{ profile.speaking_score or 70 }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Learning Path & Today's Goal -->
+            <div class="row g-4 mb-4">
+                <!-- Learning Path -->
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card dashboard-card h-100 p-4">
+                        <h5 class="fw-bold text-dark mb-4"><i class="bi bi-compass-fill text-primary me-2"></i>{{
+                            translations.dashboard_your_learning_path if translations and
+                            translations.dashboard_your_learning_path else 'Your Learning Path' }}</h5>
+
+                        <div class="learning-path-steps mb-4">
+                            <!-- Registration -->
+                            <div class="path-step-item">
+                                <div class="path-step-connector completed"></div>
+                                <div class="path-step-icon bg-success text-white">✓</div>
+                                <div class="small fw-bold mt-2 text-dark">{{ translations.dashboard_registration if
+                                    translations and translations.dashboard_registration else 'Registration' }}</div>
+                                <div class="text-success small" style="font-size: 0.75rem;">{{
+                                    translations.dashboard_completed if translations and
+                                    translations.dashboard_completed else 'Completed' }}</div>
+                            </div>
+
+                            <!-- Initial Assessment -->
+                            <div class="path-step-item">
+                                {% set ass_comp = profile.assessment_count > 0 %}
+                                <div class="path-step-connector {% if ass_comp %}completed{% endif %}"></div>
+                                <div
+                                    class="path-step-icon {% if ass_comp %}bg-success text-white{% else %}bg-primary text-white{% endif %}">
+                                    {% if ass_comp %}✓{% else %}2{% endif %}
+                                </div>
+                                <div class="small fw-bold mt-2 text-dark">{{ translations.dashboard_initial_assessment
+                                    if translations and translations.dashboard_initial_assessment else 'Initial
+                                    Assessment' }}</div>
+                                <div class="{% if ass_comp %}text-success{% else %}text-primary{% endif %} small"
+                                    style="font-size: 0.75rem;">
+                                    {% if ass_comp %}{{ translations.dashboard_completed if translations and
+                                    translations.dashboard_completed else 'Completed' }}{% else %}{{
+                                    translations.dashboard_in_progress if translations and
+                                    translations.dashboard_in_progress else 'In Progress' }}{% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Skill Evaluation -->
+                            <div class="path-step-item">
+                                {% set eval_comp = profile.assessment_count > 0 %}
+                                <div class="path-step-connector {% if eval_comp %}completed{% endif %}"></div>
+                                <div
+                                    class="path-step-icon {% if eval_comp %}bg-success text-white{% else %}bg-secondary text-white bg-opacity-40{% endif %}">
+                                    {% if eval_comp %}✓{% else %}3{% endif %}
+                                </div>
+                                <div class="small fw-bold mt-2 text-dark">{{ translations.dashboard_skill_evaluation if
+                                    translations and translations.dashboard_skill_evaluation else 'Skill Evaluation' }}
+                                </div>
+                                <div class="{% if eval_comp %}text-success{% else %}text-muted{% endif %} small"
+                                    style="font-size: 0.75rem;">
+                                    {% if eval_comp %}{{ translations.dashboard_completed if translations and
+                                    translations.dashboard_completed else 'Completed' }}{% else %}{{
+                                    translations.week_module_locked if translations and translations.week_module_locked
+                                    else 'Locked' }}{% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Personalized Plan -->
+                            <div class="path-step-item">
+                                <div class="path-step-connector"></div>
+                                <div
+                                    class="path-step-icon {% if eval_comp %}bg-primary text-white{% else %}bg-secondary text-white bg-opacity-40{% endif %}">
+                                    {% if profile.completed_lessons_count > 0 %}✓{% else %}4{% endif %}
+                                </div>
+                                <div class="small fw-bold mt-2 text-dark">{{ translations.dashboard_personalized_plan if
+                                    translations and translations.dashboard_personalized_plan else 'Personalized Plan'
+                                    }}</div>
+                                <div class="{% if profile.completed_lessons_count > 0 %}text-success{% elif eval_comp %}text-primary{% else %}text-muted{% endif %} small"
+                                    style="font-size: 0.75rem;">
+                                    {% if profile.completed_lessons_count > 0 %}{{ translations.dashboard_completed if
+                                    translations and translations.dashboard_completed else 'Completed' }}{% else %}{{
+                                    translations.dashboard_in_progress if translations and
+                                    translations.dashboard_in_progress else 'In Progress' }}{% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Learning Activities -->
+                            <div class="path-step-item">
+                                <div class="path-step-icon bg-secondary text-white bg-opacity-40">5</div>
+                                <div class="small fw-bold mt-2 text-dark">{{ translations.dashboard_learning_activities
+                                    if translations and translations.dashboard_learning_activities else 'Learning
+                                    Activities' }}</div>
+                                <div class="text-muted small" style="font-size: 0.75rem;">{{
+                                    translations.dashboard_in_progress if translations and
+                                    translations.dashboard_in_progress else 'In Progress' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <a href="/week-module" class="btn btn-outline-primary rounded-pill px-4 fw-bold">{{
+                                translations.dashboard_review_plan if translations and
+                                translations.dashboard_review_plan else 'View Full Learning Path' }}</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Goal -->
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card dashboard-card h-100 p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-3">{{ translations.dashboard_todays_goal if translations and
+                                translations.dashboard_todays_goal else 'Today\'s Goal' }}</h5>
+                            <div class="goal-progress-container mb-4">
+                                <div class="goal-target-icon">🎯</div>
+                                <div class="ms-2">
+                                    <h6 class="fw-bold text-dark mb-1">{{ translations.dashboard_complete_tasks_detail
+                                        if translations and translations.dashboard_complete_tasks_detail else 'Complete
+                                        2 lessons and 1 quiz' }}</h6>
+                                    <p class="text-secondary small mb-0">{{ translations.dashboard_complete_tasks if
+                                        translations and translations.dashboard_complete_tasks else 'Complete tasks to
+                                        continue your streak!' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            {% set goal_total = 3 %}
+                            {% set raw_completed = profile.completed_lessons_count + profile.assessment_count %}
+                            {% if raw_completed > 3 %}
+                            {% set goal_completed = 3 %}
+                            {% else %}
+                            {% set goal_completed = raw_completed %}
+                            {% endif %}
+                            {% set goal_pct = (((goal_completed / goal_total) * 100) | round) | int %}
+                            <div class="d-flex justify-content-between small fw-bold text-secondary mb-1">
+                                <span>{{ translations.dashboard_goal_progress if translations and
+                                    translations.dashboard_goal_progress else 'Goal Progress' }}</span>
+                                <span>{{ goal_completed }} / {{ goal_total }} {{ translations.dashboard_completed if
+                                    translations and translations.dashboard_completed else 'Completed' }}</span>
+                            </div>
+                            <div class="progress rounded-pill mb-4" style="height: 10px;">
+                                <div class="progress-bar bg-success rounded-pill" {{
+                                    ('style="width: ' ~ goal_pct ~ '%;"') | safe }}></div>
+                            </div>
+                            
+                            <a href="/week-module" class="btn btn-primary w-100 py-2.5 rounded-pill fw-bold" style="background-color: #4f46e5; border: none;">{{ translations.dashboard_start_text if translations and translations.dashboard_start_text else '
+                                    Continue Learning' }}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Recommended for You, Voice Practice, Achievements & Activity -->
+                    <div class="row g-4 mb-4">
+                        <!-- Recommended for You -->
+                        <div class="col-xl-4 col-lg-6">
+                            <div id="personalized-recs-card"
+                                class="card dashboard-card h-100 p-4 d-flex flex-column justify-content-between position-relative overflow-hidden"
+                                style="transition: all 0.3s ease; min-height: 480px;">
+                                <!-- Locked State Overlay -->
+                                <div id="recs-lock-overlay"
+                                    class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex flex-column align-items-center justify-content-center text-center p-4"
+                                    style="z-index: 10; backdrop-filter: blur(4px);">
+                                    <div class="fs-1 mb-3">🔒</div>
+                                    <h5 class="fw-bold text-dark mb-2">{{ translations.recs_locked_title if translations
+                                        and translations.recs_locked_title else 'Recommendations Locked' }}</h5>
+                                    <p class="small text-secondary mb-3 px-3">{{ translations.recs_locked_desc if
+                                        translations and translations.recs_locked_desc else 'Complete the Initial
+                                        Assessment to unlock your personalized learning recommendations.' }}</p>
+                                    <a href="/assessment"
+                                        class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm">{{
+                                        translations.recs_take_assessment_btn if translations and
+                                        translations.recs_take_assessment_btn else 'Take Assessment' }}</a>
+                                </div>
+
+                                <div>
+                                    <!-- Header -->
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                                            <i class="bi bi-robot text-primary fs-5"></i> {{ translations.recs_title if
+                                            translations and translations.recs_title else 'Recommendations' }}
+                                        </h5>
+                                        <span id="recs-premium-badge"
+                                            class="badge bg-primary text-white rounded-pill px-2.5 py-1 d-none"
+                                            style="font-size: 0.65rem; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;">
+                                            {{ translations.recs_personalized if translations and
+                                            translations.recs_personalized else '✨ Personalized for You' }}
+                                        </span>
+                                    </div>
+
+                                    <!-- AI Summary Box -->
+                                    <div id="recs-summary-box" class="p-3 rounded-4 mb-3 d-none"
+                                        style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%); border: 1px solid rgba(79, 70, 229, 0.1);">
+                                        <div class="small fw-bold text-primary mb-1 d-flex align-items-center gap-1">
+                                            <i class="bi bi-cpu-fill"></i> {{ translations.recs_ai_summary if
+                                            translations and translations.recs_ai_summary else 'AI Analysis Summary' }}
+                                        </div>
+                                        <p id="recs-summary-text" class="small text-secondary mb-0"
+                                            style="font-size: 0.78rem; text-align: left; line-height: 1.4;"></p>
+                                    </div>
+
+                                    <!-- List of Skill Cards -->
+                                    <div id="recs-skills-list" class="d-flex flex-column gap-2.5">
+                                        <!-- Dynamic items will be added here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Voice Practice -->
+                        <div class="col-xl-4 col-lg-6">
+                            <div class="card dashboard-card h-100 p-4 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h5 class="fw-bold text-dark mb-0"><i
+                                                class="bi bi-mic-fill text-success me-1"></i>{{
+                                            translations.dashboard_voice_practice if translations and
+                                            translations.dashboard_voice_practice else 'Voice Practice' }}</h5>
+                                        <a href="/week-module"
+                                            class="text-primary small fw-bold text-decoration-none">{{
+                                            translations.view_all if translations and translations.view_all else 'View
+                                            All' }}</a>
+                                    </div>
+
+                                    <!-- Sub-card 1: Practice pronunciation -->
+                                    <div class="p-3 rounded-4 mb-3"
+                                        style="background-color: rgba(16, 185, 129, 0.08) !important; border: 1px solid rgba(16, 185, 129, 0.15) !important;">
+                                        <h6 class="fw-bold mb-1" style="color: #065f46 !important;">{{
+                                            translations.voice_practice_title if translations and
+                                            translations.voice_practice_title else 'Practice Your Pronunciation' }}</h6>
+                                        <p class="small mb-3" style="color: #374151 !important;">{{
+                                            translations.voice_practice_desc if translations and
+                                            translations.voice_practice_desc else 'Speak clearly and get instant AI
+                                            feedback on regional spelling checkups.' }}</p>
+                                        <a href="/week-module" class="btn btn-sm text-white rounded-pill px-4 fw-bold"
+                                            style="background-color: #10b981 !important; border: none !important;">{{
+                                            translations.start_practice_btn if translations and
+                                            translations.start_practice_btn else 'Start Practice' }}</a>
+                                    </div>
+
+                                    <!-- Sub-card 2: Pronunciation Score -->
+                                    <div class="p-3 rounded-4 d-flex align-items-center justify-content-between"
+                                        style="background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important;">
+                                        <div>
+                                            <h6 class="fw-bold mb-1"
+                                                style="color: #475569 !important; font-size: 0.8rem;">{{
+                                                translations.pronunciation_score_label if translations and
+                                                translations.pronunciation_score_label else 'Pronunciation Score' }}
+                                            </h6>
+                                            <div class="fw-extrabold text-dark" style="font-size: 1.4rem;">{{
+                                                profile.speaking_score or 70 }}%</div>
+                                            <span class="small fw-semibold"
+                                                style="color: #10b981 !important; font-size: 0.72rem;">{{
+                                                translations.great_job_label if translations and
+                                                translations.great_job_label else 'Great Job!' }}</span>
+                                        </div>
+                                        <!-- Micro Sparkline chart SVG -->
+                                        <div style="width: 80px; height: 40px;">
+                                            <svg viewBox="0 0 100 40" width="100%" height="100%">
+                                                <path d="M0,35 Q15,5 30,28 T60,12 T90,20 L100,5" fill="none"
+                                                    stroke="#10b981" stroke-width="3" stroke-linecap="round"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Achievements & Recent Activity -->
+                                <div class="col-xl-4 col-lg-12">
+                                    <div
+                                        class="card dashboard-card h-100 p-4 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                                <h5 class="fw-bold text-dark mb-0">{{ translations.nav_achievements if
+                                                    translations and translations.nav_achievements else 'Achievements'
+                                                    }}</h5>
+                                                <a href="/parent-progress"
+                                                    class="text-primary small fw-bold text-decoration-none">{{
+                                                    translations.view_all if translations and translations.view_all else
+                                                    'View All' }}</a>
+                                            </div>
+
+                                            <!-- Achievements grid -->
+                                            <div class="row g-2 mb-4">
+                                                <div class="col-3 text-center">
+                                                    <div class="p-2 rounded-3 bg-success bg-opacity-10 text-success fw-bold"
+                                                        style="font-size: 0.7rem;" title="First Steps Completed">
+                                                        <div style="font-size: 1.5rem;">🎖️</div>
+                                                        {{ translations.achievement_first_steps if translations and
+                                                        translations.achievement_first_steps else 'First Steps' }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 text-center">
+                                                    <div class="p-2 rounded-3 bg-warning bg-opacity-10 text-warning fw-bold"
+                                                        style="font-size: 0.7rem;" title="Completed 5 lessons in a day">
+                                                        <div style="font-size: 1.5rem;">⚡</div>
+                                                        {{ translations.achievement_quick_learner if translations and
+                                                        translations.achievement_quick_learner else 'Quick Learner' }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 text-center">
+                                                    <div class="p-2 rounded-3 bg-info bg-opacity-10 text-info fw-bold"
+                                                        style="font-size: 0.7rem;" title="Completed voice exercises">
+                                                        <div style="font-size: 1.5rem;">🎙️</div>
+                                                        {{ translations.achievement_good_listener if translations and
+                                                        translations.achievement_good_listener else 'Good Listener' }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 text-center">
+                                                    <div class="p-2 rounded-3 bg-purple bg-opacity-10 text-purple fw-bold"
+                                                        style="font-size: 0.7rem;" title="Logged 7 days streak">
+                                                        <div style="font-size: 1.5rem;">🔥</div>
+                                                        {{ translations.achievement_streak_master if translations and
+                                                        translations.achievement_streak_master else 'Streak Master' }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h5 class="fw-bold text-dark mb-3" style="font-size: 0.95rem;">{{
+                                                translations.recent_activity_title if translations and
+                                                translations.recent_activity_title else 'Recent Activity' }}</h5>
+                                            <div class="d-flex flex-column gap-2 small">
+                                                {% if completed_lessons %}
+                                                {% for lesson in completed_lessons[:3] %}
+                                                <div
+                                                    class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                                    <span class="text-secondary"><i
+                                                            class="bi bi-check-circle-fill text-success me-2"></i>{{
+                                                        translations.completed_activity_prefix if translations and
+                                                        translations.completed_activity_prefix else 'Completed:' }} {{
+                                                        lesson.title }}</span>
+                                                    <span class="text-muted" style="font-size: 0.72rem;">{{
+                                                        translations.activity_time_recently if translations and
+                                                        translations.activity_time_recently else 'Recently' }}</span>
+                                                </div>
+                                                {% endfor %}
+                                                {% else %}
+                                                <div
+                                                    class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                                    <span class="text-secondary"><i
+                                                            class="bi bi-circle text-muted me-2"></i>{{
+                                                        translations.completed_placement_activity if translations and
+                                                        translations.completed_placement_activity else 'Completed
+                                                        placement assessment' }}</span>
+                                                    <span class="text-muted" style="font-size: 0.72rem;">{{
+                                                        translations.activity_time_recently if translations and
+                                                        translations.activity_time_recently else 'Recently' }}</span>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Row 4: Bottom Tips Slogan -->
+                            <div class="bottom-tips-banner mb-4">
+                                <div class="display-6">🎓</div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">{{ translations.slogan_title if translations and
+                                        translations.slogan_title else 'Learning a little every day leads to big
+                                        results.' }}</h6>
+                                    <p class="text-secondary small mb-0">{{ translations.slogan_desc if translations and
+                                        translations.slogan_desc else 'Consistency is the key to success. Keep
+                                        practicing and watch your progress grow!' }}</p>
+                                </div>
+                            </div>
+
+                            <!-- AI Custom Lesson Request at the bottom of Recommendations -->
+                            <div
+                                class="p-4 rounded-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 text-center mb-4">
+                                <h5 class="fw-bold text-primary mb-2"><i class="bi bi-cpu me-1"></i>Generate Custom AI
+                                    Lesson</h5>
+                                <p class="small text-secondary mb-3">Want to learn a specific topic? Enter a word or
+                                    topic and Lumi will build a unique lesson for you instantly!</p>
+                                <form action="/generate_personalized_lesson" method="POST">
+                                    <div class="input-group" style="max-width: 500px; margin: 0 auto;">
+                                        <input type="text" name="topic"
+                                            class="form-control bg-white fw-medium text-dark border-primary-subtle"
+                                            placeholder="e.g., Simple Fruits, Greeting Guests..." required>
+                                        <button class="btn btn-primary fw-bold"
+                                            style="background-color: #4f46e5; border: none;">
+                                            <i class="bi bi-magic me-1"></i>Request Lesson
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Share Your Feedback card -->
+                            <div class="p-4 rounded-4 bg-purple bg-opacity-10 border border-purple border-opacity-25 text-center mb-4"
+                                style="border-color: rgba(147, 51, 234, 0.25) !important;">
+                                <h5 class="fw-bold text-purple mb-2" style="color: #9333ea !important;"><i
+                                        class="bi bi-chat-heart-fill me-1"></i>Share Your Feedback</h5>
+                                <p class="small text-secondary mb-3">How is your learning journey going? Let us know
+                                    your thoughts and suggestions!</p>
+                                <form action="/submit_feedback" method="POST" style="max-width: 600px; margin: 0 auto;">
+                                    <div class="mb-3 text-start d-flex justify-content-center align-items-center gap-3">
+                                        <label class="form-label small fw-bold text-secondary mb-0">How would you rate
+                                            us?</label>
+                                        <div class="d-flex gap-3 my-0">
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="form-check-input" type="radio" name="rating" id="rate5"
+                                                    value="5" checked>
+                                                <label class="form-check-label fw-bold text-warning small"
+                                                    for="rate5">⭐⭐⭐⭐⭐ (5)</label>
+                                            </div>
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="form-check-input" type="radio" name="rating" id="rate4"
+                                                    value="4">
+                                                <label class="form-check-label fw-bold text-warning small"
+                                                    for="rate4">⭐⭐⭐⭐ (4)</label>
+                                            </div>
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="form-check-input" type="radio" name="rating" id="rate3"
+                                                    value="3">
+                                                <label class="form-check-label fw-bold text-warning small"
+                                                    for="rate3">⭐⭐⭐ (3)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <textarea name="message" class="form-control bg-white fw-medium text-dark"
+                                            rows="2" placeholder="Tell us what you like or how we can improve..."
+                                            style="border: 1px solid rgba(147, 51, 234, 0.3) !important; border-radius: 12px 0 0 12px; resize: none;"
+                                            required></textarea>
+                                        <button class="btn btn-purple fw-bold text-white shadow-sm" type="submit"
+                                            style="background-color: #9333ea; border: none; border-radius: 0 12px 12px 0; padding: 0 25px;">
+                                            <i class="bi bi-send-fill me-1"></i>Submit
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <canvas id="birthdayConfettiCanvas" class="position-fixed top-0 start-0 w-100 h-100"
+                                style="z-index: 1060; pointer-events: none;"></canvas>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if is_birthday %}
+                    <!-- Birthday Celebration Modal -->
+                    <div class="modal fade show d-block" id="birthdayModal" tabindex="-1"
+                        style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 rounded-4 shadow-lg text-center p-4 position-relative"
+                                style="background: linear-gradient(135deg, #fef08a 0%, #fed7aa 100%);">
+                                <button type="button"
+                                    class="btn-close position-absolute top-0 end-0 m-3 fs-4 border-0 bg-transparent text-muted fw-bold"
+                                    aria-label="Close" onclick="closeBirthdayModal()"
+                                    style="cursor: pointer; z-index: 100;">✕</button>
+                                <div class="modal-body py-4">
+                                    <div class="display-1 mb-2">🎉 🎂 🎈</div>
+
+                                    {% if language_label == 'Telugu' %}
+                                    <h2 class="fw-bold text-dark mb-2">పుట్టినరోజు శుభాకాంక్షలు, {{ fullname }}!</h2>
+                                    <p class="lead text-secondary mb-3">ఈ ప్రత్యేక రోజున లూమితో కొత్త విషయాలు
+                                        నేర్చుకోండి! 🎁</p>
+                                    <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+                                        <span class="badge bg-warning text-dark fs-6 py-2 px-3">🪙 +100 పుట్టినరోజు
+                                            నాణేలు</span>
+                                        <span class="badge bg-primary fs-6 py-2 px-3">🎖️ పుట్టినరోజు బ్యాడ్జ్ అన్‌లాక్
+                                            చేయబడింది</span>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm"
+                                        onclick="closeBirthdayModal()">
+                                        <i class="bi bi-star-fill me-1"></i>నేర్చుకోవడం కొనసాగించండి! ➔
+                                    </button>
+                                    {% elif language_label == 'Hindi' %}
+                                    <h2 class="fw-bold text-dark mb-2">जन्मदिन की हार्दिक शुभकामनाएं, {{ fullname }}!
+                                    </h2>
+                                    <p class="lead text-secondary mb-3">इस विशेष दिन पर लूमी के साथ नया सीखें! 🎁</p>
+                                    <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+                                        <span class="badge bg-warning text-dark fs-6 py-2 px-3">🪙 +100 जन्मदिन
+                                            सिक्के</span>
+                                        <span class="badge bg-primary fs-6 py-2 px-3">🎖️ जन्मदिन बैज अनलॉक हुआ</span>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm"
+                                        onclick="closeBirthdayModal()">
+                                        <i class="bi bi-star-fill me-1"></i>सीखना जारी रखें! ➔
+                                    </button>
+                                    {% elif language_label == 'Tamil' %}
+                                    <h2 class="fw-bold text-dark mb-2">இனிய பிறந்தநாள் நல்வாழ்த்துகள், {{ fullname }}!
+                                    </h2>
+                                    <p class="lead text-secondary mb-3">இந்த சிறப்பு நாளில் லூமியுடன் புதிய விஷயங்களைக்
+                                        கற்போம்! 🎁</p>
+                                    <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+                                        <span class="badge bg-warning text-dark fs-6 py-2 px-3">🪙 +100 பிறந்தநாள்
+                                            நாணயங்கள்</span>
+                                        <span class="badge bg-primary fs-6 py-2 px-3">🎖️ பிறந்தநாள் பேட்ஜ்
+                                            திறக்கப்பட்டது</span>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm"
+                                        onclick="closeBirthdayModal()">
+                                        <i class="bi bi-star-fill me-1"></i>கற்றலைத் தொடரவும்! ➔
+                                    </button>
+                                    {% elif language_label == 'Kannada' %}
+                                    <h2 class="fw-bold text-dark mb-2">ಹೂಟ್ಟುಹಬ್ಬದ ಶುಭಾಶಯಗಳು, {{ fullname }}!</h2>
+                                    <p class="lead text-secondary mb-3">ಈ ವಿಶೇಷ ದಿನದಂದು ಲುಮಿ ಜೊತೆ ಹೊಸತು ಕಲಿಯಿರಿ! 🎁</p>
+                                    <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+                                        <span class="badge bg-warning text-dark fs-6 py-2 px-3">🪙 +100 ಹುಟ್ಟುಹಬ್ಬದ
+                                            ನಾಣ್ಯಗಳು</span>
+                                        <span class="badge bg-primary fs-6 py-2 px-3">🎖️ ಹುಟ್ಟುಹಬ್ಬದ ಬ್ಯಾಡ್ಜ್
+                                            ಲಭ್ಯವಾಗಿದೆ</span>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm"
+                                        onclick="closeBirthdayModal()">
+                                        <i class="bi bi-star-fill me-1"></i>ಕಲಿಕೆಯನ್ನು ಮುಂದುವರಿಸಿ! ➔
+                                    </button>
+                                    {% elif language_label == 'Marathi' %}
+                                    <h2 class="fw-bold text-dark mb-2">वाढदिवसाच्या हार्दिक शुभेच्छा, {{ fullname }}!
+                                    </h2>
+                                    <p class="lead text-secondary mb-3">या खास दिवशी लूमीसोबत नवीन गोष्टी शिका! 🎁</p>
+                                    <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+                                        <span class="badge bg-warning text-dark fs-6 py-2 px-3">🪙 +100 वाढदिवस
+                                            नाणी</span>
+                                        <span class="badge bg-primary fs-6 py-2 px-3">🎖️ वाढदिवस बॅज अनलॉक झाला</span>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm"
+                                        onclick="closeBirthdayModal()">
+                                        <i class="bi bi-star-fill me-1"></i>शिकणे सुरू ठेवा! ➔
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <script>
+                        let birthdayAutoCloseTimeout;
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const isBirthday = "{{ 'true' if is_birthday else 'false' }}" === "true";
+                            if (isBirthday) {
+                                startBirthdayConfetti();
+                                speakBirthdayGreeting("{{ fullname }}", "{{ language_label }}");
+
+                                // Auto-close after 10 seconds
+                                birthdayAutoCloseTimeout = setTimeout(() => {
+                                    closeBirthdayModal();
+                                }, 10000);
+                            }
+
+                            // Auto-scroll to recommendations if tab=recs query parameter is present
+                            const urlParams = new URLSearchParams(window.location.search);
+                            if (urlParams.get('tab') === 'recs') {
+                                const recsElement = document.getElementById('recsTab');
+                                if (recsElement) {
+                                    setTimeout(() => {
+                                        recsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }, 300);
+                                }
+                            }
+
+                            // Initialize gauge progress backgrounds dynamically to avoid CSS parsing errors with Jinja syntax
+                            const gauge = document.querySelector('.gauge-circle');
+                            if (gauge) {
+                                const progress = gauge.getAttribute('data-progress') || 0;
+                                gauge.style.background = `conic-gradient(#38bdf8 ${progress}%, rgba(255,255,255,0.15) 0)`;
+                            }
+                        });
+
+                        function closeBirthdayModal() {
+                            if (birthdayAutoCloseTimeout) {
+                                clearTimeout(birthdayAutoCloseTimeout);
+                            }
+                            const modal = document.getElementById("birthdayModal");
+                            if (modal) modal.style.display = "none";
+                            const canvas = document.getElementById("birthdayConfettiCanvas");
+                            if (canvas) canvas.style.display = "none";
+
+                            fetch("/api/dismiss-birthday", { method: "POST" })
+                                .then(() => {
+                                    if (window.location.pathname !== "/dashboard") {
+                                        window.location.href = "/dashboard";
+                                    }
+                                }).catch(err => {
+                                    console.error("Error dismissing birthday modal:", err);
+                                    if (window.location.pathname !== "/dashboard") {
+                                        window.location.href = "/dashboard";
+                                    }
+                                });
+                        }
+
+                        function speakBirthdayGreeting(name, lang) {
+                            let msg = `Happy Birthday ${name}! Have a wonderful day of learning!`;
+                            if (lang === "Telugu") msg = `పుట్టినరోజు శుభాకాంಕ್ಷలు ${name}! మంచిగా చదువుకోండి!`;
+                            else if (lang === "Hindi") msg = `जन्मदिन मुबारक हो ${name}! अच्छे से पढ़ाई करें!`;
+                            else if (lang === "Tamil") msg = `இனிய பிறந்தநாள் வாழ்த்துகள் ${name}!`;
+                            else if (lang === "Kannada") msg = `ಹೂಟ್ಟುಹಬ್ಬದ ಶುಭಾಶಯಗಳು ${name}!`;
+                            else if (lang === "Marathi") msg = `वाढदिवसाच्या शुभेच्छा ${name}!`;
+
+                            if ('speechSynthesis' in window) {
+                                window.speechSynthesis.cancel();
+                                const u = new SpeechSynthesisUtterance(msg);
+                                window.speechSynthesis.speak(u);
+                            }
+                        }
+
+                        function startBirthdayConfetti() {
+                            const canvas = document.getElementById("birthdayConfettiCanvas");
+                            if (!canvas) return;
+                            const ctx = canvas.getContext("2d");
+                            canvas.width = window.innerWidth;
+                            canvas.height = window.innerHeight;
+
+                            const pieces = [];
+                            const colors = ["#f43f5e", "#3b82f6", "#10b981", "#eab308", "#a855f7", "#ec4899"];
+
+                            for (let i = 0; i < 120; i++) {
+                                pieces.push({
+                                    x: Math.random() * canvas.width,
+                                    y: Math.random() * canvas.height - canvas.height,
+                                    size: Math.random() * 10 + 5,
+                                    color: colors[Math.floor(Math.random() * colors.length)],
+                                    speed: Math.random() * 3 + 2,
+                                    rot: Math.random() * 360
+                                });
+                            }
+
+                            function draw() {
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                pieces.forEach(p => {
+                                    ctx.save();
+                                    ctx.fillStyle = p.color;
+                                    ctx.translate(p.x, p.y);
+                                    ctx.rotate(p.rot);
+                                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                                    ctx.restore();
+                                    p.y += p.speed;
+                                    p.rot += 0.05;
+                                    if (p.y > canvas.height) p.y = -20;
+                                });
+                                requestAnimationFrame(draw);
+                            }
+                            draw();
+                        }
+
+
+                        function submitActivityCompletion(activityTitle) {
+                            fetch("/api/learning-path/submit-activity", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({ "activity_title": activityTitle })
+                            })
+                                .then(res => res.json())
+                                .then(data => {
+                                    console.log("Activity logged successfully:", data);
+                                })
+                                .catch(err => console.error("Error logging activity:", err));
+                        }
+
+                        function loadPersonalizedRecommendations() {
+                            const startBtnLabel = "{{ translations.start_btn if translations and translations.start_btn else 'Start' }}";
+                            fetch('/api/recommendations/personalized')
+                                .then(res => res.json())
+                                .then(data => {
+                                    const lockOverlay = document.getElementById('recs-lock-overlay');
+                                    const badge = document.getElementById('recs-premium-badge');
+                                    const summaryBox = document.getElementById('recs-summary-box');
+                                    const summaryText = document.getElementById('recs-summary-text');
+                                    const listContainer = document.getElementById('recs-skills-list');
+
+                                    if (!data || data.status !== 'success') {
+                                        return;
+                                    }
+
+                                    if (!data.unlocked) {
+                                        if (lockOverlay) lockOverlay.classList.remove('d-none');
+                                        if (badge) badge.classList.add('d-none');
+                                        if (summaryBox) summaryBox.classList.add('d-none');
+                                        return;
+                                    }
+
+                                    // Unlocked state
+                                    if (lockOverlay) lockOverlay.classList.add('d-none');
+                                    if (badge) badge.classList.remove('d-none');
+                                    if (summaryBox) {
+                                        summaryBox.classList.remove('d-none');
+                                        if (summaryText) summaryText.textContent = data.summary;
+                                    }
+
+                                    if (listContainer) {
+                                        listContainer.innerHTML = '';
+
+                                        data.skills.forEach(skill => {
+                                            let badgeClass = 'bg-secondary';
+                                            let borderClass = 'border-light-subtle';
+                                            let textClass = 'text-dark';
+                                            let icon = '📊';
+
+                                            if (skill.level === 'Excellent') {
+                                                badgeClass = 'bg-success bg-opacity-10 text-success';
+                                                borderClass = 'border-success-subtle';
+                                                textClass = 'text-success';
+                                                icon = '🌟';
+                                            } else if (skill.level === 'Good') {
+                                                badgeClass = 'bg-warning bg-opacity-10 text-warning-emphasis';
+                                                borderClass = 'border-warning-subtle';
+                                                textClass = 'text-warning-emphasis';
+                                                icon = '👍';
+                                            } else if (skill.level === 'Needs Improvement') {
+                                                badgeClass = 'bg-danger bg-opacity-10 text-danger';
+                                                borderClass = 'border-danger-subtle';
+                                                textClass = 'text-danger';
+                                                icon = '⚠️';
+                                            }
+
+                                            const card = document.createElement('div');
+                                            card.className = `p-2.5 rounded-4 border ${borderClass} bg-light d-flex justify-content-between align-items-center`;
+                                            card.style.textAlign = 'left';
+
+                                            card.innerHTML = `
+                    <div class="d-flex align-items-center gap-2.5">
+                        <div class="fs-3">${icon}</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="d-flex align-items-center gap-1.5 mb-0.5 flex-wrap">
+                                <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">${skill.name}</h6>
+                                <span class="badge ${badgeClass} rounded-pill" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;">${skill.level} (${skill.score}%)</span>
+                            </div>
+                            <span class="text-secondary" style="font-size: 0.72rem; display: block; line-height: 1.35; padding-right: 10px;">${skill.recommendation}</span>
+                        </div>
+                    </div>
+                    <a href="${skill.url}" class="btn btn-sm btn-primary rounded-pill px-2.5 fw-bold" style="font-size: 0.75rem; white-space: nowrap; align-self: center;">${startBtnLabel}</a>
+                `;
+                                            listContainer.appendChild(card);
+                                        });
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Error loading personalized recommendations:', err);
+                                });
+                        }
+
+                        document.addEventListener('DOMContentLoaded', () => {
+                            loadPersonalizedRecommendations();
+                        });
+                    </script>
+                    {% endblock %}

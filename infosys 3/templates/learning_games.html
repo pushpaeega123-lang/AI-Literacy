@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero & Dashboard Row -->
+    <div class="row g-4 mb-5">
+        <!-- Profile Dashboard -->
+        <div class="col-lg-8">
+            <div class="card border-0 rounded-5 p-5 shadow-lg text-white" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%); min-height: 250px;">
+                <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+                    <span class="badge backdrop-blur text-white px-3 py-2 rounded-pill fs-7 fw-bold border border-white border-opacity-25" style="background: rgba(255, 255, 255, 0.2) !important;">
+                        <i class="bi bi-controller me-1"></i> {{ translations.games_hub if translations and translations.games_hub else 'Games Hub' }}
+                    </span>
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fs-7 fw-bold">
+                        {{ translations.level_label if translations and translations.level_label else 'Level' }} {{ (profile.xp // 100) + 1 }}
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2 rounded-pill fs-7 fw-bold">
+                        🔥 {{ translations.streak_prefix if translations and translations.streak_prefix else 'Streak:' }} {{ profile.streak }} {{ translations.days_text if translations and translations.days_text else 'Days' }} ({{ translations.max_text if translations and translations.max_text else 'Max:' }} {{ profile.longest_streak }} {{ translations.days_text if translations and translations.days_text else 'Days' }})
+                    </span>
+                </div>
+                <h1 class="display-5 fw-extrabold mb-3">{{ translations.interactive_literacy_games if translations and translations.interactive_literacy_games else 'Interactive Literacy Games' }}</h1>
+                <p class="lead text-white-50 mb-4">{{ translations.games_hub_subtitle if translations and translations.games_hub_subtitle else 'Play, earn Coins, unlock badges, and master reading, writing, and speaking!' }}</p>
+                
+                <!-- Daily Goal Progress -->
+                <div class="p-3 rounded-4 border border-white border-opacity-10" style="background: rgba(255, 255, 255, 0.1) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-1 text-white">
+                        <span class="small fw-bold">{{ translations.daily_xp_goal_progress if translations and translations.daily_xp_goal_progress else 'DAILY XP GOAL PROGRESS' }}</span>
+                        <span class="small fw-bold">{{ profile.xp % 100 }}/100 {{ translations.xp_to_next_level if translations and translations.xp_to_next_level else 'XP to next level' }}</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 10px; background: rgba(255, 255, 255, 0.2) !important;">
+                        <div class="progress-bar bg-warning rounded-pill" {{ ('style="width: ' ~ (profile.xp % 100) ~ '%;"') | safe }}></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini Stats & Spin Wheel Link -->
+        <div class="col-lg-4">
+            <div class="card glass-card p-4 border-0 rounded-5 h-100 text-center text-white" style="background: rgba(30, 41, 59, 0.6) !important; border: 1px solid rgba(255,255,255,0.1) !important;">
+                <div class="fs-1 mb-2">🪙</div>
+                <h3 class="fw-bold text-white mb-1">{{ profile.coins }} {{ translations.coins_text if translations and translations.coins_text else 'Coins' }}</h3>
+                <p class="text-white-50 small mb-3">{{ translations.earned_from_lessons_and_games if translations and translations.earned_from_lessons_and_games else 'Earned from lessons and games' }}</p>
+                
+                <div class="d-grid mt-auto">
+                    <a href="/week-module" class="btn btn-warning rounded-pill py-3 fw-bold shadow border-0 text-dark">
+                        <i class="bi bi-book-fill me-1"></i> {{ translations.start_lesson if translations and translations.start_lesson else 'Start Lesson' }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Games Grid -->
+    <h3 class="fw-bold text-dark mb-4"><span class="fs-4">🎮</span> Available Educational Games</h3>
+    <div class="row g-4 mb-5">
+        <!-- 1. Temple Run -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 rounded-5 shadow hover-top transition-all bg-dark text-white overflow-hidden border border-secondary">
+                <div class="p-4 text-center" style="background: linear-gradient(135deg, #78350f 0%, #b45309 100%);">
+                    <div class="display-3 mb-2">🏃‍♂️</div>
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fs-8">Grammar & Run</span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-white mb-2">Temple Run Learning</h5>
+                    <p class="text-white-50 small flex-grow-1">Jump and slide to collect coins and solve word type questions!</p>
+                    <a href="/game/temple_run" class="btn btn-warning text-dark w-100 rounded-pill fw-bold py-2.5 shadow mt-3">
+                        <i class="bi bi-play-fill me-1"></i> Play Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Ninja Fruit -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 rounded-5 shadow hover-top transition-all bg-dark text-white overflow-hidden border border-secondary position-relative">
+                {% if profile.xp < 200 %}
+                <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3" style="background: rgba(15, 23, 42, 0.9); z-index: 5; backdrop-filter: blur(4px);">
+                    <div class="fs-1 mb-2">🔒</div>
+                    <span class="badge bg-danger mb-2">Locked</span>
+                    <small class="text-white-50">Unlocks at 200 XP (Need {{ 200 - profile.xp }} more)</small>
+                </div>
+                {% endif %}
+                <div class="p-4 text-center" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                    <div class="display-3 mb-2">🎈</div>
+                    <span class="badge bg-info text-dark rounded-pill px-3 py-1 fs-8">Spelling Pop</span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-white mb-2">Word Balloon Pop Master</h5>
+                    <p class="text-white-50 small flex-grow-1">Pop floating letter balloons in the correct order to spell vocabulary words!</p>
+                    <a href="/game/ninja_fruit" class="btn btn-info w-100 rounded-pill fw-bold py-2.5 shadow mt-3 text-dark">
+                        <i class="bi bi-play-fill me-1"></i> Play Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Pirate Treasure Hunt -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 rounded-5 shadow hover-top transition-all bg-dark text-white overflow-hidden border border-secondary position-relative">
+                {% if profile.xp < 500 %}
+                <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3" style="background: rgba(15, 23, 42, 0.9); z-index: 5; backdrop-filter: blur(4px);">
+                    <div class="fs-1 mb-2">🔒</div>
+                    <span class="badge bg-warning text-dark mb-2">Locked</span>
+                    <small class="text-white-50">Unlocks at 500 XP (Need {{ 500 - profile.xp }} more)</small>
+                </div>
+                {% endif %}
+                <div class="p-4 text-center" style="background: linear-gradient(135deg, #124e8c 0%, #1e40af 100%);">
+                    <div class="display-3 mb-2">🏴‍☠️</div>
+                    <span class="badge bg-info text-dark rounded-pill px-3 py-1 fs-8">Treasure Hunt</span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-white mb-2">Pirate Treasure Hunt</h5>
+                    <p class="text-white-50 small flex-grow-1">Explore the island and open chests to solve vocabulary trivia!</p>
+                    <a href="/game/treasure_hunt" class="btn btn-primary w-100 rounded-pill fw-bold py-2.5 shadow mt-3">
+                        <i class="bi bi-play-fill me-1"></i> Play Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Space Explorer -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 rounded-5 shadow hover-top transition-all bg-dark text-white overflow-hidden border border-secondary position-relative">
+                {% if profile.xp < 1000 %}
+                <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3" style="background: rgba(15, 23, 42, 0.9); z-index: 5; backdrop-filter: blur(4px);">
+                    <div class="fs-1 mb-2">🔒</div>
+                    <span class="badge bg-info text-dark mb-2">Locked</span>
+                    <small class="text-white-50">Unlocks at 1000 XP (Need {{ 1000 - profile.xp }} more)</small>
+                </div>
+                {% endif %}
+                <div class="p-4 text-center" style="background: linear-gradient(135deg, #0f172a 0%, #312e81 100%);">
+                    <div class="display-3 mb-2">🚀</div>
+                    <span class="badge bg-info text-dark rounded-pill px-3 py-1 fs-8">Space Spelling</span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-white mb-2">Space Explorer</h5>
+                    <p class="text-white-50 small flex-grow-1">Pilot ship to correct spellings and dodge floating space debris!</p>
+                    <a href="/game/space_explorer" class="btn btn-info text-dark w-100 rounded-pill fw-bold py-2.5 shadow mt-3">
+                        <i class="bi bi-play-fill me-1"></i> Play Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Robot Factory -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 rounded-5 shadow hover-top transition-all bg-dark text-white overflow-hidden border border-secondary position-relative">
+                {% if profile.xp < 1500 %}
+                <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3" style="background: rgba(15, 23, 42, 0.9); z-index: 5; backdrop-filter: blur(4px);">
+                    <div class="fs-1 mb-2">🔒</div>
+                    <span class="badge bg-purple text-white mb-2">Locked</span>
+                    <small class="text-white-50">Unlocks at 1500 XP (Need {{ 1500 - profile.xp }} more)</small>
+                </div>
+                {% endif %}
+                <div class="p-4 text-center" style="background: linear-gradient(135deg, #581c87 0%, #701a75 100%);">
+                    <div class="display-3 mb-2">🤖</div>
+                    <span class="badge bg-purple rounded-pill px-3 py-1 fs-8" style="background: #8b5cf6;">Assembly Factory</span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-white mb-2">Robot Factory</h5>
+                    <p class="text-white-50 small flex-grow-1">Solve prefix & suffix compound words to assemble helper robots!</p>
+                    <a href="/game/robot_factory" class="btn btn-purple text-white w-100 rounded-pill fw-bold py-2.5 shadow mt-3" style="background: #8b5cf6; border: none;">
+                        <i class="bi bi-play-fill me-1"></i> Play Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Dream City Builder -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 rounded-5 shadow hover-top transition-all bg-dark text-white overflow-hidden border border-secondary position-relative">
+                {% if profile.xp < 2000 %}
+                <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3" style="background: rgba(15, 23, 42, 0.9); z-index: 5; backdrop-filter: blur(4px);">
+                    <div class="fs-1 mb-2">🔒</div>
+                    <span class="badge bg-success mb-2">Locked</span>
+                    <small class="text-white-50">Unlocks at 2000 XP (Need {{ 2000 - profile.xp }} more)</small>
+                </div>
+                {% endif %}
+                <div class="p-4 text-center" style="background: linear-gradient(135deg, #064e3b 0%, #047857 100%);">
+                    <div class="display-3 mb-2">🏙️</div>
+                    <span class="badge bg-success rounded-pill px-3 py-1 fs-8">City Spelling</span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-white mb-2">Dream City Builder</h5>
+                    <p class="text-white-50 small flex-grow-1">Unlock city structures by building roads, schools and hospitals!</p>
+                    <a href="/game/city_builder" class="btn btn-success w-100 rounded-pill fw-bold py-2.5 shadow mt-3">
+                        <i class="bi bi-play-fill me-1"></i> Play Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboards & Badges Section -->
+    <div class="row g-4">
+        <!-- Badges Shelf -->
+        <div class="col-lg-6">
+            <div class="card glass-card games-shelf-card p-5 border-0 rounded-5 text-white h-100">
+                <h3 class="fw-bold mb-4"><span class="fs-4">🏆</span> Unlocked Badges Shelf</h3>
+                
+                <div class="d-flex flex-wrap gap-3">
+                    {% set b_list = profile.badges.split(",") %}
+                    <div class="p-3 rounded-4 text-center flex-grow-1 {% if 'First Lesson' not in b_list %}opacity-30{% endif %}" style="min-width: 100px; background: rgba(255, 255, 255, 0.08) !important;">
+                        <span class="fs-2 d-block">🎓</span>
+                        <small class="fw-bold d-block mt-2">First Lesson</small>
+                    </div>
+                    <div class="p-3 rounded-4 text-center flex-grow-1 {% if 'Vocabulary Master' not in b_list %}opacity-30{% endif %}" style="min-width: 100px; background: rgba(255, 255, 255, 0.08) !important;">
+                        <span class="fs-2 d-block">🗣️</span>
+                        <small class="fw-bold d-block mt-2">Vocab Master</small>
+                    </div>
+                    <div class="p-3 rounded-4 text-center flex-grow-1 {% if 'Reading Champion' not in b_list %}opacity-30{% endif %}" style="min-width: 100px; background: rgba(255, 255, 255, 0.08) !important;">
+                        <span class="fs-2 d-block">📖</span>
+                        <small class="fw-bold d-block mt-2">Reading Champ</small>
+                    </div>
+                    <div class="p-3 rounded-4 text-center flex-grow-1 {% if 'Speaking Star' not in b_list %}opacity-30{% endif %}" style="min-width: 100px; background: rgba(255, 255, 255, 0.08) !important;">
+                        <span class="fs-2 d-block">🎤</span>
+                        <small class="fw-bold d-block mt-2">Speaking Star</small>
+                    </div>
+                    <div class="p-3 rounded-4 text-center flex-grow-1 {% if 'Listening Hero' not in b_list %}opacity-30{% endif %}" style="min-width: 100px; background: rgba(255, 255, 255, 0.08) !important;">
+                        <span class="fs-2 d-block">🎧</span>
+                        <small class="fw-bold d-block mt-2">Listening Hero</small>
+                    </div>
+                    <div class="p-3 rounded-4 text-center flex-grow-1 {% if 'Grammar Expert' not in b_list %}opacity-30{% endif %}" style="min-width: 100px; background: rgba(255, 255, 255, 0.08) !important;">
+                        <span class="fs-2 d-block">📝</span>
+                        <small class="fw-bold d-block mt-2">Grammar Expert</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboards Grid -->
+        <div class="col-lg-6">
+            <div class="card glass-card games-shelf-card p-5 border-0 rounded-5 text-white h-100">
+                <h3 class="fw-bold mb-4"><span class="fs-4">📈</span> Live Leaderboards</h3>
+                
+                <ul class="nav nav-pills nav-justified p-1.5 rounded-pill mb-4" id="leaderboardTab" role="tablist" style="background: rgba(255, 255, 255, 0.1) !important;">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill fw-bold text-white fs-8" id="xp-tab" data-bs-toggle="pill" data-bs-target="#xp-leader" type="button" role="tab">XP Leaders</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-bold text-white fs-8" id="coins-tab" data-bs-toggle="pill" data-bs-target="#coins-leader" type="button" role="tab">Coin Masters</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-bold text-white fs-8" id="streak-tab" data-bs-toggle="pill" data-bs-target="#streak-leader" type="button" role="tab">Streak Kings</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="leaderboardTabContent">
+                    <!-- XP Leaders -->
+                    <div class="tab-pane fade show active" id="xp-leader" role="tabpanel">
+                        <div class="d-flex flex-column gap-2.5">
+                            {% for user in leaderboard_xp %}
+                            <div class="d-flex align-items-center justify-content-between p-3 rounded-4" style="background: rgba(255, 255, 255, 0.08) !important;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fs-5 fw-bold text-warning-emphasis">#{{ loop.index }}</span>
+                                    <span class="fs-4">{{ user.avatar or '👦' }}</span>
+                                    <span class="fw-bold">{{ user.fullname }}</span>
+                                </div>
+                                <span class="badge bg-warning text-dark fw-bold rounded-pill px-3">{{ user.xp }} XP</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Coin Masters -->
+                    <div class="tab-pane fade" id="coins-leader" role="tabpanel">
+                        <div class="d-flex flex-column gap-2.5">
+                            {% for user in leaderboard_coins %}
+                            <div class="d-flex align-items-center justify-content-between p-3 rounded-4" style="background: rgba(255, 255, 255, 0.08) !important;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fs-5 fw-bold text-warning-emphasis">#{{ loop.index }}</span>
+                                    <span class="fs-4">{{ user.avatar or '👦' }}</span>
+                                    <span class="fw-bold">{{ user.fullname }}</span>
+                                </div>
+                                <span class="badge bg-success text-white fw-bold rounded-pill px-3">🪙 {{ user.coins }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Streak Kings -->
+                    <div class="tab-pane fade" id="streak-leader" role="tabpanel">
+                        <div class="d-flex flex-column gap-2.5">
+                            {% for user in leaderboard_streak %}
+                            <div class="d-flex align-items-center justify-content-between p-3 rounded-4" style="background: rgba(255, 255, 255, 0.08) !important;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fs-5 fw-bold text-warning-emphasis">#{{ loop.index }}</span>
+                                    <span class="fs-4">{{ user.avatar or '👦' }}</span>
+                                    <span class="fw-bold">{{ user.fullname }}</span>
+                                </div>
+                                <span class="badge bg-info text-dark fw-bold rounded-pill px-3">🔥 {{ user.streak }} Days</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

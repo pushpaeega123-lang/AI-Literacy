@@ -1,0 +1,450 @@
+1751:                 ("Sound /s/", "S", ["S", "C", "Z", "X"], "S makes the /s/ sound.")
+1752:             ],
+1753:             "simple_words": [
+1754:                 ("apple", "Apple", ["Apple", "Banana", "Chair", "Tree"], "Apple is the correct word for the fruit."),
+1755:                 ("ball", "Ball", ["Ball", "Cat", "Sun", "Fish"], "Ball is a common toy."),
+1756:                 ("cup", "Cup", ["Cup", "Shoe", "Pen", "Door"], "Cup holds water or milk.")
+1757:             ],
+1758:             "objects": [
+1759:                 ({"image_url": "/static/images/apple.svg", "alt": "Apple"}, "Apple", "This is an apple."),
+1760:                 ({"image_url": "/static/images/dog.svg", "alt": "Dog"}, "Dog", "This is a dog."),
+1761:                 ({"image_url": "/static/images/car.svg", "alt": "Car"}, "Car", "This is a car.")
+1762:             ],
+1763:             "word_completions": [
+1764:                 ("B__", "Bee", "Complete the word to name the insect."),
+1765:                 ("C_t", "Cat", "Complete the word to name the animal."),
+1766:                 ("S_n", "Sun", "Complete the word for the bright star in the day sky.")
+1767:             ],
+1768:             "sentences": [
+1769:                 ("The cat is on the mat.", "The cat is on the mat.", ["The dog is on the mat.", "The cat is under the mat.", "The cat is on the mat."], "Choose the sentence that matches the reading."),
+1770:                 ("He ate an apple.", "He ate an apple.", ["He ate an apple.", "She eats a book.", "They run fast."], "Pick the sentence that is correct."),
+1771:                 ("The sun is warm.", "The sun is warm.", ["The moon is warm.", "The sun is warm.", "The sky is green."], "Read and choose the correct sentence.")
+1772:             ],
+1773:             "paragraphs": [
+1774:                 ("Sara loves to read books at the park. She sits under a tree and reads every day.", "Where does Sara read?", "At the park", ["At the park", "In the car", "At school", "At the mall"], "Sara reads at the park."),
+1775:                 ("A boy planted a tree in his garden. The tree grew tall and gave shade.", "What did the boy plant?", "A tree", ["A tree", "A flower", "A book", "A toy"], "The boy planted a tree."),
+1776:                 ("Ria feeds the birds in the morning. She gives them seeds and water.", "Who does Ria feed?", "The birds", ["The birds", "The cats", "The dog", "The fish"], "Ria feeds the birds.")
+1777:             ],
+1778:             "paragraph_writing": [
+1779:                 ("your favorite toy", "My favorite toy is a red ball. I play with it every day.", "Write a short paragraph about your favorite toy."),
+1780:                 ("a day at school", "I went to school and learned new things. I liked drawing and reading.", "Write a short paragraph about a day at school."),
+1781:                 ("a family picnic", "We had a picnic with my family under a big tree. We ate sandwiches and fruit.", "Write a short paragraph about a family picnic.")
+1782:             ],
+1783:             "sentence_writing": [
+1784:                 ("Describe your pet.", "I have a small pet dog.", "Write a short sentence about your pet."),
+1785:                 ("Tell us what you like.", "I like to eat apples.", "Write one sentence about what you like."),
+1786:                 ("What did you do today?", "I played and read a book.", "Write one sentence about your day.")
+1787:             ],
+1788:             "listening_words": [
+1789:                 ("Apple", "Apple", ["Apple", "Banana", "House", "Dog"], "Choose the word you heard."),
+1790:                 ("Ball", "Ball", ["Ball", "Cat", "Tree", "Fish"], "Choose the word you heard."),
+1791:                 ("Sun", "Sun", ["Sun", "Moon", "Star", "Rain"], "Choose the word you heard.")
+1792:             ],
+1793:             "listening_sentences": [
+1794:                 ("The cat sleeps.", "Where is the cat?", "On the mat", ["On the mat", "In the tree", "In the car", "In the room"], "Listen and answer the question."),
+1795:                 ("Sara eats an apple.", "What did Sara eat?", "An apple", ["An apple", "A banana", "A sandwich", "Some rice"], "Listen carefully and choose the answer."),
+1796:                 ("A bird sings in the tree.", "Who sings?", "A bird", ["A bird", "A dog", "A cat", "A fish"], "Listen and choose the correct answer.")
+1797:             ],
+1798:             "listening_paragraphs": [
+1799:                 ("Ria went to the market and bought fruits for her family.", "What did Ria buy?", "Fruits", ["Fruits", "Vegetables", "Books", "Toys"], "Listen to the passage and answer the question."),
+1800:                 ("The children played games and then ate lunch together.", "What did the children do?", "Played games", ["Played games", "Studied hard", "Watched TV", "Went home"], "Listen and choose the answer."),
+1801:                 ("A teacher reads a story to the students every morning.", "Who reads the story?", "A teacher", ["A teacher", "A student", "A parent", "A bird"], "Listen and answer clearly.")
+1802:             ],
+1803:             "speaking_phrases": [
+1804:                 "Hello",
+1805:                 "Thank you",
+1806:                 "I like apples",
+1807:                 "Good morning"
+1808:             ],
+1809:             "speaking_responses": [
+1810:                 ("What is your name?", "My name is Ria."),
+1811:                 ("What do you like to eat?", "I like to eat apples."),
+1812:                 ("Where do you live?", "I live in a small town.")
+1813:             ],
+1814:             "colors": [
+1815:                 ("🐸", "Green", ["Green", "Red", "Blue", "Yellow"], "The frog is green."),
+1816:                 ("🍋", "Yellow", ["Yellow", "Blue", "Black", "White"], "The lemon is yellow."),
+1817:                 ("🍓", "Red", ["Red", "Purple", "Orange", "Gray"], "The strawberry is red.")
+1818:             ],
+1819:             "shape_words": [
+1820:                 ("A shape with three sides", "Triangle", ["Triangle", "Circle", "Square", "Star"], "A triangle has three sides."),
+1821:                 ("A shape with four equal sides", "Square", ["Square", "Circle", "Triangle", "Rectangle"], "A square has four equal sides."),
+1822:                 ("A round shape", "Circle", ["Circle", "Triangle", "Square", "Heart"], "A circle is round.")
+1823:             ],
+1824:             "vocabulary": [
+1825:                 ("Joyful", "Happy", ["Happy", "Sad", "Hungry", "Cold"], "Joyful means happy."),
+1826:                 ("Rapid", "Fast", ["Fast", "Slow", "Quiet", "Loud"], "Rapid means fast."),
+1827:                 ("Tiny", "Small", ["Small", "Large", "Angry", "Bright"], "Tiny means small.")
+1828:             ],
+1829:             "grammar": [
+1830:                 ("Choose the correct sentence.", "She is reading a book.", ["She is reading a book.", "She are reading a book.", "She reading a book."], "This sentence is grammatically correct."),
+1831:                 ("Choose the correct sentence.", "He has two pencils.", ["He has two pencils.", "He have two pencils.", "He has two pencil."], "This sentence is grammatically correct."),
+1832:                 ("Choose the correct sentence.", "They are playing in the park.", ["They are playing in the park.", "They is playing in the park.", "They playing in the park."], "This sentence is grammatically correct.")
+1833:             ],
+1834:             "reading_letters": [
+1835:                 ("Alphabet Identification: Select the letter that makes the sound /b/:", "B", ["B", "D", "P", "T"], "B makes the /b/ sound."),
+1836:                 ("Alphabet Identification: Select the letter that makes the sound /f/:", "F", ["F", "V", "P", "S"], "F makes the /f/ sound."),
+1837:                 ("Alphabet Identification: Select the letter that makes the sound /m/:", "M", ["M", "N", "W", "V"], "M makes the /m/ sound."),
+1838:                 ("Alphabet Identification: Select the letter that makes the sound /s/:", "S", ["S", "C", "Z", "X"], "S makes the /s/ sound.")
+1839:             ],
+1840:             "comps": [
+1841:                 ("The cat is sleeping under the tree.", "Where is the cat sleeping?", "Under the tree", ["Under the tree", "On the branch", "In the house", "In the car"]),
+1842:                 ("The quick brown fox jumps over the lazy dog.", "Which animal is lazy?", "Dog", ["Dog", "Fox", "Cat", "Rabbit"]),
+1843:                 ("Sam likes playing soccer in the afternoon.", "What does Sam like playing?", "Soccer", ["Soccer", "Tennis", "Basketball", "Golf"])
+1844:             ],
+1845:             "spelling": [
+1846:                 ("Spelling Check: Choose the correct spelling for 🐘:", "Elephant", ["Elephant", "Elefant", "Eliphent", "Aliphant"]),
+1847:                 ("Spelling Check: Choose the correct spelling for 🏠:", "House", ["House", "Howse", "Hous", "Hause"]),
+1848:                 ("Spelling Check: Choose the correct spelling for 📖:", "Book", ["Book", "Boke", "Bouk", "Buck"])
+1849:             ],
+1850:             "listening": [
+1851:                 ("Welcome", ["Welcome", "Thank you", "Goodbye", "Hello"]),
+1852:                 ("Elephant", ["Elephant", "Tiger", "Lion", "Giraffe"]),
+1853:                 ("Foundational", ["Foundational", "Educational", "Instructional", "Professional"])
+1854:             ],
+1855:             "speaking": [
+1856:                 "Learning a new language opens up doors to new worlds.",
+1857:                 "Reading books everyday expands your vocabulary.",
+1858:                 "Lumi is my helper coach for regional scripts."
+1859:             ]
+1860:         },
+1861:         "Telugu": {
+1862:             "reading_letters": [
+1863:                 ("అక్షర గుర్తింపు: వర్ణమాలలో మొదటి అక్షరం ఏది?", "అ", ["అ", "ఆ", "ఇ", "ఈ"], "అ మొదటి స్వరాక్షరం."),
+1864:                 ("కింది వాటిలో రెండపదం ఏది?", "అమ్మ", ["అమ్మ", "ఆవు", "అనిల్", "ఇది"], "మాతృపదం గుర్తింపు.")
+1865:             ],
+1866:             "comps": [
+1867:                 ("రాము బడికి వెళ్ళాడు.", "రాము ఎక్కడికి వెళ్ళాడు?", "బడికి", ["బడికి", "ఇంటికి", "గుడికి", "తోటకే"]),
+1868:                 ("పిల్లి పాలు తాగింది.", "పిల్లి ఏమి తాగింది?", "పాలు", ["పాలు", "నీరు", "పెండు", "పువ్వు"])
+1869:             ],
+1870:             "spelling": [
+1871:                 ("సరైన పదాన్ని ఎంచుకోండి (బల్లి):", "బల్లి", ["బల్లి", "బలీ", "బళి", "బల్లి"], "బల్లి సరిగ్గా వ్రాయండి."),
+1872:                 ("సరైన పదాన్ని ఎంచుకోండి (పుస్తకం):", "పుస్తకం", ["పుస్తకం", "పుస్తఖం", "పుస్తకo", "పుస్తకము"], "పుస్తకం శబ్దాన్ని గుర్తించండి.")
+1873:             ],
+1874:             "listening": [
+1875:                 ("కుక్క", ["కుక్క", "పిల్లి", "కాగితం", "పువ్వు"]),
+1876:                 ("పండు", ["పండు", "పత్రం", "పెంక్", "పూలు"])
+1877:             ],
+1878:             "speaking": [
+1879:                 "నమస్కారం",
+1880:                 "నేను తెలుగు మాట్లాడగలను",
+1881:                 "ఇది ఒక మంచి రోజు"
+1882:             ]
+1883:         },
+1884:         "Hindi": {
+1885:             "reading_letters": [
+1886:                 ("वर्णमाला पहचान: इनमें से पहला स्वर कौन सा है?", "अ", ["अ", "आ", "इ", "ई"], "अ हिंदी वर्णमाला का पहला स्वर है।"),
+1887:                 ("किन्हीं संयुक्त व्यंजनों में से कौन सा है?", "क्ष", ["क्ष", "क", "ख", "ग"], "क्ष संयुक्त व्यंजन है।")
+1888:             ],
+1889:             "comps": [
+1890:                 ("राम ने सेब खाया।", "सेब किसने खाया?", "राम", ["राम", "श्याम", "मोहन", "बंदर"]),
+1891:                 ("बिल्ली दूध पीती है।", "बिल्ली क्या पीती है?", "दूध", ["दूध", "पानी", "रस", "चाय"])
+1892:             ],
+1893:             "spelling": [
+1894:                 ("सही वर्तनी चुनें (हाथी):", "हाथी", ["हाथी", "हथी", "हाथि", "हाती"]),
+1895:                 ("सही वर्तनी चुनें (किताब):", "किताब", ["किताब", "केताब", "कीताब", "किताम"])
+1896:             ],
+1897:             "listening": [
+1898:                 ("नमस्ते", ["नमस्ते", "अलविदा", "धन्यवाद", "स्वागत"]),
+1899:                 ("मछली", ["🐟 मछली", "🐶 कुत्ता", "🐱 बिल्ली", "🦁 शेर"])
+1900:             ],
+1901:             "speaking": [
+1902:                 "नमस्ते",
+1903:                 "मेरा प्यारा घर",
+1904:                 "पेड़ हमें फल देते हैं",
+1905:                 "हमें रोज़ स्कूल जाना चाहिए",
+1906:                 "हिंदी हमारी राष्ट्रभाषा है"
+1907:             ]
+1908:         },
+1909:         "Tamil": {
+1910:             "reading_letters": [
+1911:                 ("எழுத்து அடையாளம்: உயிர் எழுத்துக்களில் முதல் எழுத்து எது?", "அ", ["அ", "ஆ", "இ", "ஈ"], "அ என்பது முதல் உயிர் எழுத்து."),
+1912:                 ("கீழ்க்கண்டவற்றுள் மெய் எழுத்து எது?", "க்", ["க்", "அ", "க", "சா"], "க் என்பது மெய் எழுத்து.")
+1913:             ],
+1914:             "comps": [
+1915:                 ("பூனை கட்டிலின் மேல் உள்ளது.", "பூனை எங்கு உள்ளது?", "கட்டிலின் மேல்", ["கட்டிலின் மேல்", "பெட்டிக்குள்", "மரத்தின் மேல்", "வீட்டில்"]),
+1916:                 ("எலி வேகமாக ஓடுகிறது.", "எது வேகமாக ஓடுகிறது?", "எலி", ["எலி", "பூனை", "நாய்", "மாடு"])
+1917:             ],
+1918:             "spelling": [
+1919:                 ("சரியான சொல்லைத் தேர்ந்தெடுக்கவும் (அம்மா):", "அம்மா", ["அம்மா", "அமா", "ஆம்மா", "அம்மி"]),
+1920:                 ("சரியான சொல்லைத் தேர்ந்தெடுக்கவும் (பள்ளி):", "பள்ளி", ["பள்ளி", "பலி", "பாலீ", "பல்ளி"])
+1921:             ],
+1922:             "listening": [
+1923:                 ("வணக்கம்", ["வணக்கம்", "நன்றி", "வரவேற்பு", "போய்வருகிறேன்"]),
+1924:                 ("பூனை", ["🐱 பூனை", "🐶 நாய்", "🐰 முயல்", "🐮 பசு"])
+1925:             ],
+1926:             "speaking": [
+1927:                 "வணக்கம்",
+1928:                 "அம்மா எனக்கு பால் தந்தார்",
+1929:                 "தமிழ் எங்கள் தாய்மொழி",
+1930:                 "நாங்கள் தினமும் பள்ளிக்குச் செல்வோம்",
+1931:                 "இயற்கையைக் காப்போம்"
+1932:             ]
+1933:         },
+1934:         "Kannada": {
+1935:             "reading_letters": [
+1936:                 ("ಅಕ್ಷರ ಗುರುತಿಸುವಿಕೆ: ಕನ್ನಡ ವರ್ಣಮಾಲೆಯ ಮೊದಲ ಅಕ್ಷರ ಯಾವುದು?", "ಅ", ["ಅ", "ಆ", "ಇ", "ಈ"], "ಅ ಮೊದಲ ಅಕ್ಷರವಾಗಿದೆ."),
+1937:                 ("ಕನ್ನಡದಲ್ಲಿ ಸ್ವರಗಳ ಸಂಖ್ಯೆ ಎಷ್ಟು?", "೧೩", ["೧೩", "೧೫", "೧೦", "೩೪"], "ಕನ್ನಡದಲ್ಲಿ ೧೩ ಸ್ವರಗಳಿವೆ.")
+1938:             ],
+1939:             "comps": [
+1940:                 ("ರಾಜು ಶಾಲೆಗೆ ಹೋದನು.", "ರಾಜು ಎಲ್ಲಿಗೆ ಹೋದನು?", "ಶಾಲೆಗೆ", ["ಶಾಲೆಗೆ", "ಮನೆಗೆ", "ತೋಟಕ್ಕೆ", "ದೇವಸ್ಥಾನಕ್ಕೆ"]),
+1941:                 ("ಬೆಕ್ಕು ಹಾಲು ಕುಡಿಯಿತು.", "ಬೆಕ್ಕು ಏನನ್ನು ಕುಡಿಯಿತು?", "ಹಾಲು", ["ಹಾಲು", "ನೀರು", "ಮಜ್ಜಿಗೆ", "ರಸ"])
+1942:             ],
+1943:             "spelling": [
+1944:                 ("ಸರಿಯಾದ ಪದವನ್ನು ಆರಿಸಿ (ಶಾಲೆ):", "ಶಾಲೆ", ["ಶಾಲೆ", "ಸಾಲೆ", "ಶಾಲಿ", "ಸಾಲ"]),
+1945:                 ("ಸರಿಯಾದ ಪದವನ್ನು ಆರಿಸಿ (ಪುಸ್ತಕ):", "ಪುಸ್ತಕ", ["ಪುಸ್ತಕ", "ಪುಸ್ತಖ", "ಪೂಸ್ತಕ", "ಪುಸ್ತಕು"])
+1946:             ],
+1947:             "listening": [
+1948:                 ("ನಮಸ್ಕಾರ", ["ನಮಸ್ಕಾರ", "ಧನ್ಯವಾದಗಳು", "ಶುಭೋದಯ", "ಬನ್ನಿ"]),
+1949:                 ("ಮನೆ", ["🏠 ಮನೆ", "🏫 ಶಾಲೆ", "🌳 ಮರ", "🚗 ಕಾರು"])
+1950:             ],
+1951:             "speaking": [
+1952:                 "ನಮಸ್ಕಾರ",
+1953:                 "ಕನ್ನಡ ನಮ್ಮ ತಾಯ್ನುಡಿ",
+1954:                 "ಮನೆ ಅತಿ ಸುಂದರವಾಗಿದೆ",
+1955:                 "ನಾವು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಹೋಗುತ್ತೇವೆ",
+1956:                 "ಗಿಡಮರ들을 ಬೆಳೆಸೋಣ"
+1957:             ]
+1958:         },
+1959:         "Marathi": {
+1960:             "reading_letters": [
+1961:                 ("अक्षर ओळख: मराठी वर्णमालेतील पहिले अक्षर कोणते?", "अ", ["अ", "आ", "इ", "ई"], "अ हे पहिले अक्षर आहे।"),
+1962:                 ("खालीलपैकी संयुक्त व्यंजन कोणते?", "क्ष", ["क्ष", "क", "ख", "ग"], "क्ष संयुक्त व्यंजन आहे।")
+1963:             ],
+1964:             "comps": [
+1965:                 ("राजू शाळेत गेला.", "राजू कोठे गेला?", "शाळेत", ["शाळेत", "घरी", "बागेत", "मंदिरात"]),
+1966:                 ("मांजर दूध पिते.", "मांजर काय पिते?", "दूध", ["दूध", "पाणी", "रस", "चहा"])
+1967:             ],
+1968:             "spelling": [
+1969:                 ("योग्य शब्द निवडा (हत्ती):", "हत्ती", ["हत्ती", "हती", "हात्ती", "हाती"]),
+1970:                 ("योग्य शब्द निवडा (पुस्तक):", "पुस्तक", ["पुस्तक", "पुस्तख", "पूस्तक", "पुस्तकू"])
+1971:             ],
+1972:             "listening": [
+1973:                 ("नमस्कार", ["नमस्कार", "धन्यवाद", "स्वागत", "शुभ रात्री"]),
+1974:                 ("घर", ["🏠 घर", "🏫 शाळा", "🌳 झाड", "🚗 गाडी"])
+1975:             ],
+1976:             "speaking": [
+1977:                 "नमस्कार",
+1978:                 "झाडे आपल्याला सावली देतात",
+1979:                 "आम्ही रोज शाळेत जातो",
+1980:                 "मराठी माझी मातृभाषा आहे"
+1981:             ]
+1982:         }
+1983:     }
+1984: 
+1985:     pool = lang_pools.get(language, lang_pools["English"])
+1986:     profile = _get_assessment_profile(learning_level, _get_age_band(age_val))
+1987:     questions = _build_level_questions(language, profile, pool)
+1988: 
+1989:     try:
+1990:         conn = get_db_connection()
+1991:         cursor = conn.cursor()
+1992:         cursor.execute("SELECT * FROM assessment_questions WHERE language = ?", (language,))
+1993:         db_qs = cursor.fetchall()
+1994:         conn.close()
+1995:         for q in db_qs:
+1996:             opts_list = [o.strip() for o in str(q["options"]).split(",") if o.strip()]
+1997:             while len(opts_list) < 4:
+1998:                 opts_list.append("Option " + str(random.randint(1, 100)))
+1999:             opts_list = opts_list[:4]
+2000:             correct_idx = int(q["correct_index"]) if q["correct_index"] is not None else 0
+2001:             ans = opts_list[correct_idx] if correct_idx < len(opts_list) else opts_list[0]
+2002:             questions.append({
+2003:                 "name": f"q_custom_{q['id']}",
+2004:                 "type": str(q["category"] or "reading").lower(),
+2005:                 "skill": str(q["category"] or "reading").lower(),
+2006:                 "prompt": q["prompt"],
+2007:                 "options": opts_list,
+2008:                 "answer": ans,
+2009:                 "explanation": q["explanation"] or "Custom question approved by admin.",
+2010:                 "age_band": profile["age_band"],
+2011:                 "level": profile["level"],
+2012:                 "language": language,
+2013:                 "skill_score_key": str(q["category"] or "reading").lower(),
+2014:             })
+2015:     except Exception as e:
+2016:         print(f"[ASSESSMENT MERGE ERROR] {e}")
+2017: 
+2018:     return questions
+2019: 
+2020: 
+2021: def get_assessment_questions(language, age=None, learning_level=None, mode=None):
+2022:     return _legacy_get_assessment_questions(language, age, learning_level, mode)
+2023: 
+2024: 
+2025: WEEK_MODULE_CONTENT = {
+2026:     "English": {
+2027:         "module_title": "Week 1–2: Learning Content Management & Assessment Framework",
+2028:         "description": "Complete the literacy curriculum structure with reading, writing, and comprehension activities designed for multilingual learners.",
+2029:         "curriculum": [
+2030:             {
+2031:                 "heading": "Reading Foundations",
+2032:                 "details": "Build reading fluency with short passages, sight words, and comprehension questions that prepare learners for everyday literacy."
+2033:             },
+2034:             {
+2035:                 "heading": "Writing Practice",
+2036:                 "details": "Develop writing confidence through sentence construction, spelling exercises, and typing-based responses."
+2037:             },
+2038:             {
+2039:                 "heading": "Comprehension Support",
+2040:                 "details": "Strengthen understanding with story sequencing, question answering, and vocabulary matching activities."
+2041:             }
+2042:         ],
+2043:         "repositories": [
+2044:             {
+2045:                 "language": "English",
+2046:                 "items": [
+2047:                     "Beginner story passages",
+2048:                     "Sentence building worksheets",
+2049:                     "Reading comprehension cards"
+2050:                 ]
+2051:             },
+2052:             {
+2053:                 "language": "Telugu",
+2054:                 "items": [
+2055:                     "సాధారణ కథా భాగాలు",
+2056:                     "వాక్యాన్ని నిర్మించే పనులు",
+2057:                     "అర్థం తెలుసుకునే ప్రశ్నలు"
+2058:                 ]
+2059:             },
+2060:             {
+2061:                 "language": "Hindi",
+2062:                 "items": [
+2063:                     "आरंभिक कहानी अनुच्छेद",
+2064:                     "वाक्य निर्माण अभ्यास",
+2065:                     "समझ परीक्षण प्रश्न"
+2066:                 ]
+2067:             }
+2068:         ],
+2069:         "assessments": [
+2070:             {
+2071:                 "title": "Reading Task",
+2072:                 "description": "Answer comprehension questions after reading a short passage."
+2073:             },
+2074:             {
+2075:                 "title": "Writing Task",
+2076:                 "description": "Type the missing words or build simple sentences based on prompts."
+2077:             },
+2078:             {
+2079:                 "title": "Speaking Task",
+2080:                 "description": "Practice aloud and then type the sentence to demonstrate spoken literacy awareness."
+2081:             }
+2082:         ],
+2083:         "benchmarks": [
+2084:             {
+2085:                 "level": "Proficient",
+2086:                 "range": "80–100%",
+2087:                 "notes": "Learner demonstrates strong reading, writing, and comprehension skills for beginner literacy."
+2088:             },
+2089:             {
+2090:                 "level": "Developing",
+2091:                 "range": "50–79%",
+2092:                 "notes": "Learner is making progress and should continue guided practice with reading and writing tasks."
+2093:             },
+2094:             {
+2095:                 "level": "Beginner",
+2096:                 "range": "0–49%",
+2097:                 "notes": "Learner benefits from foundational support in letter recognition, simple words, and sentence structure."
+2098:             }
+2099:         ]
+2100:     },
+2101:     "Telugu": {
+2102:         "module_title": "వారం 1–2: నేర్చుకోవడపు కంటెంట్ నిర్వహణ & అంచనా ఫ్రేమ్‌వర్క్",
+2103:         "description": "చదవడం, వ్రాయడం, మరియు అవగాహన కార్యాలయాలను పొందుపరిచి భాషా specimens యొక్క సాహిత్య విద్యక్రమాన్ని పూర్తి చేయండి.",
+2104:         "curriculum": [
+2105:             {
+2106:                 "heading": "చదవడపు పునాది",
+2107:                 "details": "సాధారణ పాఠాలు, సైట్ పదాలు, మరియు అవగాహన ప్రశ్నలతో చదవడపు నైపుణ్యాన్ని మెరుగుపరచండి."
+2108:             },
+2109:             {
+2110:                 "heading": "వ్రాయడపు అభ్యాసం",
+2111:                 "details": "వాక్య నిర్మాణం, వృత్తిపరమైన అక్షరాలు, మరియు టైపింగ్ సమాధానాల ద్వారా లిఖిత నైపుణ్యాన్ని పెంపొందించండి."
+2112:             },
+2113:             {
+2114:                 "heading": "అవగాహన మద్దతు",
+2115:                 "details": "కథ క్రమాన్ని, ప్రశ్నల సమాధానాన్ని, మరియు పదజాలం మ్యాచ్ చేయడాన్ని వినియోగించి అవగాహనను బలోపేతం చేయండి."
+2116:             }
+2117:         ],
+2118:         "repositories": [
+2119:             {
+2120:                 "language": "English",
+2121:                 "items": [
+2122:                     "Beginner story passages",
+2123:                     "Sentence building worksheets",
+2124:                     "Reading comprehension cards"
+2125:                 ]
+2126:             },
+2127:             {
+2128:                 "language": "Telugu",
+2129:                 "items": [
+2130:                     "సాధారణ కథా భాగాలు",
+2131:                     "వాక్యాన్ని నిర్మించే పనులు",
+2132:                     "అర్థం తెలుసుకునే ప్రశ్నలు"
+2133:                 ]
+2134:             },
+2135:             {
+2136:                 "language": "Hindi",
+2137:                 "items": [
+2138:                     "आरंभिक कहानी अनुच्छेद",
+2139:                     "वाक्य निर्माण अभ्यास",
+2140:                     "समझ परीक्षण प्रश्न"
+2141:                 ]
+2142:             }
+2143:         ],
+2144:         "assessments": [
+2145:             {
+2146:                 "title": "చదవడపు పని",
+2147:                 "description": "చిన్న పాఠం చదివిన తరువాత అవగాహన ప్రశ్నలకు సమాధానమివ్వండి."
+2148:             },
+2149:             {
+2150:                 "title": "వ్రాయడపు పని",
+2151:                 "description": "ప్రాంప్ట్‌ల ఆధారంగా ఖాళీ పదాలను టైప్ చేయండి లేదా వాక్యాలను నిర్మించండి."
+2152:             },
+2153:             {
+2154:                 "title": "మాట్లాడడపు పని",
+2155:                 "description": "పట్టుమ‌ని గా అభ్యాసించి ఆ తర్వాత వాక్యాన్ని టైప్ చేయండి."
+2156:             }
+2157:         ],
+2158:         "benchmarks": [
+2159:             {
+2160:                 "level": "ప్రావీణ్యంలొ",
+2161:                 "range": "80–100%",
+2162:                 "notes": "ప్రారంభ సాహిత్యానికి బలమైన చదవడం, వ్రాయడం మరియు అవగాహన నైపుణ్యాలు చూపిస్తోంది."
+2163:             },
+2164:             {
+2165:                 "level": "వికాసంలో",
+2166:                 "range": "50–79%",
+2167:                 "notes": "చదవడంలో మరియు వ్రాయడంలో మార్గనిర్దేశనతో సాధన కొనసాగించాల్సిన అవసరం ఉంది."
+2168:             },
+2169:             {
+2170:                 "level": "ప్రారంభ స్థాయి",
+2171:                 "range": "0–49%",
+2172:                 "notes": "అక్షర గుర్తింపు, సులభ పదాలు, మరియు వాక్య నిర్మాణంలో ప్రాథమిక మద్దతు అవసరం."
+2173:             }
+2174:         ]
+2175:     },
+2176:     "Hindi": {
+2177:         "module_title": "सप्ताह 1–2: शिक्षण सामग्री प्रबंधन और आकलन ढांचा",
+2178:         "description": "पढ़ने, लिखने और समझने की गतिविधियों के साथ बहुभाषी शिक्षार्थियों के लिए साक्षरता पाठ्यक्रम तैयार करें।",
+2179:         "curriculum": [
+2180:             {
+2181:                 "heading": "पढ़ने की नींव",
+2182:                 "details": "छोटे अंशों, साइट शब्दों और समझ प्रश्नों से पढ़ने की क्षमता मजबूत करें।"
+2183:             },
+2184:             {
+2185:                 "heading": "लेखन अभ्यास",
+2186:                 "details": "वाक्य निर्माण, वर्तनी अभ्यास और टाइपिंग आधारित उत्तरों के माध्यम से लेखन कौशल विकसित करें।"
+2187:             },
+2188:             {
+2189:                 "heading": "समझ का समर्थन",
+2190:                 "details": "कहानी क्रम, प्रश्न उत्तर, और शब्दावली मेल से समझ को मज़बूत करें।"
+2191:             }
+2192:         ],
+2193:         "repositories": [
+2194:             {
+2195:                 "language": "English",
+2196:                 "items": [
+2197:                     "Beginner story passages",
+2198:                     "Sentence building worksheets",
+2199:                     "Reading comprehension cards"
+2200:                 ]
